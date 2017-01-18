@@ -45,6 +45,8 @@ func parseStepPackage(path string) []stepImpl {
 			log.Fatalf("parsing step expression for %s - %s: %s", n, p, err)
 		}
 
+		// TODO Ensure patterns capture the correct number and type of parameters for the function
+
 		stepsFound = append(stepsFound, stepImpl{
 			pattern: r,
 			fn:      n,
