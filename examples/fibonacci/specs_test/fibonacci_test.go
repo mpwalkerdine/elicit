@@ -21,6 +21,8 @@ func Test_Fibonacci_Sequences(t *testing.T) {
 		e.RunStep("The 3rd item is 2")
 
 		e.RunStep("Step to run after each scenario")
+
+		e.EndScenarioTest()
 	})
 
 	t.Run("Numbers From the Start", func(t *testing.T) {
@@ -32,6 +34,8 @@ func Test_Fibonacci_Sequences(t *testing.T) {
 		e.RunStep("The first 10 items are 1, 1, 2, 3, 5, 8, 12, 20, 32, 52")
 
 		e.RunStep("Step to run after each scenario")
+
+		e.EndScenarioTest()
 	})
 
 	t.Run("Numbers From an Offset", func(t *testing.T) {
@@ -43,6 +47,8 @@ func Test_Fibonacci_Sequences(t *testing.T) {
 		e.RunStep("The 5th to the 6th items are 5, 8")
 
 		e.RunStep("Step to run after each scenario")
+
+		e.EndScenarioTest()
 	})
 
 	t.Run("Zeroth Item", func(t *testing.T) {
@@ -53,6 +59,8 @@ func Test_Fibonacci_Sequences(t *testing.T) {
 		e.RunStep("The 0th item is 0")
 
 		e.RunStep("Step to run after each scenario")
+
+		e.EndScenarioTest()
 	})
 
 	t.Run("Negative Numbers", func(t *testing.T) {
@@ -66,6 +74,8 @@ func Test_Fibonacci_Sequences(t *testing.T) {
 		e.RunStep("The -10th to the 10th items are -52, 32, -20, 12, -8, 5, -3, 2, -1, 1, 0, 1, 1, 2, 3, 5, 8, 12, 20, 32, 52")
 
 		e.RunStep("Step to run after each scenario")
+
+		e.EndScenarioTest()
 	})
 
 	t.Run("More Examples", func(t *testing.T) {
@@ -76,5 +86,9 @@ func Test_Fibonacci_Sequences(t *testing.T) {
 		e.RunStep("The <From> to the <To> items are <Result>")
 
 		e.RunStep("Step to run after each scenario")
+
+		e.EndScenarioTest()
 	})
+
+	e.EndSpecTest()
 }

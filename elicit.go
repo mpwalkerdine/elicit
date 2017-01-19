@@ -6,20 +6,37 @@ import (
 	"strings"
 	"testing"
 
+	"bytes"
 	"reflect"
-	"strconv"
 )
+
+func init() {
+	e := CurrentContext
+
+	e.RegisterTransform(`.*`, stringTransform)
+	e.RegisterTransform(`-?\d+`, intTransform)
+	e.RegisterTransform(`(?:.+,\s*)*.+`, commaSliceTransform)
+}
 
 // CurrentContext is a single instance used by all elicit tests
 var CurrentContext = &Context{
-	steps: make(map[*regexp.Regexp]interface{}),
+	steps:      make(map[*regexp.Regexp]interface{}),
+	transforms: make(map[*regexp.Regexp]StepArgumentTransform),
 }
+
+// StepArgumentTransform transforms captured groups in the step pattern to a function parameter type
+type StepArgumentTransform func(string, reflect.Type) (interface{}, bool)
 
 // Context stores test machinery and maintains state between specs/scenarios/steps
 type Context struct {
-	steps     map[*regexp.Regexp]interface{}
-	specT     *testing.T
-	scenarioT *testing.T
+	steps      map[*regexp.Regexp]interface{}
+	transforms map[*regexp.Regexp]StepArgumentTransform
+	specT      *testing.T
+	scenarioT  *testing.T
+	current    string
+	skipped    bool
+	failed     bool
+	logbuf     bytes.Buffer
 }
 
 // BeginSpecTest registers the start of Spec
@@ -30,13 +47,64 @@ func (e *Context) BeginSpecTest(t *testing.T) {
 // BeginScenarioTest registers the start of a Scenario
 func (e *Context) BeginScenarioTest(t *testing.T) {
 	e.scenarioT = t
+	e.skipped = false
+	e.failed = false
+	e.logbuf = bytes.Buffer{}
+}
+
+// EndScenarioTest marks the end of a scenario and signals the outcome
+func (e *Context) EndScenarioTest() {
+
+	if e.logbuf.Len() > 0 {
+		e.scenarioT.Log("\n", string(e.logbuf.Bytes()))
+	}
+
+	if e.failed {
+		e.scenarioT.Fail()
+	}
+
+	if e.skipped {
+		e.scenarioT.SkipNow()
+	}
+
+	e.scenarioT = nil
+}
+
+// EndSpecTest marks the end of a spec
+func (e *Context) EndSpecTest() {
+
 }
 
 // RegisterStep maps a Regexpr to a step implementation
 func (e *Context) RegisterStep(pattern string, stepFunc interface{}) {
 
 	pattern = strings.TrimSpace(pattern)
+	pattern = ensureCompleteMatch(pattern)
 
+	p, err := regexp.Compile(pattern)
+
+	if err != nil {
+		panic(fmt.Sprintf("compiling step regexp %q, %s", pattern, err))
+	}
+
+	e.steps[p] = stepFunc
+}
+
+// RegisterTransform registers a function which will be used when matching step implementation parameters
+// Note that if the actual string cannot be converted to the target type by the transform, it should return false
+func (e *Context) RegisterTransform(pattern string, transform StepArgumentTransform) {
+	pattern = ensureCompleteMatch(pattern)
+
+	p, err := regexp.Compile(pattern)
+
+	if err != nil {
+		panic(fmt.Sprintf("compiling transform regexp %q, %s", pattern, err))
+	}
+
+	e.transforms[p] = transform
+}
+
+func ensureCompleteMatch(pattern string) string {
 	if !strings.HasPrefix(pattern, "^") {
 		pattern = "^" + pattern
 	}
@@ -45,26 +113,34 @@ func (e *Context) RegisterStep(pattern string, stepFunc interface{}) {
 		pattern = pattern + "$"
 	}
 
-	p, err := regexp.Compile(pattern)
-
-	if err != nil {
-		panic(fmt.Sprintf("compiling regexp %q, %s", pattern, err))
-	}
-
-	e.steps[p] = stepFunc
+	return pattern
 }
 
 // RunStep matches stepText to a registered step implementation and invokes it
 func (e *Context) RunStep(stepText string) {
+	e.current = stepText
+
 	for regex, fn := range e.steps {
 		f := reflect.ValueOf(fn)
 		params := regex.FindStringSubmatch(stepText)
 
 		if in, ok := convertParams(f, params); ok {
-			f.Call(in)
+
+			if !e.skipped && !e.failed {
+				f.Call(in)
+			} else {
+				e.Skip("")
+			}
+
+			if !e.skipped && !e.failed {
+				e.stepPassed()
+			}
+
 			return
 		}
 	}
+
+	e.stepNotFound()
 }
 
 func convertParams(f reflect.Value, stringParams []string) ([]reflect.Value, bool) {
@@ -95,21 +171,56 @@ func convertParams(f reflect.Value, stringParams []string) ([]reflect.Value, boo
 }
 
 func convertParam(s string, target reflect.Type) (reflect.Value, bool) {
-	t := reflect.New(target).Elem().Interface()
+	for regex, tx := range CurrentContext.transforms {
+		params := regex.FindStringSubmatch(s)
+		if params == nil || len(params) != 1 {
+			continue
+		}
 
-	switch t.(type) {
-	case int:
-		if t, err := strconv.Atoi(s); err == nil {
-			return reflect.ValueOf(t), true
+		f := reflect.ValueOf(tx)
+		fTyp := f.Type()
+
+		in := make([]reflect.Value, fTyp.NumIn())
+		in[0] = reflect.ValueOf(s)
+		in[1] = reflect.ValueOf(target)
+
+		out := f.Call(in)
+		if out[1].Interface().(bool) {
+			return reflect.ValueOf(out[0].Interface()), true
 		}
 	}
 
 	return reflect.Value{}, false
 }
 
-// Fail records test failure
+// Skip skips the current step execution and all subsequent steps
+func (e *Context) Skip(format string, args ...interface{}) {
+	e.logStepResult("⤹", format, args...)
+	e.skipped = true
+}
+
+func (e *Context) stepNotFound() {
+	e.logStepResult("?", "")
+	e.skipped = true
+}
+
+func (e *Context) stepPassed() {
+	e.logStepResult("✓", "")
+}
+
+// Fail records test step failure
 func (e *Context) Fail() {
-	e.scenarioT.Fail()
+	e.logStepResult("✘", "")
+	e.failed = true
+}
+
+func (e *Context) logStepResult(prefix, format string, args ...interface{}) {
+	if len(format) > 0 {
+		format = fmt.Sprintf("%s %s\t(%s)\n", prefix, e.current, format)
+		fmt.Fprintf(&e.logbuf, format, args...)
+	} else {
+		fmt.Fprintf(&e.logbuf, "%s %s\n", prefix, e.current)
+	}
 }
 
 // Assert that the parameter is true, otherwise fails

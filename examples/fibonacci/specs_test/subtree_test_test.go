@@ -19,5 +19,9 @@ func Test_Example_Sub_Spec(t *testing.T) {
 
 		e.RunStep("Test Step 1")
 		e.RunStep("Test Step 2")
+
+		e.EndScenarioTest()
 	})
+
+	e.EndSpecTest()
 }

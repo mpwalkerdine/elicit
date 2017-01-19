@@ -67,9 +67,11 @@ func (g *specGenerator) generate() {
 			g.writeln("e.RunStep(%q)", after.Text)
 		}
 
+		g.writeln("\ne.EndScenarioTest()")
 		g.writeln("})")
 	}
 
+	g.writeln("\ne.EndSpecTest()")
 	g.writeln("}")
 
 	g.writeSpecTestFile()
