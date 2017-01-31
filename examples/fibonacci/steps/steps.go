@@ -11,7 +11,7 @@ type SpuriousType struct{}
 // StepToRunPhaseEachScenario .
 //elicit:step Step to run (before|after) each scenario
 func StepToRunPhaseEachScenario(e *elicit.Context, phase string) {
-	e.Assert(phase == "before" || phase == "after").IsTrue()
+	e.Assert(phase).IsIn("before", "after")
 }
 
 // TheNthItemIsX .
@@ -29,7 +29,7 @@ func TheFirstNItemsAreX(e *elicit.Context, n int, x []int) {
 }
 
 // TheFoothToTheBarthItemsAreBaz .
-//elicit:step The (\d+)(?:st|nd|rd|th) to the (\d+)(?:st|nd|rd|th) items are ((?:\d+,\s*)+\d+)
+//elicit:step The (-?\d+)(?:st|nd|rd|th) to the (-?\d+)(?:st|nd|rd|th) items are ((?:-?\d+,\s*)+-?\d+)
 func TheFoothToTheBarthItemsAreBaz(e *elicit.Context, m, n int, x []int) {
 	r := fibonacci.Sequence(m, n)
 	e.Assert(r).IsDeepEqual(x)
