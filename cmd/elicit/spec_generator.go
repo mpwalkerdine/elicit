@@ -40,11 +40,11 @@ func (g *specGenerator) generate() {
 
 	g.writeln("func Test_%s(t *testing.T) {", escapeIdentifier(g.spec.Name))
 	g.writeln("e := elicit.CurrentContext\n")
-	g.writeln("e.BeginSpecTest(t)")
+	g.writeln("e.BeginSpecTest(%q)", g.spec.Name)
 
 	for _, scenario := range g.spec.Scenarios {
 		g.writeln("\nt.Run(%q, func(t *testing.T) {", scenario.Name)
-		g.writeln("e.BeginScenarioTest(t)")
+		g.writeln("e.BeginScenarioTest(%q)", scenario.Name)
 
 		if len(g.spec.BeforeSteps) > 0 {
 			g.writeln("\n")
@@ -67,11 +67,15 @@ func (g *specGenerator) generate() {
 			g.writeln("e.RunStep(%q)", after.Text)
 		}
 
-		g.writeln("\ne.EndScenarioTest()")
+		g.writeln("\nif r, l := e.EndScenarioTest(); r == elicit.Failed {")
+		g.writeln("t.Errorf(l)")
+		g.writeln("} else if r == elicit.Skipped {")
+		g.writeln("t.Skipf(l)")
+		g.writeln("}")
+
 		g.writeln("})")
 	}
 
-	g.writeln("\ne.EndSpecTest()")
 	g.writeln("}")
 
 	g.writeSpecTestFile()

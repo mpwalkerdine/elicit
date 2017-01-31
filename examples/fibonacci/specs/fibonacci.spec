@@ -10,10 +10,10 @@ A go package called fibonacci which generates slices of Fibonacci numbers.
 
 ## Numbers From the Start
 - The first 3 items are 1, 1, 2
-- The first 10 items are 1, 1, 2, 3, 5, 8, 12, 20, 32, 52
+- The first 10 items are 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
 
 ## Numbers From an Offset
-- The 4th to the 8th items are 3, 5, 8, 12, 20
+- The 4th to the 8th items are 3, 5, 8, 13, 21
 - The 5th to the 6th items are 5, 8
 
 ## Zeroth Item
@@ -22,8 +22,8 @@ A go package called fibonacci which generates slices of Fibonacci numbers.
 ## Negative Numbers
 - The -1th item is 1
 - The -2nd item is -1
-- The -10th to the 0th items are -52, 32, -20, 12, -8, 5, -3, 2, -1, 1, 0
-- The -10th to the 10th items are -52, 32, -20, 12, -8, 5, -3, 2, -1, 1, 0, 1, 1, 2, 3, 5, 8, 12, 20, 32, 52
+- The -10th to the 0th items are -55, 34, -21, 13, -8, 5, -3, 2, -1, 1, 0
+- The -10th to the 10th items are -55, 34, -21, 13, -8, 5, -3, 2, -1, 1, 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
 
 ## More Examples
 

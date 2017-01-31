@@ -10,18 +10,20 @@ import (
 func Test_Example_Sub_Spec(t *testing.T) {
 	e := elicit.CurrentContext
 
-	e.BeginSpecTest(t)
+	e.BeginSpecTest("Example Sub Spec")
 
 	t.Run("A Scenario", func(t *testing.T) {
-		e.BeginScenarioTest(t)
+		e.BeginScenarioTest("A Scenario")
 
 		e.RunStep("Something Here")
 
 		e.RunStep("Test Step 1")
 		e.RunStep("Test Step 2")
 
-		e.EndScenarioTest()
+		if r, l := e.EndScenarioTest(); r == elicit.Failed {
+			t.Errorf(l)
+		} else if r == elicit.Skipped {
+			t.Skipf(l)
+		}
 	})
-
-	e.EndSpecTest()
 }

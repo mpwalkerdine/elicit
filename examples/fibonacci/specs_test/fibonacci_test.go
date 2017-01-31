@@ -10,10 +10,10 @@ import (
 func Test_Fibonacci_Sequences(t *testing.T) {
 	e := elicit.CurrentContext
 
-	e.BeginSpecTest(t)
+	e.BeginSpecTest("Fibonacci Sequences")
 
 	t.Run("Single Numbers", func(t *testing.T) {
-		e.BeginScenarioTest(t)
+		e.BeginScenarioTest("Single Numbers")
 
 		e.RunStep("Step to run before each scenario")
 
@@ -22,37 +22,49 @@ func Test_Fibonacci_Sequences(t *testing.T) {
 
 		e.RunStep("Step to run after each scenario")
 
-		e.EndScenarioTest()
+		if r, l := e.EndScenarioTest(); r == elicit.Failed {
+			t.Errorf(l)
+		} else if r == elicit.Skipped {
+			t.Skipf(l)
+		}
 	})
 
 	t.Run("Numbers From the Start", func(t *testing.T) {
-		e.BeginScenarioTest(t)
+		e.BeginScenarioTest("Numbers From the Start")
 
 		e.RunStep("Step to run before each scenario")
 
 		e.RunStep("The first 3 items are 1, 1, 2")
-		e.RunStep("The first 10 items are 1, 1, 2, 3, 5, 8, 12, 20, 32, 52")
+		e.RunStep("The first 10 items are 1, 1, 2, 3, 5, 8, 13, 21, 34, 55")
 
 		e.RunStep("Step to run after each scenario")
 
-		e.EndScenarioTest()
+		if r, l := e.EndScenarioTest(); r == elicit.Failed {
+			t.Errorf(l)
+		} else if r == elicit.Skipped {
+			t.Skipf(l)
+		}
 	})
 
 	t.Run("Numbers From an Offset", func(t *testing.T) {
-		e.BeginScenarioTest(t)
+		e.BeginScenarioTest("Numbers From an Offset")
 
 		e.RunStep("Step to run before each scenario")
 
-		e.RunStep("The 4th to the 8th items are 3, 5, 8, 12, 20")
+		e.RunStep("The 4th to the 8th items are 3, 5, 8, 13, 21")
 		e.RunStep("The 5th to the 6th items are 5, 8")
 
 		e.RunStep("Step to run after each scenario")
 
-		e.EndScenarioTest()
+		if r, l := e.EndScenarioTest(); r == elicit.Failed {
+			t.Errorf(l)
+		} else if r == elicit.Skipped {
+			t.Skipf(l)
+		}
 	})
 
 	t.Run("Zeroth Item", func(t *testing.T) {
-		e.BeginScenarioTest(t)
+		e.BeginScenarioTest("Zeroth Item")
 
 		e.RunStep("Step to run before each scenario")
 
@@ -60,26 +72,34 @@ func Test_Fibonacci_Sequences(t *testing.T) {
 
 		e.RunStep("Step to run after each scenario")
 
-		e.EndScenarioTest()
+		if r, l := e.EndScenarioTest(); r == elicit.Failed {
+			t.Errorf(l)
+		} else if r == elicit.Skipped {
+			t.Skipf(l)
+		}
 	})
 
 	t.Run("Negative Numbers", func(t *testing.T) {
-		e.BeginScenarioTest(t)
+		e.BeginScenarioTest("Negative Numbers")
 
 		e.RunStep("Step to run before each scenario")
 
 		e.RunStep("The -1th item is 1")
 		e.RunStep("The -2nd item is -1")
-		e.RunStep("The -10th to the 0th items are -52, 32, -20, 12, -8, 5, -3, 2, -1, 1, 0")
-		e.RunStep("The -10th to the 10th items are -52, 32, -20, 12, -8, 5, -3, 2, -1, 1, 0, 1, 1, 2, 3, 5, 8, 12, 20, 32, 52")
+		e.RunStep("The -10th to the 0th items are -55, 34, -21, 13, -8, 5, -3, 2, -1, 1, 0")
+		e.RunStep("The -10th to the 10th items are -55, 34, -21, 13, -8, 5, -3, 2, -1, 1, 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55")
 
 		e.RunStep("Step to run after each scenario")
 
-		e.EndScenarioTest()
+		if r, l := e.EndScenarioTest(); r == elicit.Failed {
+			t.Errorf(l)
+		} else if r == elicit.Skipped {
+			t.Skipf(l)
+		}
 	})
 
 	t.Run("More Examples", func(t *testing.T) {
-		e.BeginScenarioTest(t)
+		e.BeginScenarioTest("More Examples")
 
 		e.RunStep("Step to run before each scenario")
 
@@ -87,8 +107,10 @@ func Test_Fibonacci_Sequences(t *testing.T) {
 
 		e.RunStep("Step to run after each scenario")
 
-		e.EndScenarioTest()
+		if r, l := e.EndScenarioTest(); r == elicit.Failed {
+			t.Errorf(l)
+		} else if r == elicit.Skipped {
+			t.Skipf(l)
+		}
 	})
-
-	e.EndSpecTest()
 }

@@ -3,7 +3,6 @@ package steps
 import (
 	"mmatt/elicit"
 	"mmatt/elicit/examples/fibonacci"
-	"reflect"
 )
 
 // SpuriousType should not affect generation
@@ -12,28 +11,28 @@ type SpuriousType struct{}
 // StepToRunPhaseEachScenario .
 //elicit:step Step to run (before|after) each scenario
 func StepToRunPhaseEachScenario(e *elicit.Context, phase string) {
-	e.Assert(phase == "before" || phase == "after")
+	e.Assert(phase == "before" || phase == "after").IsTrue()
 }
 
 // TheNthItemIsX .
 //elicit:step The (-?\d+)(?:st|nd|rd|th) item is (-?\d+)
 func TheNthItemIsX(e *elicit.Context, n, x int) {
 	r := fibonacci.Sequence(n, n)
-	e.Assert(reflect.DeepEqual(r, x))
+	e.Assert(r[0]).IsDeepEqual(x)
 }
 
 // TheFirstNItemsAreX .
 //elicit:step The first (\d+) items are ((?:\d+,\s*)+\d+)
 func TheFirstNItemsAreX(e *elicit.Context, n int, x []int) {
 	r := fibonacci.Sequence(1, n)
-	e.Assert(reflect.DeepEqual(r, x))
+	e.Assert(r).IsDeepEqual(x)
 }
 
 // TheFoothToTheBarthItemsAreBaz .
 //elicit:step The (\d+)(?:st|nd|rd|th) to the (\d+)(?:st|nd|rd|th) items are ((?:\d+,\s*)+\d+)
 func TheFoothToTheBarthItemsAreBaz(e *elicit.Context, m, n int, x []int) {
 	r := fibonacci.Sequence(m, n)
-	e.Assert(reflect.DeepEqual(r, x))
+	e.Assert(r).IsDeepEqual(x)
 }
 
 // StepWithNoPattern should not be registered

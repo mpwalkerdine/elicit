@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"testing"
 
 	"bytes"
 	"reflect"
@@ -27,47 +26,59 @@ var CurrentContext = &Context{
 // StepArgumentTransform transforms captured groups in the step pattern to a function parameter type
 type StepArgumentTransform func(string, reflect.Type) (interface{}, bool)
 
+// Result represents the outcome of a scenario test
+type Result int
+
+const (
+	// Passed means the the scenario passed
+	Passed Result = iota
+	// Skipped means the scenario was skipped, normally due to undefined steps
+	Skipped
+	// Failed means the scenario failed, either due to a failed assertion or an error
+	Failed
+)
+
 // Context stores test machinery and maintains state between specs/scenarios/steps
 type Context struct {
-	steps      map[*regexp.Regexp]interface{}
-	transforms map[*regexp.Regexp]StepArgumentTransform
-	specT      *testing.T
-	scenarioT  *testing.T
-	current    string
-	skipped    bool
-	failed     bool
-	logbuf     bytes.Buffer
+	steps        map[*regexp.Regexp]interface{}
+	transforms   map[*regexp.Regexp]StepArgumentTransform
+	specName     string
+	scenarioName string
+	current      string
+	skipped      bool
+	failed       bool
+	logbuf       bytes.Buffer
 }
 
 // BeginSpecTest registers the start of Spec
-func (e *Context) BeginSpecTest(t *testing.T) {
-	e.specT = t
+func (e *Context) BeginSpecTest(name string) {
+	e.specName = name
+	e.logSpecStart()
 }
 
 // BeginScenarioTest registers the start of a Scenario
-func (e *Context) BeginScenarioTest(t *testing.T) {
-	e.scenarioT = t
+func (e *Context) BeginScenarioTest(name string) {
+	e.scenarioName = name
 	e.skipped = false
 	e.failed = false
 	e.logbuf = bytes.Buffer{}
+	e.logScenarioStart()
 }
 
 // EndScenarioTest marks the end of a scenario and signals the outcome
-func (e *Context) EndScenarioTest() {
+func (e *Context) EndScenarioTest() (Result, string) {
 
-	if e.logbuf.Len() > 0 {
-		e.scenarioT.Log("\n", string(e.logbuf.Bytes()))
-	}
+	log := string(e.logbuf.Bytes())
 
 	if e.failed {
-		e.scenarioT.Fail()
+		return Failed, log
 	}
 
 	if e.skipped {
-		e.scenarioT.SkipNow()
+		return Skipped, log
 	}
 
-	e.scenarioT = nil
+	return Passed, log
 }
 
 // EndSpecTest marks the end of a spec
@@ -119,6 +130,12 @@ func ensureCompleteMatch(pattern string) string {
 // RunStep matches stepText to a registered step implementation and invokes it
 func (e *Context) RunStep(stepText string) {
 	e.current = stepText
+
+	defer func() {
+		if r := recover(); r != nil {
+			e.Failf("panic during step execution: %s", r)
+		}
+	}()
 
 	for regex, fn := range e.steps {
 		f := reflect.ValueOf(fn)
@@ -210,22 +227,28 @@ func (e *Context) stepPassed() {
 
 // Fail records test step failure
 func (e *Context) Fail() {
-	e.logStepResult("✘", "")
+	e.Failf("")
+}
+
+// Failf logs the supplied message and records test step failure
+func (e *Context) Failf(format string, args ...interface{}) {
+	e.logStepResult("✘", format, args...)
 	e.failed = true
+}
+
+func (e *Context) logSpecStart() {
+	fmt.Fprintf(&e.logbuf, "%s\n", e.specName)
+}
+
+func (e *Context) logScenarioStart() {
+	fmt.Fprintf(&e.logbuf, "\n\t%s\n", e.scenarioName)
 }
 
 func (e *Context) logStepResult(prefix, format string, args ...interface{}) {
 	if len(format) > 0 {
-		format = fmt.Sprintf("%s %s\t(%s)\n", prefix, e.current, format)
+		format = fmt.Sprintf("\t\t%s %s\t(%s)\n", prefix, e.current, format)
 		fmt.Fprintf(&e.logbuf, format, args...)
 	} else {
-		fmt.Fprintf(&e.logbuf, "%s %s\n", prefix, e.current)
-	}
-}
-
-// Assert that the parameter is true, otherwise fails
-func (e *Context) Assert(shouldBeTrue bool) {
-	if !shouldBeTrue {
-		e.Fail()
+		fmt.Fprintf(&e.logbuf, "\t\t%s %s\n", prefix, e.current)
 	}
 }
