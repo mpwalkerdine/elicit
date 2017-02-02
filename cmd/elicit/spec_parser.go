@@ -17,20 +17,38 @@ type specFile struct {
 	BeforeSteps []step
 	Scenarios   []scenario
 	AfterSteps  []step
+	Tables      [][][]string
 }
 
 type scenario struct {
-	Name  string
-	Steps []step
+	Name   string
+	Steps  []step
+	Tables [][][]string
 }
 
 type step struct {
-	Text string
+	Text   string
+	Tables [][][]string
 }
 
 func (s *specFile) createScenario() *scenario {
 	s.Scenarios = append(s.Scenarios, scenario{})
 	return &s.Scenarios[len(s.Scenarios)-1]
+}
+
+func (s *specFile) createBeforeStep() *step {
+	s.BeforeSteps = append(s.BeforeSteps, step{})
+	return &s.BeforeSteps[len(s.BeforeSteps)-1]
+}
+
+func (s *specFile) createAfterStep() *step {
+	s.AfterSteps = append(s.AfterSteps, step{})
+	return &s.AfterSteps[len(s.AfterSteps)-1]
+}
+
+func (s *scenario) createStep() *step {
+	s.Steps = append(s.Steps, step{})
+	return &s.Steps[len(s.Steps)-1]
 }
 
 func parseSpecFile(specFilePath string) *specFile {
@@ -54,10 +72,14 @@ func parseSpecFile(specFilePath string) *specFile {
 
 // elicitTest is a type that implements the blackfriday Renderer interface.
 type elicitTest struct {
-	spec       *specFile
-	scenario   *scenario
-	step       step
-	textTarget *string
+	spec         *specFile
+	scenario     *scenario
+	step         *step
+	textTarget   *string
+	lastText     string
+	tableHeaders []string
+	tableRow     []string
+	tableRows    [][]string
 }
 
 // GetFlags not used
@@ -90,8 +112,11 @@ func (e *elicitTest) Header(out *bytes.Buffer, text func() bool, level int, id s
 
 	switch level {
 	case 1: // Spec Name
+		e.step = nil
+		e.scenario = nil
 		e.textTarget = &e.spec.Name
 	case 2:
+		e.step = nil
 		e.scenario = e.spec.createScenario()
 		e.textTarget = &e.scenario.Name
 	}
@@ -109,33 +134,50 @@ func (e *elicitTest) Header(out *bytes.Buffer, text func() bool, level int, id s
 // HRule escapes from the current scenario (i.e. subsequent steps appear in parent "scope")
 func (e *elicitTest) HRule(out *bytes.Buffer) {
 	e.scenario = nil
+	e.step = nil
 }
 
 // List wraps test steps (there's no way to specify an empty one)
 func (e *elicitTest) List(out *bytes.Buffer, text func() bool, flags int) {
 	marker := out.Len()
 
-	e.textTarget = &e.step.Text
+	e.addStepToCurrentContext()
 
 	if !text() {
 		out.Truncate(marker)
 	}
 
+	e.removeLastStep()
 	e.textTarget = nil
 }
 
 // ListItem creates a test step
 func (e *elicitTest) ListItem(out *bytes.Buffer, text []byte, flags int) {
+	e.addStepToCurrentContext()
+}
 
+func (e *elicitTest) addStepToCurrentContext() {
 	if e.scenario != nil {
-		e.scenario.Steps = append(e.scenario.Steps, e.step)
+		e.step = e.scenario.createStep()
 	} else if len(e.spec.Scenarios) == 0 {
-		e.spec.BeforeSteps = append(e.spec.BeforeSteps, e.step)
+		e.step = e.spec.createBeforeStep()
 	} else {
-		e.spec.AfterSteps = append(e.spec.AfterSteps, e.step)
+		e.step = e.spec.createAfterStep()
 	}
+	e.textTarget = &e.step.Text
+}
 
-	e.step = step{}
+func (e *elicitTest) removeLastStep() {
+	var steps *[]step
+	if e.scenario != nil {
+		steps = &e.scenario.Steps
+	} else if len(e.spec.Scenarios) == 0 {
+		steps = &e.spec.BeforeSteps
+	} else {
+		steps = &e.spec.AfterSteps
+	}
+	*steps = (*steps)[:len(*steps)-1]
+	e.step = &(*steps)[len(*steps)-1]
 }
 
 // Paragraph not used
@@ -147,20 +189,35 @@ func (e *elicitTest) Paragraph(out *bytes.Buffer, text func() bool) {
 	}
 }
 
-// Table not used
+// Table adds the constructed table to the active context
 func (e *elicitTest) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {
+	if e.step != nil {
+		e.step.Tables = append(e.step.Tables, e.tableRows)
+	} else if e.scenario != nil {
+		e.scenario.Tables = append(e.scenario.Tables, e.tableRows)
+	} else {
+		e.spec.Tables = append(e.spec.Tables, e.tableRows)
+	}
+
+	e.tableRows = nil
 }
 
-// TableRow not used
+// TableRow saves the current row
 func (e *elicitTest) TableRow(out *bytes.Buffer, text []byte) {
+	if len(e.tableRow) > 0 {
+		e.tableRows = append(e.tableRows, e.tableRow)
+	}
+	e.tableRow = nil
 }
 
-// TableHeaderCell not used
+// TableHeaderCell defines a column in a table
 func (e *elicitTest) TableHeaderCell(out *bytes.Buffer, text []byte, align int) {
+	e.tableRow = append(e.tableRow, e.lastText)
 }
 
-// TableCell not used
+// TableCell adds a cell to the current row
 func (e *elicitTest) TableCell(out *bytes.Buffer, text []byte, align int) {
+	e.tableRow = append(e.tableRow, e.lastText)
 }
 
 // Footnotes not used
@@ -235,12 +292,12 @@ func (e *elicitTest) Entity(out *bytes.Buffer, entity []byte) {
 
 // NormalText output as plaintext
 func (e *elicitTest) NormalText(out *bytes.Buffer, text []byte) {
-	s := string(text[:])
-	if len(strings.TrimSpace(s)) == 0 {
+	e.lastText = string(text[:])
+	if len(strings.TrimSpace(e.lastText)) == 0 {
 		return
 	}
 	if e.textTarget != nil {
-		*e.textTarget += s
+		*e.textTarget += e.lastText
 	}
 }
 

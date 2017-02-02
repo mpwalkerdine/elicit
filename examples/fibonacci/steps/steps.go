@@ -35,6 +35,13 @@ func TheFoothToTheBarthItemsAreBaz(e *elicit.Context, m, n int, x []int) {
 	e.Assert(r).IsDeepEqual(x)
 }
 
+// ThisStepTakesATableParameter .
+//elicit:step This step takes a table parameter
+func ThisStepTakesATableParameter(e *elicit.Context, table elicit.Table) {
+	e.Assert(table.Columns).IsNotEmpty()
+	e.Assert(table.Rows).IsNotEmpty()
+}
+
 // StepWithNoPattern should not be registered
 func StepWithNoPattern(e *elicit.Context, a string) {
 

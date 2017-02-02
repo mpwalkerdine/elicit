@@ -54,20 +54,20 @@ type scenarioContext struct {
 type Context struct {
 	steps      map[*regexp.Regexp]interface{}
 	transforms map[*regexp.Regexp]StepArgumentTransform
-	spec       specContext
-	scenario   scenarioContext
+	spec       *specContext
+	scenario   *scenarioContext
 }
 
 // BeginSpecTest registers the start of Spec
 func (e *Context) BeginSpecTest(name string) {
-	e.spec = specContext{
+	e.spec = &specContext{
 		name: name,
 	}
 }
 
 // BeginScenarioTest registers the start of a Scenario
 func (e *Context) BeginScenarioTest(name string) {
-	e.scenario = scenarioContext{
+	e.scenario = &scenarioContext{
 		name:    name,
 		skipped: false,
 		failed:  false,
@@ -77,18 +77,20 @@ func (e *Context) BeginScenarioTest(name string) {
 }
 
 // EndScenarioTest marks the end of a scenario and signals the outcome
-func (e *Context) EndScenarioTest() (Result, string) {
-	log := string(e.scenario.logbuf.Bytes())
+func (e *Context) EndScenarioTest() (r Result, log string) {
+	log = string(e.scenario.logbuf.Bytes())
 
 	if e.scenario.failed {
-		return Failed, log
+		r = Failed
+	} else if e.scenario.skipped {
+		r = Skipped
+	} else {
+		r = Passed
 	}
 
-	if e.scenario.skipped {
-		return Skipped, log
-	}
+	e.scenario = nil
 
-	return Passed, log
+	return
 }
 
 // EndSpecTest marks the end of a spec
@@ -138,7 +140,7 @@ func ensureCompleteMatch(pattern string) string {
 }
 
 // RunStep matches stepText to a registered step implementation and invokes it
-func (e *Context) RunStep(stepText string) {
+func (e *Context) RunStep(stepText string, tables ...[][]string) {
 	e.scenario.currentStep = stepText
 
 	defer func() {
@@ -151,7 +153,7 @@ func (e *Context) RunStep(stepText string) {
 		f := reflect.ValueOf(fn)
 		params := regex.FindStringSubmatch(stepText)
 
-		if in, ok := convertParams(f, params); ok {
+		if in, ok := convertParams(f, params, tables...); ok {
 
 			if !e.scenario.skipped && !e.scenario.failed {
 				f.Call(in)
@@ -170,9 +172,27 @@ func (e *Context) RunStep(stepText string) {
 	e.stepNotFound()
 }
 
-func convertParams(f reflect.Value, stringParams []string) ([]reflect.Value, bool) {
+func convertParams(f reflect.Value, stringParams []string, tables ...[][]string) ([]reflect.Value, bool) {
 
-	if stringParams == nil || len(stringParams) != f.Type().NumIn() {
+	if stringParams == nil {
+		return nil, false
+	}
+
+	paramCount := f.Type().NumIn()
+	tableParamCount := 0
+	tableType := reflect.TypeOf((*Table)(nil)).Elem()
+
+	for p := paramCount - 1; p >= 0; p-- {
+		thisParam := f.Type().In(p)
+		if thisParam == tableType {
+			paramCount--
+			tableParamCount++
+		} else {
+			break
+		}
+	}
+
+	if len(stringParams) != paramCount || tableParamCount != len(tables) {
 		return nil, false
 	}
 
@@ -192,6 +212,10 @@ func convertParams(f reflect.Value, stringParams []string) ([]reflect.Value, boo
 				return nil, false
 			}
 		}
+	}
+
+	for _, t := range tables {
+		c = append(c, reflect.ValueOf(makeTable(t...)))
 	}
 
 	return c, true

@@ -15,4 +15,5 @@ func init() {
 	e.RegisterStep("The first (\\d+) items are ((?:\\d+,\\s*)+\\d+)", steps.TheFirstNItemsAreX)
 	e.RegisterStep("The (-?\\d+)(?:st|nd|rd|th) to the (-?\\d+)(?:st|nd|rd|th) items are ((?:-?\\d+,\\s*)+-?\\d+)", steps.TheFoothToTheBarthItemsAreBaz)
 	e.RegisterStep("The (-?\\d+)(?:st|nd|rd|th) item is (-?\\d+)", steps.TheNthItemIsX)
+	e.RegisterStep("This step takes a table parameter", steps.ThisStepTakesATableParameter)
 }

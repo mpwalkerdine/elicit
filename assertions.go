@@ -13,6 +13,7 @@ type Assertion struct {
 const (
 	notEqualFmt  = "expected %v, got %v"
 	notInListFmt = "expected one of %v, got %v"
+	isEmptyFmt   = "expected non-empty slice, got an empty one"
 )
 
 // Assert takes an actual value and returns an object against which assertions can be made
@@ -43,4 +44,16 @@ func (a *Assertion) IsIn(list ...interface{}) {
 		}
 	}
 	a.context.Failf(notInListFmt, list, a.actual)
+}
+
+// IsNotEmpty checks that the slice is not empty
+func (a *Assertion) IsNotEmpty() {
+	s := reflect.ValueOf(a.actual)
+	if s.Kind() != reflect.Slice {
+		panic("IsNotEmpty() asserted for a non-slice type")
+	}
+
+	if s.Len() == 0 {
+		a.context.Failf(isEmptyFmt)
+	}
 }

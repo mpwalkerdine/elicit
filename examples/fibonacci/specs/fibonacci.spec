@@ -29,12 +29,12 @@ A go package called fibonacci which generates slices of Fibonacci numbers.
 
 Given the following test cases:
 
-- The <From> to the <To> items are <Result>
-
  From | To | Result  
 ------|----|---------
  2    | 5  | 1,2,3,5 
  3    | 6  | 2,3,5,8 
+
+- The <From> to the <To> items are <Result>
 
 ---
 
