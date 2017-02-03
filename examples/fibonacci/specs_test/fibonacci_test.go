@@ -103,7 +103,8 @@ func Test_Fibonacci_Sequences(t *testing.T) {
 
 		e.RunStep("Step to run before each scenario")
 
-		e.RunStep("The <From> to the <To> items are <Result>")
+		e.RunStep("The 2nd to the 5th items are 1,2,3,5")
+		e.RunStep("The 3rd to the 6th items are 2,3,5,8")
 
 		e.RunStep("Step to run after each scenario")
 

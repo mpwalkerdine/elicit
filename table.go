@@ -6,7 +6,7 @@ type Table struct {
 	Rows    []map[string]string
 }
 
-func makeTable(rows ...[]string) Table {
+func makeTable(rows [][]string) Table {
 	t := Table{
 		Columns: rows[0],
 	}

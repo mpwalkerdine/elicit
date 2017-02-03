@@ -66,11 +66,7 @@ func (g *specGenerator) writeScenarioTestRun(scenario scenario) {
 
 	g.doubleSpace(len(scenario.Steps) > 0)
 	for _, step := range scenario.Steps {
-		g.write("e.RunStep(%q,", step.Text)
-		for _, stepTable := range step.Tables {
-			g.writeStepTable(stepTable)
-		}
-		g.writeln(")")
+		g.writeStep(step)
 	}
 
 	g.doubleSpace(len(g.spec.AfterSteps) > 0)
@@ -82,15 +78,25 @@ func (g *specGenerator) writeScenarioTestRun(scenario scenario) {
 	g.writeln("})")
 }
 
-func (g *specGenerator) writeStepTable(table [][]string) {
-	g.writeln("\n[][]string{")
-	g.writeTableRows(table)
-	g.writeln("},")
+func (g *specGenerator) writeStep(s step) {
+	for _, text := range s.resolveStepParams() {
+		g.write("e.RunStep(%q,", text)
+		g.writeStepTables(s)
+		g.writeln(")")
+	}
 }
 
-func (g *specGenerator) writeTableRows(table [][]string) {
+func (g *specGenerator) writeStepTables(s step) {
+	for _, t := range s.Tables {
+		g.writeln("\n[][]string{")
+		g.writeTableRows(t)
+		g.writeln("},")
+	}
+}
+
+func (g *specGenerator) writeTableRows(table stringTable) {
 	for _, row := range table {
-		g.write("[]string{")
+		g.write("{")
 		for _, v := range row {
 			g.write("%q, ", v)
 		}

@@ -11,43 +11,119 @@ import (
 	bf "github.com/russross/blackfriday"
 )
 
+// stringTable is a simple 2d array of strings
+type stringTable [][]string
+
 type specFile struct {
 	Path        string
 	Name        string
 	BeforeSteps []step
 	Scenarios   []scenario
 	AfterSteps  []step
-	Tables      [][][]string
+	Tables      []stringTable
 }
 
 type scenario struct {
+	Spec   *specFile
 	Name   string
 	Steps  []step
-	Tables [][][]string
+	Tables []stringTable
 }
 
 type step struct {
-	Text   string
-	Tables [][][]string
+	Spec     *specFile
+	Scenario *scenario
+	Text     string
+	Params   []string
+	Tables   []stringTable
 }
 
 func (s *specFile) createScenario() *scenario {
-	s.Scenarios = append(s.Scenarios, scenario{})
+	s.Scenarios = append(s.Scenarios, scenario{Spec: s})
 	return &s.Scenarios[len(s.Scenarios)-1]
 }
 
 func (s *specFile) createBeforeStep() *step {
-	s.BeforeSteps = append(s.BeforeSteps, step{})
+	s.BeforeSteps = append(s.BeforeSteps, step{Spec: s})
 	return &s.BeforeSteps[len(s.BeforeSteps)-1]
 }
 
 func (s *specFile) createAfterStep() *step {
-	s.AfterSteps = append(s.AfterSteps, step{})
+	s.AfterSteps = append(s.AfterSteps, step{Spec: s})
 	return &s.AfterSteps[len(s.AfterSteps)-1]
 }
 
+func (s *step) resolveStepParams() []string {
+	if len(s.Params) == 0 {
+		return []string{s.Text}
+	}
+
+	table := stringTable{}
+	resolved := []string{}
+	found := false
+
+	if s.Scenario != nil {
+		table, found = s.findTableWithParams(s.Scenario.Tables)
+	}
+
+	if !found {
+		table, found = s.findTableWithParams(s.Spec.Tables)
+	}
+
+	if found {
+		m := table.columnNameToIndexMap()
+		for _, row := range table[1:] {
+			text := s.Text
+			for _, p := range s.Params {
+				pname := strings.TrimSuffix(strings.TrimPrefix(p, "<"), ">")
+				pvalue := row[m[pname]]
+				text = strings.Replace(text, p, pvalue, -1)
+			}
+			resolved = append(resolved, text)
+		}
+	}
+
+	return resolved
+}
+
+func (s *step) findTableWithParams(tables []stringTable) (stringTable, bool) {
+	for _, t := range tables {
+		if tableHasParams(t, s.Params) {
+			return t, true
+		}
+	}
+	return nil, false
+}
+
+func tableHasParams(t stringTable, params []string) bool {
+	for _, p := range params {
+		pname := strings.TrimSuffix(strings.TrimPrefix(p, "<"), ">")
+		if !tableHasColumn(t, pname) {
+			return false
+		}
+	}
+	return true
+}
+
+func tableHasColumn(t stringTable, cname string) bool {
+	for _, c := range t[0] {
+		if c == cname {
+			return true
+		}
+	}
+	return false
+}
+
+func (t *stringTable) columnNameToIndexMap() map[string]int {
+	m := make(map[string]int, len((*t)[0]))
+	for i, c := range (*t)[0] {
+		m[c] = i
+	}
+	return m
+}
+
 func (s *scenario) createStep() *step {
-	s.Steps = append(s.Steps, step{})
+	s.Steps = append(s.Steps, step{Spec: s.Spec, Scenario: s})
 	return &s.Steps[len(s.Steps)-1]
 }
 
@@ -79,7 +155,7 @@ type elicitTest struct {
 	lastText     string
 	tableHeaders []string
 	tableRow     []string
-	tableRows    [][]string
+	tableRows    stringTable
 }
 
 // GetFlags not used
@@ -266,9 +342,12 @@ func (e *elicitTest) Link(out *bytes.Buffer, link []byte, title []byte, content 
 	e.NormalText(out, content)
 }
 
-// RawHtmlTag written as plaintext
+// RawHtmlTag represents a table-derived parameter
 func (e *elicitTest) RawHtmlTag(out *bytes.Buffer, tag []byte) {
 	e.NormalText(out, tag)
+	if e.textTarget == &e.step.Text {
+		e.step.Params = append(e.step.Params, e.lastText)
+	}
 }
 
 // TripleEmphasis outputs plaintext

@@ -153,7 +153,7 @@ func (e *Context) RunStep(stepText string, tables ...[][]string) {
 		f := reflect.ValueOf(fn)
 		params := regex.FindStringSubmatch(stepText)
 
-		if in, ok := convertParams(f, params, tables...); ok {
+		if in, ok := convertParams(f, params, tables); ok {
 
 			if !e.scenario.skipped && !e.scenario.failed {
 				f.Call(in)
@@ -172,7 +172,7 @@ func (e *Context) RunStep(stepText string, tables ...[][]string) {
 	e.stepNotFound()
 }
 
-func convertParams(f reflect.Value, stringParams []string, tables ...[][]string) ([]reflect.Value, bool) {
+func convertParams(f reflect.Value, stringParams []string, tables [][][]string) ([]reflect.Value, bool) {
 
 	if stringParams == nil {
 		return nil, false
@@ -215,7 +215,7 @@ func convertParams(f reflect.Value, stringParams []string, tables ...[][]string)
 	}
 
 	for _, t := range tables {
-		c = append(c, reflect.ValueOf(makeTable(t...)))
+		c = append(c, reflect.ValueOf(makeTable(t)))
 	}
 
 	return c, true

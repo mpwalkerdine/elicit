@@ -34,10 +34,10 @@ func Test_Example_Sub_Spec(t *testing.T) {
 
 		e.RunStep("This step takes a table parameter",
 			[][]string{
-				[]string{"This", "Is", "A", "Table"},
-				[]string{"That", "is", "I", "agree"},
-				[]string{"that", "it", "is", "indeed"},
-				[]string{"a", "table", "as", "described"},
+				{"This", "Is", "A", "Table"},
+				{"That", "is", "I", "agree"},
+				{"that", "it", "is", "indeed"},
+				{"a", "table", "as", "described"},
 			},
 		)
 
