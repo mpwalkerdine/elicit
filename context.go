@@ -116,7 +116,7 @@ func (ctx *Context) runSpecTest(t *testing.T, spec specDef) {
 		name: spec.Name,
 	}
 
-	t.Run(spec.Name, func(t *testing.T) {
+	t.Run(spec.Path, func(t *testing.T) {
 		for _, scenario := range spec.Scenarios {
 			ctx.runScenarioTest(t, scenario)
 		}
