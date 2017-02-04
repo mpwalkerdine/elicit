@@ -36,6 +36,19 @@ Given the following test cases:
 
 - The <From> to the <To> items are <Result>
 
+## Table Parameters
+
+- This step takes a table parameter
+
+ A     | Table  | Demo  
+-------|--------|------
+ This  | Will   | Be
+ Given | To     | Step
+
+## Undefined Steps
+
+- This will be logged as undefined rather than skipped
+
 ---
 
 - Step to run after each scenario

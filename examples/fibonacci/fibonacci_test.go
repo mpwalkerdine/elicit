@@ -8,7 +8,7 @@ import (
 
 func Test(t *testing.T) {
 	elicit.New().
-		WithSpecsFolder("./specs").
+		WithSpecsFolder(".").
 		WithSteps(steps).
 		RunTests(t)
 }
