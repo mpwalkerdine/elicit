@@ -4,7 +4,7 @@ import "strconv"
 import "reflect"
 import "strings"
 
-func stringTransform(s string, t reflect.Type) (interface{}, bool) {
+func stringTransform(ctx *Context, s string, t reflect.Type) (interface{}, bool) {
 	if t.Kind() != reflect.String {
 		return nil, false
 	}
@@ -12,7 +12,7 @@ func stringTransform(s string, t reflect.Type) (interface{}, bool) {
 	return s, true
 }
 
-func intTransform(s string, t reflect.Type) (interface{}, bool) {
+func intTransform(ctx *Context, s string, t reflect.Type) (interface{}, bool) {
 	if t != reflect.TypeOf((*int)(nil)).Elem() {
 		return nil, false
 	}
@@ -24,7 +24,7 @@ func intTransform(s string, t reflect.Type) (interface{}, bool) {
 	return nil, false
 }
 
-func commaSliceTransform(s string, t reflect.Type) (interface{}, bool) {
+func commaSliceTransform(ctx *Context, s string, t reflect.Type) (interface{}, bool) {
 	if t.Kind() != reflect.Slice {
 		return nil, false
 	}
@@ -33,7 +33,7 @@ func commaSliceTransform(s string, t reflect.Type) (interface{}, bool) {
 
 	for _, i := range strings.Split(s, ",") {
 		i = strings.TrimSpace(i)
-		if e, ok := convertParam(i, t.Elem()); ok {
+		if e, ok := ctx.convertParam(i, t.Elem()); ok {
 			r = reflect.Append(r, e)
 		} else {
 			return nil, false

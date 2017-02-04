@@ -2,27 +2,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Elicit",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "program": "${workspaceRoot}/cmd/elicit/main.go",
-            "env": {},
-            "args": [
-                "-steps", 
-                "${workspaceRoot}/examples/fibonacci/steps",
-                "-package",
-                "${workspaceRoot}/examples/fibonacci/specs_test",
-                "${workspaceRoot}/examples/fibonacci/specs"
-            ],
-            "showLog": true
-        },
-        {
             "name": "Elicit Fibonnaci Tests",
             "type": "go",
             "request": "launch",
             "mode": "test",
-            "program": "${workspaceRoot}/examples/fibonacci/specs_test",
+            "program": "${workspaceRoot}/examples/fibonacci",
             "env": {},
             "args": [],
             "showLog": true
