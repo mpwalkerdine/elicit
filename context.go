@@ -155,35 +155,38 @@ func (ctx *Context) runScenarioTest(t *testing.T, scenario scenarioDef) {
 }
 
 func (ctx *Context) runStep(t *testing.T, step stepDef) {
-	ctx.currentScenario.currentStep = step.Text
 
-	defer func() {
-		if r := recover(); r != nil {
-			ctx.Failf("panic during step execution: %s", r)
-		}
-	}()
+	for _, text := range step.resolveStepParams() {
+		ctx.currentScenario.currentStep = text
 
-	for regex, fn := range ctx.stepImpls {
-		f := reflect.ValueOf(fn)
-		params := regex.FindStringSubmatch(step.Text)
-
-		if in, ok := ctx.convertParams(f, params, step.Tables); ok {
-
-			if !ctx.currentScenario.skipped && !ctx.currentScenario.failed {
-				f.Call(in)
-			} else {
-				ctx.Skip("")
+		defer func() {
+			if r := recover(); r != nil {
+				ctx.Failf("panic during step execution: %s", r)
 			}
+		}()
 
-			if !ctx.currentScenario.skipped && !ctx.currentScenario.failed {
-				ctx.stepPassed()
+		for regex, fn := range ctx.stepImpls {
+			f := reflect.ValueOf(fn)
+			params := regex.FindStringSubmatch(text)
+
+			if in, ok := ctx.convertParams(f, params, step.Tables); ok {
+
+				if !ctx.currentScenario.skipped && !ctx.currentScenario.failed {
+					f.Call(in)
+				} else {
+					ctx.Skip("")
+				}
+
+				if !ctx.currentScenario.skipped && !ctx.currentScenario.failed {
+					ctx.stepPassed()
+				}
+
+				return
 			}
-
-			return
 		}
+
+		ctx.stepNotFound()
 	}
-
-	ctx.stepNotFound()
 }
 
 func (ctx *Context) convertParams(f reflect.Value, stringParams []string, tables []stringTable) ([]reflect.Value, bool) {

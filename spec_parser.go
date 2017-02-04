@@ -324,6 +324,7 @@ func (e *elicitSpecRenderer) NormalText(out *bytes.Buffer, text []byte) {
 func (e *elicitSpecRenderer) DocumentFooter(out *bytes.Buffer) {
 }
 
+// TODO(matt) consider resolving these during parsing rather than execution?
 func (s *stepDef) resolveStepParams() []string {
 	if len(s.Params) == 0 {
 		return []string{s.Text}
