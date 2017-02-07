@@ -1,10 +1,31 @@
 package elicit
 
-import "strconv"
-import "reflect"
-import "strings"
+import (
+	"fmt"
+	"reflect"
+	"regexp"
+	"strconv"
+)
 
-func stringTransform(ctx *Context, s string, t reflect.Type) (interface{}, bool) {
+// StepArgumentTransform transforms captured groups in the step pattern to a function parameter type
+// Note that if the actual string cannot be converted to the target type by the transform, it should return false
+type StepArgumentTransform func(string, reflect.Type) (interface{}, bool)
+
+type transformMap map[*regexp.Regexp]StepArgumentTransform
+
+func (tm *transformMap) register(pattern string, transform StepArgumentTransform) {
+	pattern = ensureCompleteMatch(pattern)
+
+	p, err := regexp.Compile(pattern)
+
+	if err != nil {
+		panic(fmt.Sprintf("compiling transform regexp %q, %s", pattern, err))
+	}
+
+	(*tm)[p] = transform
+}
+
+func stringTransform(s string, t reflect.Type) (interface{}, bool) {
 	if t.Kind() != reflect.String {
 		return nil, false
 	}
@@ -12,7 +33,7 @@ func stringTransform(ctx *Context, s string, t reflect.Type) (interface{}, bool)
 	return s, true
 }
 
-func intTransform(ctx *Context, s string, t reflect.Type) (interface{}, bool) {
+func intTransform(s string, t reflect.Type) (interface{}, bool) {
 	if t != reflect.TypeOf((*int)(nil)).Elem() {
 		return nil, false
 	}
@@ -24,21 +45,21 @@ func intTransform(ctx *Context, s string, t reflect.Type) (interface{}, bool) {
 	return nil, false
 }
 
-func commaSliceTransform(ctx *Context, s string, t reflect.Type) (interface{}, bool) {
-	if t.Kind() != reflect.Slice {
-		return nil, false
-	}
-
-	r := reflect.ValueOf(reflect.New(t).Elem().Interface())
-
-	for _, i := range strings.Split(s, ",") {
-		i = strings.TrimSpace(i)
-		if e, ok := ctx.convertParam(i, t.Elem()); ok {
-			r = reflect.Append(r, e)
-		} else {
-			return nil, false
-		}
-	}
-
-	return r.Interface(), true
-}
+// func commaSliceTransform(ctx *Context, s string, t reflect.Type) (interface{}, bool) {
+// 	if t.Kind() != reflect.Slice {
+// 		return nil, false
+// 	}
+//
+// 	r := reflect.ValueOf(reflect.New(t).Elem().Interface())
+//
+// 	for _, i := range strings.Split(s, ",") {
+// 		i = strings.TrimSpace(i)
+// 		if e, ok := ctx.convertParam(i, t.Elem()); ok {
+// 			r = reflect.Append(r, e)
+// 		} else {
+// 			return nil, false
+// 		}
+// 	}
+//
+// 	return r.Interface(), true
+// }

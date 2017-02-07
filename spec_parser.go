@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,108 +12,95 @@ import (
 )
 
 // implements the blackfriday Renderer interface.
-type elicitSpecRenderer struct {
-	spec         *specDef
-	scenario     *scenarioDef
-	step         *stepDef
-	textTarget   *string
-	lastText     string
-	tableHeaders []string
-	tableRow     []string
-	tableRows    stringTable
+type specParser struct {
+	currentSpec     *spec
+	currentScenario *scenario
+	currentStep     *step
+	textTarget      *string
+	lastText        string
+	tableHeaders    []string
+	tableRow        []string
+	tableRows       stringTable
 }
 
-type stringTable [][]string
+func (p *specParser) parseSpecFolder(directory string, ctx *Context) specCollection {
+	specs := specCollection{}
 
-type specDef struct {
-	Path        string
-	Name        string
-	BeforeSteps []stepDef
-	Scenarios   []scenarioDef
-	AfterSteps  []stepDef
-	Tables      []stringTable
-}
-
-type scenarioDef struct {
-	Spec   *specDef
-	Name   string
-	Steps  []stepDef
-	Tables []stringTable
-}
-
-type stepDef struct {
-	Spec     *specDef
-	Scenario *scenarioDef
-	Text     string
-	Params   []string
-	Tables   []stringTable
-}
-
-func (specs *specCollection) parseSpecFolder(directory string) {
 	filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && strings.HasSuffix(info.Name(), ".spec") {
-			*specs = append(*specs, specDef{})
-			spec := &(*specs)[len(*specs)-1]
-			spec.loadFromFile(path)
+			s := p.loadFromFile(path, ctx)
+			specs = append(specs, s)
 		}
 		return nil
 	})
+
+	return specs
 }
 
-func (spec *specDef) loadFromFile(specFilePath string) *specDef {
+func (p *specParser) loadFromFile(specFilePath string, ctx *Context) spec {
 	specText, err := ioutil.ReadFile(specFilePath)
 
 	if err != nil {
-		log.Fatalf("parsing spec file: %s: %s", specFilePath, err)
+		panic(fmt.Errorf("parsing spec file: %s: %s", specFilePath, err))
 	}
 
-	spec.Path = specFilePath
+	s := spec{
+		context: ctx,
+		path:    specFilePath,
+	}
+	p.currentSpec = &s
 
-	r := &elicitSpecRenderer{spec: spec}
-	md := bf.Markdown(specText, r, bf.EXTENSION_TABLES)
+	md := bf.Markdown(
+		specText,
+		p,
+		bf.EXTENSION_TABLES|bf.EXTENSION_FENCED_CODE)
 
 	fmt.Printf(string(md))
 
-	return spec
+	return s
 }
 
 // GetFlags not used
-func (e *elicitSpecRenderer) GetFlags() int {
+func (p *specParser) GetFlags() int {
 	return 0
 }
 
 // DocumentHeader not used
-func (e *elicitSpecRenderer) DocumentHeader(out *bytes.Buffer) {
+func (p *specParser) DocumentHeader(out *bytes.Buffer) {
 }
 
 // BlockCode not used
-func (e *elicitSpecRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
+func (p *specParser) BlockCode(out *bytes.Buffer, text []byte, lang string) {
+	if p.currentStep != nil {
+		p.currentStep.textBlocks = append(p.currentStep.textBlocks, TextBlock(text[:]))
+	}
 }
 
 // TitleBlock not used
-func (e *elicitSpecRenderer) TitleBlock(out *bytes.Buffer, text []byte) {
+func (p *specParser) TitleBlock(out *bytes.Buffer, text []byte) {
 }
 
 // BlockQuote not used
-func (e *elicitSpecRenderer) BlockQuote(out *bytes.Buffer, text []byte) {
+func (p *specParser) BlockQuote(out *bytes.Buffer, text []byte) {
+
 }
 
 // BlockHtml not used
-func (e *elicitSpecRenderer) BlockHtml(out *bytes.Buffer, text []byte) {
+func (p *specParser) BlockHtml(out *bytes.Buffer, text []byte) {
 }
 
 // Header creates test hierarchy
-func (e *elicitSpecRenderer) Header(out *bytes.Buffer, text func() bool, level int, id string) {
+func (p *specParser) Header(out *bytes.Buffer, text func() bool, level int, id string) {
 
 	switch level {
 	case 1: // Spec Name
-		e.step = nil
-		e.scenario = nil
-		e.textTarget = &e.spec.Name
+		p.currentStep = nil
+		p.currentScenario = nil
+		p.textTarget = &p.currentSpec.name
 	case 2:
-		e.step = nil
-		e.scenario = e.spec.createScenario()
-		e.textTarget = &e.scenario.Name
+		p.currentStep = nil
+		p.currentScenario = p.currentSpec.createScenario()
+		p.textTarget = &p.currentScenario.name
 	}
 
 	marker := out.Len()
@@ -124,80 +110,61 @@ func (e *elicitSpecRenderer) Header(out *bytes.Buffer, text func() bool, level i
 		return
 	}
 
-	e.textTarget = nil
-}
-
-func (s *specDef) createScenario() *scenarioDef {
-	s.Scenarios = append(s.Scenarios, scenarioDef{Spec: s})
-	return &s.Scenarios[len(s.Scenarios)-1]
+	p.textTarget = nil
 }
 
 // HRule escapes from the current scenario (i.e. subsequent steps appear in parent "scope")
-func (e *elicitSpecRenderer) HRule(out *bytes.Buffer) {
-	e.scenario = nil
-	e.step = nil
+func (p *specParser) HRule(out *bytes.Buffer) {
+	p.currentScenario = nil
+	p.currentStep = nil
 }
 
 // List wraps test steps (there's no way to specify an empty one)
-func (e *elicitSpecRenderer) List(out *bytes.Buffer, text func() bool, flags int) {
+func (p *specParser) List(out *bytes.Buffer, text func() bool, flags int) {
 	marker := out.Len()
 
-	e.addStepToCurrentContext()
+	p.addStepToCurrentContext()
 
 	if !text() {
 		out.Truncate(marker)
 	}
 
-	e.removeLastStep()
-	e.textTarget = nil
+	p.removeLastStep()
+	p.textTarget = nil
 }
 
 // ListItem creates a test step
-func (e *elicitSpecRenderer) ListItem(out *bytes.Buffer, text []byte, flags int) {
-	e.addStepToCurrentContext()
+func (p *specParser) ListItem(out *bytes.Buffer, text []byte, flags int) {
+	p.addStepToCurrentContext()
 }
 
-func (e *elicitSpecRenderer) addStepToCurrentContext() {
-	if e.scenario != nil {
-		e.step = e.scenario.createStep()
-	} else if len(e.spec.Scenarios) == 0 {
-		e.step = e.spec.createBeforeStep()
+func (p *specParser) addStepToCurrentContext() {
+	if p.currentScenario != nil {
+		p.currentStep = p.currentScenario.createStep()
+	} else if len(p.currentSpec.scenarios) == 0 {
+		p.currentStep = p.currentSpec.createBeforeStep()
 	} else {
-		e.step = e.spec.createAfterStep()
+		p.currentStep = p.currentSpec.createAfterStep()
 	}
-	e.textTarget = &e.step.Text
+	p.textTarget = &p.currentStep.text
 }
 
-func (s *scenarioDef) createStep() *stepDef {
-	s.Steps = append(s.Steps, stepDef{Spec: s.Spec, Scenario: s})
-	return &s.Steps[len(s.Steps)-1]
-}
-
-func (s *specDef) createBeforeStep() *stepDef {
-	s.BeforeSteps = append(s.BeforeSteps, stepDef{Spec: s})
-	return &s.BeforeSteps[len(s.BeforeSteps)-1]
-}
-
-func (s *specDef) createAfterStep() *stepDef {
-	s.AfterSteps = append(s.AfterSteps, stepDef{Spec: s})
-	return &s.AfterSteps[len(s.AfterSteps)-1]
-}
-
-func (e *elicitSpecRenderer) removeLastStep() {
-	var steps *[]stepDef
-	if e.scenario != nil {
-		steps = &e.scenario.Steps
-	} else if len(e.spec.Scenarios) == 0 {
-		steps = &e.spec.BeforeSteps
+func (p *specParser) removeLastStep() {
+	var steps *[]step
+	if p.currentScenario != nil {
+		steps = &p.currentScenario.steps
+	} else if len(p.currentSpec.scenarios) == 0 {
+		steps = &p.currentSpec.beforeSteps
 	} else {
-		steps = &e.spec.AfterSteps
+		steps = &p.currentSpec.afterSteps
 	}
 	*steps = (*steps)[:len(*steps)-1]
-	e.step = &(*steps)[len(*steps)-1]
+	p.currentStep = &(*steps)[len(*steps)-1]
 }
 
-// Paragraph not used
-func (e *elicitSpecRenderer) Paragraph(out *bytes.Buffer, text func() bool) {
+// Paragraph text prevents association of tables and code blocks with step
+func (p *specParser) Paragraph(out *bytes.Buffer, text func() bool) {
+	p.currentStep = nil
 	marker := out.Len()
 
 	if !text() {
@@ -206,38 +173,38 @@ func (e *elicitSpecRenderer) Paragraph(out *bytes.Buffer, text func() bool) {
 }
 
 // Table adds the constructed table to the active context
-func (e *elicitSpecRenderer) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {
-	if e.step != nil {
-		e.step.Tables = append(e.step.Tables, e.tableRows)
-	} else if e.scenario != nil {
-		e.scenario.Tables = append(e.scenario.Tables, e.tableRows)
+func (p *specParser) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {
+	if p.currentStep != nil {
+		p.currentStep.tables = append(p.currentStep.tables, p.tableRows)
+	} else if p.currentScenario != nil {
+		p.currentScenario.tables = append(p.currentScenario.tables, p.tableRows)
 	} else {
-		e.spec.Tables = append(e.spec.Tables, e.tableRows)
+		p.currentSpec.tables = append(p.currentSpec.tables, p.tableRows)
 	}
 
-	e.tableRows = nil
+	p.tableRows = nil
 }
 
 // TableRow saves the current row
-func (e *elicitSpecRenderer) TableRow(out *bytes.Buffer, text []byte) {
-	if len(e.tableRow) > 0 {
-		e.tableRows = append(e.tableRows, e.tableRow)
+func (p *specParser) TableRow(out *bytes.Buffer, text []byte) {
+	if len(p.tableRow) > 0 {
+		p.tableRows = append(p.tableRows, p.tableRow)
 	}
-	e.tableRow = nil
+	p.tableRow = nil
 }
 
 // TableHeaderCell defines a column in a table
-func (e *elicitSpecRenderer) TableHeaderCell(out *bytes.Buffer, text []byte, align int) {
-	e.tableRow = append(e.tableRow, e.lastText)
+func (p *specParser) TableHeaderCell(out *bytes.Buffer, text []byte, align int) {
+	p.tableRow = append(p.tableRow, p.lastText)
 }
 
 // TableCell adds a cell to the current row
-func (e *elicitSpecRenderer) TableCell(out *bytes.Buffer, text []byte, align int) {
-	e.tableRow = append(e.tableRow, e.lastText)
+func (p *specParser) TableCell(out *bytes.Buffer, text []byte, align int) {
+	p.tableRow = append(p.tableRow, p.lastText)
 }
 
 // Footnotes not used
-func (e *elicitSpecRenderer) Footnotes(out *bytes.Buffer, text func() bool) {
+func (p *specParser) Footnotes(out *bytes.Buffer, text func() bool) {
 	marker := out.Len()
 
 	if !text() {
@@ -246,150 +213,90 @@ func (e *elicitSpecRenderer) Footnotes(out *bytes.Buffer, text func() bool) {
 }
 
 // FootnoteItem not used
-func (e *elicitSpecRenderer) FootnoteItem(out *bytes.Buffer, name, text []byte, flags int) {
+func (p *specParser) FootnoteItem(out *bytes.Buffer, name, text []byte, flags int) {
 }
 
 // AutoLink output plaintext
-func (e *elicitSpecRenderer) AutoLink(out *bytes.Buffer, link []byte, kind int) {
-	e.NormalText(out, link)
+func (p *specParser) AutoLink(out *bytes.Buffer, link []byte, kind int) {
+	p.NormalText(out, link)
 }
 
 // CodeSpan output plaintext
-func (e *elicitSpecRenderer) CodeSpan(out *bytes.Buffer, text []byte) {
-	e.NormalText(out, text)
+func (p *specParser) CodeSpan(out *bytes.Buffer, text []byte) {
+	s := "`" + string(text) + "`"
+	p.WriteText(s)
 }
 
 // DoubleEmphasis output plaintext
-func (e *elicitSpecRenderer) DoubleEmphasis(out *bytes.Buffer, text []byte) {
-	e.NormalText(out, text)
+func (p *specParser) DoubleEmphasis(out *bytes.Buffer, text []byte) {
+	p.NormalText(out, text)
 }
 
 // Emphasis output plaintext
-func (e *elicitSpecRenderer) Emphasis(out *bytes.Buffer, text []byte) {
-	e.NormalText(out, text)
+func (p *specParser) Emphasis(out *bytes.Buffer, text []byte) {
+	p.NormalText(out, text)
+	if p.currentStep != nil && p.textTarget == &p.currentStep.text {
+		p.currentStep.force = true
+	}
 }
 
 // Image not used
-func (e *elicitSpecRenderer) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
+func (p *specParser) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
 }
 
 // LineBreak not used
-func (e *elicitSpecRenderer) LineBreak(out *bytes.Buffer) {
+func (p *specParser) LineBreak(out *bytes.Buffer) {
 }
 
 // Link contents written as plaintext
-func (e *elicitSpecRenderer) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
-	e.NormalText(out, content)
+func (p *specParser) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
+	p.NormalText(out, content)
 }
 
 // RawHtmlTag represents a table-derived parameter
-func (e *elicitSpecRenderer) RawHtmlTag(out *bytes.Buffer, tag []byte) {
-	e.NormalText(out, tag)
-	if e.textTarget == &e.step.Text {
-		e.step.Params = append(e.step.Params, e.lastText)
+func (p *specParser) RawHtmlTag(out *bytes.Buffer, tag []byte) {
+	p.NormalText(out, tag)
+	if p.currentStep != nil && p.textTarget == &p.currentStep.text {
+		p.currentStep.params = append(p.currentStep.params, p.lastText)
 	}
 }
 
 // TripleEmphasis outputs plaintext
-func (e *elicitSpecRenderer) TripleEmphasis(out *bytes.Buffer, text []byte) {
-	e.NormalText(out, text)
+func (p *specParser) TripleEmphasis(out *bytes.Buffer, text []byte) {
+	p.NormalText(out, text)
 }
 
 // StrikeThrough output as plaintext
-func (e *elicitSpecRenderer) StrikeThrough(out *bytes.Buffer, text []byte) {
-	e.NormalText(out, text)
+func (p *specParser) StrikeThrough(out *bytes.Buffer, text []byte) {
+	p.NormalText(out, text)
 }
 
 // FootnoteRef not used
-func (e *elicitSpecRenderer) FootnoteRef(out *bytes.Buffer, ref []byte, id int) {
+func (p *specParser) FootnoteRef(out *bytes.Buffer, ref []byte, id int) {
 }
 
 // Entity output as plaintext
-func (e *elicitSpecRenderer) Entity(out *bytes.Buffer, entity []byte) {
-	e.NormalText(out, entity)
+func (p *specParser) Entity(out *bytes.Buffer, entity []byte) {
+	p.NormalText(out, entity)
 }
 
 // NormalText output as plaintext
-func (e *elicitSpecRenderer) NormalText(out *bytes.Buffer, text []byte) {
-	e.lastText = string(text[:])
-	if len(strings.TrimSpace(e.lastText)) == 0 {
+func (p *specParser) NormalText(out *bytes.Buffer, text []byte) {
+	p.WriteText(string(text[:]))
+}
+
+func (p *specParser) WriteText(s string) {
+	p.lastText = strings.Replace(s, "\n", " ", -1)
+
+	if len(strings.TrimSpace(p.lastText)) == 0 {
 		return
 	}
-	if e.textTarget != nil {
-		*e.textTarget += e.lastText
+
+	if p.textTarget != nil {
+		*p.textTarget += p.lastText
 	}
 }
 
 // DocumentFooter not used
-func (e *elicitSpecRenderer) DocumentFooter(out *bytes.Buffer) {
-}
-
-// TODO(matt) consider resolving these during parsing rather than execution?
-func (s *stepDef) resolveStepParams() []string {
-	if len(s.Params) == 0 {
-		return []string{s.Text}
-	}
-
-	table := stringTable{}
-	resolved := []string{}
-	found := false
-
-	if s.Scenario != nil {
-		table, found = s.findTableWithParams(s.Scenario.Tables)
-	}
-
-	if !found {
-		table, found = s.findTableWithParams(s.Spec.Tables)
-	}
-
-	if found {
-		m := table.columnNameToIndexMap()
-		for _, row := range table[1:] {
-			text := s.Text
-			for _, p := range s.Params {
-				pname := strings.TrimSuffix(strings.TrimPrefix(p, "<"), ">")
-				pvalue := row[m[pname]]
-				text = strings.Replace(text, p, pvalue, -1)
-			}
-			resolved = append(resolved, text)
-		}
-	}
-
-	return resolved
-}
-
-func (s *stepDef) findTableWithParams(tables []stringTable) (stringTable, bool) {
-	for _, t := range tables {
-		if t.hasParams(s.Params) {
-			return t, true
-		}
-	}
-	return nil, false
-}
-
-func (t *stringTable) hasParams(params []string) bool {
-	for _, p := range params {
-		pname := strings.TrimSuffix(strings.TrimPrefix(p, "<"), ">")
-		if !t.hasColumn(pname) {
-			return false
-		}
-	}
-	return true
-}
-
-func (t *stringTable) hasColumn(cname string) bool {
-	for _, c := range (*t)[0] {
-		if c == cname {
-			return true
-		}
-	}
-	return false
-}
-
-func (t *stringTable) columnNameToIndexMap() map[string]int {
-	m := make(map[string]int, len((*t)[0]))
-	for i, c := range (*t)[0] {
-		m[c] = i
-	}
-	return m
+func (p *specParser) DocumentFooter(out *bytes.Buffer) {
 }
