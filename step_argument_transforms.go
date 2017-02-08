@@ -9,7 +9,7 @@ import (
 
 // StepArgumentTransform transforms captured groups in the step pattern to a function parameter type
 // Note that if the actual string cannot be converted to the target type by the transform, it should return false
-type StepArgumentTransform func(string, reflect.Type) (interface{}, bool)
+type StepArgumentTransform func([]string, reflect.Type) (interface{}, bool)
 
 type transformMap map[*regexp.Regexp]StepArgumentTransform
 
@@ -25,20 +25,20 @@ func (tm *transformMap) register(pattern string, transform StepArgumentTransform
 	(*tm)[p] = transform
 }
 
-func stringTransform(s string, t reflect.Type) (interface{}, bool) {
-	if t.Kind() != reflect.String {
+func stringTransform(params []string, t reflect.Type) (interface{}, bool) {
+	if t != reflect.TypeOf((*string)(nil)).Elem() {
 		return nil, false
 	}
 
-	return s, true
+	return params[0], true
 }
 
-func intTransform(s string, t reflect.Type) (interface{}, bool) {
+func intTransform(params []string, t reflect.Type) (interface{}, bool) {
 	if t != reflect.TypeOf((*int)(nil)).Elem() {
 		return nil, false
 	}
 
-	if t, err := strconv.Atoi(s); err == nil {
+	if t, err := strconv.Atoi(params[0]); err == nil {
 		return t, true
 	}
 

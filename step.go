@@ -157,14 +157,14 @@ func (s *step) convertParams(t *testing.T, f reflect.Value, stringParams []strin
 func (s *step) convertParam(param string, target reflect.Type) (reflect.Value, bool) {
 	for regex, tx := range s.context.transforms {
 		params := regex.FindStringSubmatch(param)
-		if params == nil || len(params) != 1 {
+		if params == nil {
 			continue
 		}
 
 		f := reflect.ValueOf(tx)
 
 		in := []reflect.Value{
-			reflect.ValueOf(param),
+			reflect.ValueOf(params),
 			reflect.ValueOf(target),
 		}
 

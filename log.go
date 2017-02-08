@@ -36,7 +36,7 @@ func (l *log) step(s *step, text string) {
 	case failed:
 		prefix = "✘"
 	case panicked:
-		prefix = "⚠"
+		prefix = "⚡"
 	case passed:
 		if s.forced {
 			prefix = "✔"

@@ -9,7 +9,7 @@ For example, the scenarios below make use of the file created below.
 - Create a `spec_test.go` file:
 
 ```go
-package spec_test
+package elicit_test
 
 import (
     "mmatt/elicit"
@@ -162,7 +162,7 @@ but it is convenient to keep them in a single package.
 - Create a `steps_test.go` file:
 
 ```go
-package spec_test
+package elicit_test
 
 import (
     "fmt"
@@ -170,14 +170,14 @@ import (
 )
 
 func init() {
-    steps[`Simple step`] =
+    steps[`Simple Step`] =
         func(t *testing.T) {
-            fmt.Print("simple step")
+            fmt.Print("simple step, ")
         }
 
-    steps[`Step with "(.*)" param`] =
+    steps[`Step with "(.*)" parameter`] =
         func(t *testing.T, s string) {
-            fmt.Printf("param: %s ", s)
+            fmt.Printf("param: %s, ", s)
         }
 
     steps[`Step with an int parameter (-?\d+)`] =
@@ -223,18 +223,18 @@ If you don't have many steps, you could put them all in the same file with the t
 - Running `go test` will output:
 
 ```markdown
-42, -1, 
+simple step, param: hello, param: world, 42, -1, 
 Step Execution
 ==============
 
 No Parameters
 -------------
-  ? Simple Step
+  ✓ Simple Step
 
 String parameters
 -----------------
-  ? Step with "hello" parameter
-  ? Step with "world" parameter
+  ✓ Step with "hello" parameter
+  ✓ Step with "world" parameter
 
 Int parameters
 --------------
@@ -273,7 +273,7 @@ add emphasis to the whole step text.
 - Create a `steps_test.go` file:
 
 ```go
-package spec_test
+package elicit_test
 
 import (
     "fmt"
@@ -361,7 +361,7 @@ Any tables in the footer are scoped to the specification.
 - Create a `steps_test.go` file:
 
 ```go
-package spec_test
+package elicit_test
 
 import (
     "fmt"
@@ -451,7 +451,7 @@ implementation
 - Create a `steps_test.go` file:
 
 ```go
-package spec_test
+package elicit_test
 
 import (
     "fmt"
