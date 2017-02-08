@@ -5,9 +5,10 @@ import (
 	"testing"
 )
 
+
 // Context stores test machinery and maintains state between specs/scenarios/steps
 type Context struct {
-	specs           specCollection
+	specs           []*spec
 	stepImpls       stepImplMap
 	transforms      transformMap
 	data            map[string]interface{}
@@ -19,8 +20,8 @@ type Context struct {
 
 // WithSpecsFolder recursively adds the path to the discovery path of specs
 func (ctx *Context) WithSpecsFolder(path string) *Context {
-	p := specParser{}
-	specs := p.parseSpecFolder(path, ctx)
+	p := specParser{context: ctx}
+	specs := p.parseSpecFolder(path)
 	ctx.specs = append(ctx.specs, specs...)
 	return ctx
 }

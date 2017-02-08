@@ -13,6 +13,7 @@ import (
 
 // implements the blackfriday Renderer interface.
 type specParser struct {
+	context         *Context
 	currentSpec     *spec
 	currentScenario *scenario
 	currentStep     *step
@@ -23,13 +24,17 @@ type specParser struct {
 	tableRows       stringTable
 }
 
-func (p *specParser) parseSpecFolder(directory string, ctx *Context) specCollection {
-	specs := specCollection{}
+func (p *specParser) parseSpecFolder(directory string) []*spec {
+	specs := []*spec{}
 
 	filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && strings.HasSuffix(info.Name(), ".spec") {
-			s := p.loadFromFile(path, ctx)
-			specs = append(specs, s)
+			specs = append(specs, &spec{
+				context: p.context,
+				path:    path,
+			})
+			s := specs[len(specs)-1]
+			p.loadFromFile(s)
 		}
 		return nil
 	})
@@ -37,27 +42,16 @@ func (p *specParser) parseSpecFolder(directory string, ctx *Context) specCollect
 	return specs
 }
 
-func (p *specParser) loadFromFile(specFilePath string, ctx *Context) spec {
-	specText, err := ioutil.ReadFile(specFilePath)
+func (p *specParser) loadFromFile(s *spec) {
+	specText, err := ioutil.ReadFile(s.path)
 
 	if err != nil {
-		panic(fmt.Errorf("parsing spec file: %s: %s", specFilePath, err))
+		panic(fmt.Errorf("parsing spec file: %s: %s", s.path, err))
 	}
 
-	s := spec{
-		context: ctx,
-		path:    specFilePath,
-	}
-	p.currentSpec = &s
+	p.currentSpec = s
 
-	md := bf.Markdown(
-		specText,
-		p,
-		bf.EXTENSION_TABLES|bf.EXTENSION_FENCED_CODE)
-
-	fmt.Printf(string(md))
-
-	return s
+	bf.Markdown(specText, p, bf.EXTENSION_TABLES|bf.EXTENSION_FENCED_CODE)
 }
 
 // GetFlags not used
@@ -150,7 +144,7 @@ func (p *specParser) addStepToCurrentContext() {
 }
 
 func (p *specParser) removeLastStep() {
-	var steps *[]step
+	var steps *[]*step
 	if p.currentScenario != nil {
 		steps = &p.currentScenario.steps
 	} else if len(p.currentSpec.scenarios) == 0 {
@@ -159,7 +153,7 @@ func (p *specParser) removeLastStep() {
 		steps = &p.currentSpec.afterSteps
 	}
 	*steps = (*steps)[:len(*steps)-1]
-	p.currentStep = &(*steps)[len(*steps)-1]
+	p.currentStep = (*steps)[len(*steps)-1]
 }
 
 // Paragraph text prevents association of tables and code blocks with step

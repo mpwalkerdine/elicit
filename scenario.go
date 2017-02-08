@@ -7,15 +7,15 @@ type scenario struct {
 	context  *Context
 	spec     *spec
 	name     string
-	steps    []step
+	steps    []*step
 	tables   []stringTable
 	stepsRun int
 	result   stepResult
 }
 
 func (s *scenario) createStep() *step {
-	s.steps = append(s.steps, step{context: s.context, spec: s.spec, scenario: s})
-	return &s.steps[len(s.steps)-1]
+	s.steps = append(s.steps, &step{context: s.context, spec: s.spec, scenario: s})
+	return s.steps[len(s.steps)-1]
 }
 
 func (s *scenario) runTest(scenarioT *testing.T) {

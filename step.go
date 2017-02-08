@@ -72,7 +72,6 @@ func (s *step) run(scenarioT *testing.T) {
 		})
 
 		s.scenario.updateResult(s.result)
-
 		s.context.log.step(s, text)
 	}
 }
