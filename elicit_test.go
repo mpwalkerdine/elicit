@@ -41,9 +41,9 @@ func init() {
 		}
 
 	steps["Create a `(.*)` file:"] =
-		func(t *testing.T, filename string, contents elicit.TextBlock) {
+		func(t *testing.T, filename string, text elicit.TextBlock) {
 			outpath := filepath.Join(tempdir, filename)
-			ioutil.WriteFile(outpath, []byte(contents), 0777)
+			ioutil.WriteFile(outpath, []byte(text.Content), 0777)
 		}
 
 	steps["Running `go test` will output:"] =
@@ -54,7 +54,7 @@ func init() {
 
 			output, _ := exec.Command("go", "test").CombinedOutput()
 
-			expected, actual := quoteOutput(string(text)), quoteOutput(string(output))
+			expected, actual := quoteOutput(text.Content), quoteOutput(string(output))
 			if !strings.Contains(actual, expected) {
 				t.Errorf("\n\nExpected:\n\n%s\n\nto contain:\n\n%s\n", actual, expected)
 			}

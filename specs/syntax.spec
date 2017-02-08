@@ -463,7 +463,7 @@ import (
 func init() {
     steps[`This step takes a block of text:`] =
         func(t *testing.T, text elicit.TextBlock) {
-            fmt.Println("> " + strings.Join(strings.Split(strings.TrimSpace(string(text)), "\n"), "\n> "))
+            fmt.Println("> " + strings.Join(strings.Split(strings.TrimSpace(text.Content), "\n"), "\n> "))
         }
 }
 ```

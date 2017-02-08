@@ -66,7 +66,7 @@ func (p *specParser) DocumentHeader(out *bytes.Buffer) {
 // BlockCode not used
 func (p *specParser) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 	if p.currentStep != nil {
-		p.currentStep.textBlocks = append(p.currentStep.textBlocks, TextBlock(text[:]))
+		p.currentStep.textBlocks = append(p.currentStep.textBlocks, TextBlock{Language: lang, Content: string(text[:])})
 	}
 }
 
