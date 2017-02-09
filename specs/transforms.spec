@@ -13,30 +13,9 @@ Arbitrary types can be converted by supplying additional `StepArgumentTransforms
 type StepArgumentTransform func(string, reflect.Type) (interface{}, bool)
 ```
 
-The following scenarios use the same temporary environment:
+The following scenarios use the same temporary environment (see [Specification Syntax](syntax.spec))
 
-- Create a temporary directory
-- Create a `spec_test.go` file:
-
-```go
-package elicit_test
-
-import (
-    "mmatt/elicit"
-    "testing"
-)
-
-func Test(t *testing.T) {
-    elicit.New().
-        WithSpecsFolder(".").
-        WithSteps(steps).
-        WithTransforms(transforms).
-        RunTests(t)
-}
-
-var steps = map[string]interface{}{}
-var transforms = map[string]elicit.StepArgumentTransform{}
-```
+- Create a temporary environment
 
 ## Simple Types
 
@@ -81,6 +60,8 @@ func init() {
 - Running `go test` will output:
 
 ```markdown
+param
+
 Simple Type Transforms
 ======================
 
@@ -153,3 +134,7 @@ A Person
 --------
   ✓ Print a person named Bob, born 1986-01-01
 ```
+
+---
+
+- *Remove the temporary directory*

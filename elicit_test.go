@@ -23,27 +23,26 @@ func Test(t *testing.T) {
 		WithReportPath(*reportFile).
 		WithSpecsFolder("./specs").
 		WithSteps(steps).
+		WithTransforms(transforms).
 		RunTests(t)
 }
 
 var steps = map[string]interface{}{}
+var transforms = map[string]elicit.StepArgumentTransform{}
 
 func init() {
 
-	steps["Create a temporary directory"] =
-		func(t *testing.T) {
-			var err error
-			tempdir, err = ioutil.TempDir("", "elicit_test")
+	steps["Create a temporary directory"] = createTempDir
 
-			if err != nil {
-				t.Fatalf("creating tempdir: %s", err)
-			}
+	steps["Create a temporary environment"] =
+		func(t *testing.T) {
+			createTempDir(t)
+			createFile(t, "specs_test.go", testfile)
 		}
 
 	steps["Create a `(.*)` file:"] =
 		func(t *testing.T, filename string, text elicit.TextBlock) {
-			outpath := filepath.Join(tempdir, filename)
-			ioutil.WriteFile(outpath, []byte(text.Content), 0777)
+			createFile(t, filename, text.Content)
 		}
 
 	steps["Running `go test` will output:"] =
@@ -68,6 +67,20 @@ func init() {
 		}
 }
 
+func createTempDir(t *testing.T) {
+	var err error
+	tempdir, err = ioutil.TempDir("", "elicit_test")
+
+	if err != nil {
+		t.Fatalf("creating tempdir: %s", err)
+	}
+}
+
+func createFile(t *testing.T, filename, contents string) {
+	outpath := filepath.Join(tempdir, filename)
+	ioutil.WriteFile(outpath, []byte(contents), 0777)
+}
+
 func quoteOutput(s string) string {
 	s = strings.TrimSpace(s)
 	s = strings.Replace(s, " ", "·", -1)
@@ -75,3 +88,23 @@ func quoteOutput(s string) string {
 	s = "  | " + strings.Join(strings.Split(s, "\n"), "\n  | ")
 	return s
 }
+
+const testfile = `
+package elicit_test
+
+import (
+    "mmatt/elicit"
+    "testing"
+)
+
+func Test(t *testing.T) {
+    elicit.New().
+        WithSpecsFolder(".").
+        WithSteps(steps).
+        WithTransforms(transforms).
+        RunTests(t)
+}
+
+var steps = map[string]interface{}{}
+var transforms = map[string]elicit.StepArgumentTransform{}
+`
