@@ -46,7 +46,7 @@ func (l *log) step(s *step, text string) {
 		prefix = l.red("⚡")
 	case passed:
 		if s.forced {
-			prefix = l.boldgreen("✔")
+			prefix = l.green("✔")
 		} else {
 			prefix = l.green("✓\033[0m")
 		}
@@ -63,10 +63,6 @@ func (l *log) green(s string) string {
 	return fmt.Sprintf("\033[0;32m%s", s)
 }
 
-func (l *log) boldgreen(s string) string {
-	return fmt.Sprintf("\033[1;32m%s", s)
-}
-
 func (l *log) yellow(s string) string {
-	return fmt.Sprintf("\033[1;33m%s", s)
+	return fmt.Sprintf("\033[0;33m%s", s)
 }
