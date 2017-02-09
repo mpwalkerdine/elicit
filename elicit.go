@@ -8,7 +8,6 @@ func New() *Context {
 	ctx := &Context{
 		stepImpls:  map[*regexp.Regexp]interface{}{},
 		transforms: map[*regexp.Regexp]StepArgumentTransform{},
-		data:       map[string]interface{}{},
 	}
 
 	// TODO(matt) discover these automatically

@@ -5,13 +5,11 @@ import (
 	"testing"
 )
 
-
 // Context stores test machinery and maintains state between specs/scenarios/steps
 type Context struct {
 	specs           []*spec
 	stepImpls       stepImplMap
 	transforms      transformMap
-	data            map[string]interface{}
 	log             log
 	currentSpec     *spec
 	currentScenario *scenario
@@ -69,18 +67,4 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 	}
 
 	return ctx
-}
-
-// Add stores data in the current context (scenario or spec) for use by other steps
-func (ctx *Context) Add(key string, value interface{}) {
-	ctx.data[key] = value
-}
-
-// Get retrieves data for the scenario context, falling back to the spec context
-func (ctx *Context) Get(key string) interface{} {
-	if value, found := ctx.data[key]; found {
-		return value
-	}
-
-	return nil
 }
