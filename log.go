@@ -25,33 +25,48 @@ func (l *log) scenario(s *scenario) {
 func (l *log) step(s *step, text string) {
 	var prefix, suffix string
 
-	tables := len(s.tables)
 	textBlocks := len(s.textBlocks)
-
-	switch s.result {
-	case undefined:
-		prefix = "?"
-	case skipped:
-		prefix = "⤹"
-	case failed:
-		prefix = "✘"
-	case panicked:
-		prefix = "⚡"
-	case passed:
-		if s.forced {
-			prefix = "✔"
-		} else {
-			prefix = "✓"
-		}
-	}
-
 	if textBlocks > 0 {
 		suffix += strings.Repeat(" ☰", textBlocks)
 	}
 
+	tables := len(s.tables)
 	if tables > 0 {
 		suffix += strings.Repeat(" ☷", tables)
 	}
 
-	fmt.Fprintf(&l.buffer, "  %s %s%s\n", prefix, text, suffix)
+	switch s.result {
+	case undefined:
+		prefix = l.yellow("?")
+	case skipped:
+		prefix = l.yellow("⤹")
+	case failed:
+		prefix = l.red("✘")
+	case panicked:
+		prefix = l.red("⚡")
+	case passed:
+		if s.forced {
+			prefix = l.boldgreen("✔")
+		} else {
+			prefix = l.green("✓\033[0m")
+		}
+	}
+
+	fmt.Fprintf(&l.buffer, "  %s %s%s\033[0m\n", prefix, text, suffix)
+}
+
+func (l *log) red(s string) string {
+	return fmt.Sprintf("\033[1;31m%s", s)
+}
+
+func (l *log) green(s string) string {
+	return fmt.Sprintf("\033[0;32m%s", s)
+}
+
+func (l *log) boldgreen(s string) string {
+	return fmt.Sprintf("\033[1;32m%s", s)
+}
+
+func (l *log) yellow(s string) string {
+	return fmt.Sprintf("\033[1;33m%s", s)
 }

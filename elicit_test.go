@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -82,6 +83,7 @@ func createFile(t *testing.T, filename, contents string) {
 
 func quoteOutput(s string) string {
 	s = strings.TrimSpace(s)
+	s = regexp.MustCompile(`\033\[\d+(;\d+)?m`).ReplaceAllString(s, "")
 	s = strings.Replace(s, " ", "·", -1)
 	s = strings.Replace(s, "\t", "➟", -1)
 	s = "  | " + strings.Join(strings.Split(s, "\n"), "\n  | ")
