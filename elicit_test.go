@@ -15,7 +15,6 @@ var (
 	reportFile = flag.String("report", "", "Path to save the execution report, otherwise stdout")
 )
 
-// TODO(matt) store in scenario context
 var tempdir string
 
 func Test(t *testing.T) {

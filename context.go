@@ -43,6 +43,7 @@ func (ctx *Context) WithTransforms(txs map[string]StepArgumentTransform) *Contex
 // WithReportPath sets the output path for the execution summary.
 // If path is the empty string, the report is written to stdout.
 func (ctx *Context) WithReportPath(path string) *Context {
+	// TODO(matt) implement reporting
 	return ctx
 }
 

@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 // StepArgumentTransform transforms captured groups in the step pattern to a function parameter type
@@ -12,6 +13,47 @@ import (
 type StepArgumentTransform func([]string, reflect.Type) (interface{}, bool)
 
 type transformMap map[*regexp.Regexp]StepArgumentTransform
+
+func (tm *transformMap) init() {
+	tm.register(`.*`, func(params []string, t reflect.Type) (interface{}, bool) {
+		if t != reflect.TypeOf((*string)(nil)).Elem() {
+			return nil, false
+		}
+
+		return params[0], true
+	})
+
+	tm.register(`-?\d+`, func(params []string, t reflect.Type) (interface{}, bool) {
+		if t != reflect.TypeOf((*int)(nil)).Elem() {
+			return nil, false
+		}
+
+		if t, err := strconv.Atoi(params[0]); err == nil {
+			return t, true
+		}
+
+		return nil, false
+	})
+
+	tm.register(`(?:.+,\s*)*.+`, func(params []string, t reflect.Type) (interface{}, bool) {
+		if t.Kind() != reflect.Slice {
+			return nil, false
+		}
+
+		r := reflect.ValueOf(reflect.New(t).Elem().Interface())
+
+		for _, i := range strings.Split(params[0], ",") {
+			i = strings.TrimSpace(i)
+			if e, ok := tm.convertParam(i, t.Elem()); ok {
+				r = reflect.Append(r, e)
+			} else {
+				return nil, false
+			}
+		}
+
+		return r.Interface(), true
+	})
+}
 
 func (tm *transformMap) register(pattern string, transform StepArgumentTransform) {
 	pattern = ensureCompleteMatch(pattern)
@@ -25,41 +67,25 @@ func (tm *transformMap) register(pattern string, transform StepArgumentTransform
 	(*tm)[p] = transform
 }
 
-func stringTransform(params []string, t reflect.Type) (interface{}, bool) {
-	if t != reflect.TypeOf((*string)(nil)).Elem() {
-		return nil, false
+func (tm *transformMap) convertParam(param string, target reflect.Type) (reflect.Value, bool) {
+	for regex, tx := range *tm {
+		params := regex.FindStringSubmatch(param)
+		if params == nil {
+			continue
+		}
+
+		f := reflect.ValueOf(tx)
+
+		in := []reflect.Value{
+			reflect.ValueOf(params),
+			reflect.ValueOf(target),
+		}
+
+		out := f.Call(in)
+		if out[1].Interface().(bool) {
+			return reflect.ValueOf(out[0].Interface()), true
+		}
 	}
 
-	return params[0], true
+	return reflect.Value{}, false
 }
-
-func intTransform(params []string, t reflect.Type) (interface{}, bool) {
-	if t != reflect.TypeOf((*int)(nil)).Elem() {
-		return nil, false
-	}
-
-	if t, err := strconv.Atoi(params[0]); err == nil {
-		return t, true
-	}
-
-	return nil, false
-}
-
-// func commaSliceTransform(ctx *Context, s string, t reflect.Type) (interface{}, bool) {
-// 	if t.Kind() != reflect.Slice {
-// 		return nil, false
-// 	}
-//
-// 	r := reflect.ValueOf(reflect.New(t).Elem().Interface())
-//
-// 	for _, i := range strings.Split(s, ",") {
-// 		i = strings.TrimSpace(i)
-// 		if e, ok := ctx.convertParam(i, t.Elem()); ok {
-// 			r = reflect.Append(r, e)
-// 		} else {
-// 			return nil, false
-// 		}
-// 	}
-//
-// 	return r.Interface(), true
-// }

@@ -10,10 +10,7 @@ func New() *Context {
 		transforms: map[*regexp.Regexp]StepArgumentTransform{},
 	}
 
-	// TODO(matt) discover these automatically
-	ctx.transforms.register(`.*`, stringTransform)
-	ctx.transforms.register(`-?\d+`, intTransform)
-	// TODO(matt) reinstate ctx.transforms.register(`(?:.+,\s*)*.+`, commaSliceTransform)
+	ctx.transforms.init()
 
 	return ctx
 }

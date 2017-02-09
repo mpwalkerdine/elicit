@@ -2,8 +2,12 @@
 
 Captured parameters are automatically converted for the following types:
 
-    string
+    string   
     int
+    []string
+    []int
+
+The slice values should be comma-separated, see [Slices](#Slices)
 
 Arbitrary types can be converted by supplying additional `StepArgumentTransforms` during setup.
 
@@ -68,6 +72,51 @@ Simple Type Transforms
 Renamed string
 --------------
   ✓ Step with a CustomString "param"
+```
+
+## Slices
+
+- Create a `slice_test.go` file:
+
+```go
+package elicit_test
+
+import (
+    "testing"
+)
+
+func init() {
+    steps[`Sum of (.+) is (.+)`] =
+        func(t *testing.T, ns []int, s int) {
+            actual := 0
+            for _, n := range ns {
+                actual += n
+            }
+
+            if actual != s {
+                t.Errorf("expected sum of %v to be %d, got %d", ns, s, actual)
+            }
+        }
+}
+```
+
+- Create a `sum.spec` file:
+
+```markdown
+# List Summation
+## First Four Numbers
+- Sum of 1,2,3,4 is 10
+```
+
+- Running `go test` will output:
+
+```markdown
+List Summation
+==============
+
+First Four Numbers
+------------------
+  ✓ Sum of 1,2,3,4 is 10
 ```
 
 ## Structs
