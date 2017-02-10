@@ -15,7 +15,7 @@ func (l *log) String() string {
 }
 
 func (l *log) spec(s *spec) {
-	fmt.Fprintf(&l.buffer, "\n%s\n%s\n", s.name, strings.Repeat("=", len(s.name)))
+	fmt.Fprintf(&l.buffer, "\n\n%s\n%s\n", s.name, strings.Repeat("=", len(s.name)))
 }
 
 func (l *log) scenario(s *scenario) {

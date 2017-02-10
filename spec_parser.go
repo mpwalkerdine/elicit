@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"regexp"
+
 	bf "github.com/russross/blackfriday"
 )
 
@@ -48,6 +50,9 @@ func (p *specParser) loadFromFile(s *spec) {
 	if err != nil {
 		panic(fmt.Errorf("parsing spec file: %s: %s", s.path, err))
 	}
+
+	// Strip out non-step items so they're not parsed
+	specText = regexp.MustCompile(`(?m)^- `).ReplaceAllLiteral(specText, []byte(""))
 
 	p.currentSpec = s
 

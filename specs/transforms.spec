@@ -2,10 +2,10 @@
 
 Captured parameters are automatically converted for the following types:
 
-    string   
-    int
-    []string
-    []int
+- `string`
+- `int`
+- `[]string`
+- `[]int`
 
 The slice values should be comma-separated, see [Slices](#Slices)
 
@@ -19,11 +19,11 @@ type StepArgumentTransform func(string, reflect.Type) (interface{}, bool)
 
 The following scenarios use the same temporary environment (see [Specification Syntax](syntax.spec))
 
-- Create a temporary environment
++ Create a temporary environment
 
 ## Simple Types
 
-- Create a `simple_test.go` file:
++ Create a `simple_test.go` file:
 
 ```go
 package elicit_test
@@ -53,18 +53,19 @@ func init() {
 }
 ```
 
-- Create a `simple_types.spec` file:
++ Create a `simple_types.spec` file:
 
 ```markdown
 # Simple Type Transforms
 ## Renamed string
-- Step with a CustomString "param"
++ Step with a CustomString "param"
 ```
 
-- Running `go test` will output:
++ Running `go test` will output:
 
 ```markdown
 param
+
 
 Simple Type Transforms
 ======================
@@ -76,7 +77,7 @@ Renamed string
 
 ## Slices
 
-- Create a `slice_test.go` file:
++ Create a `slice_test.go` file:
 
 ```go
 package elicit_test
@@ -100,15 +101,15 @@ func init() {
 }
 ```
 
-- Create a `sum.spec` file:
++ Create a `sum.spec` file:
 
 ```markdown
 # List Summation
 ## First Four Numbers
-- Sum of 1,2,3,4 is 10
++ Sum of 1,2,3,4 is 10
 ```
 
-- Running `go test` will output:
++ Running `go test` will output:
 
 ```markdown
 List Summation
@@ -121,7 +122,7 @@ First Four Numbers
 
 ## Structs
 
-- Create a `struct_test.go` file:
++ Create a `struct_test.go` file:
 
 ```go
 package elicit_test
@@ -162,19 +163,20 @@ func init() {
 }
 ```
 
-- Create a `simple_types.spec` file:
++ Create a `simple_types.spec` file:
 
 ```markdown
 # Struct Transforms
 ## A Person
-- Print a person named Bob, born 1986-01-01
++ Print a person named Bob, born 1986-01-01
 ```
 
-- Running `go test` will output:
++ Running `go test` will output:
 
 ```markdown
 Name: Bob
 DOB: 1986-1-1
+
 
 Struct Transforms
 =================
@@ -186,4 +188,4 @@ A Person
 
 ---
 
-- *Remove the temporary directory*
++ *Remove the temporary directory*

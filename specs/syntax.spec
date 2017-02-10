@@ -5,8 +5,8 @@ They are then executed by a normal go test function.
 
 For example, the scenarios below make use of the file created below.
 
-- Create a temporary directory
-- Create a `spec_test.go` file:
++ Create a temporary directory
++ Create a `spec_test.go` file:
 
 ```go
 package elicit_test
@@ -32,13 +32,13 @@ This specification describes (and tests!) the elicit markdown syntax.
 
 Level 1 headings name a Spec e.g.
 
-- Create a `spec_heading.spec` file:
++ Create a `spec_heading.spec` file:
 
 ```markdown
 # Spec Name
 ```
 
-- Running `go test` will output:
++ Running `go test` will output:
 
 ```markdown
 Spec Name
@@ -53,14 +53,14 @@ of the `.spec` file and the spec heading.
 
 Level 2 heading name a Scenario, e.g.
 
-- Create a `scenario_heading.spec` file:
++ Create a `scenario_heading.spec` file:
 
 ```markdown
 # Spec Name
 ## Scenario Name
 ```
 
-- Running `go test` will output:
++ Running `go test` will output:
 
 ```markdown
 Spec Name
@@ -73,17 +73,17 @@ Scenario Name
 
 ## Steps
 
-List items define executable steps, e.g.
+List items using the `+` character define executable steps, e.g.
 
-- Create a `simple_step.spec` file:
++ Create a `simple_step.spec` file:
 
 ```markdown
 # Spec Name
 ## Scenario Name
-- A Step
++ A Step
 ```
 
-- Running `go test` will output:
++ Running `go test` will output:
 
 ```markdown
 Spec Name
@@ -93,6 +93,9 @@ Scenario Name
 -------------
   ? A Step
 ```
+
+If you wish to include bullets in the specification which aren't steps,
+use `-` or `*` in the markdown.
 
 Steps are run in order, one after the other. If a step is missing an
 implementation, is skipped or failed, then subsequent steps will be
@@ -108,23 +111,23 @@ Steps defined before the first scenario are run before _every_ scenario.
 A horizontal rule at the end of the file allows steps to be run after
 _every_ scenario, e.g.
 
-- Create a `before_after_steps.spec` file:
++ Create a `before_after_steps.spec` file:
 
 ```markdown
 # Spec
-- before
++ before
 
 ## First Scenario
-- step 1
++ step 1
 
 ## Last Scenario
-- step 2
++ step 2
 
 ---
-- after
++ after
 ```
 
-- Running `go test` will output:
++ Running `go test` will output:
 
 ```markdown
 Spec
@@ -159,7 +162,7 @@ keeping the regex next to the function. Of course, you're free to construct the
 map in any way you see fit. They may be organised into whatever packages you like,
 but it is convenient to keep them in a single package.
 
-- Create a `steps_test.go` file:
++ Create a `steps_test.go` file:
 
 ```go
 package elicit_test
@@ -198,32 +201,33 @@ func init() {
 Note that `steps` has already been defined in the `specs_test.go` file in the spec context.
 If you don't have many steps, you could put them all in the same file with the test method.
 
-- Create a `step_execution.spec` file:
++ Create a `step_execution.spec` file:
 
 ```markdown
 # Step Execution
 
 ## No Parameters
-- Simple Step
++ Simple Step
 
 ## String parameters
-- Step with "hello" parameter
-- Step with "world" parameter
++ Step with "hello" parameter
++ Step with "world" parameter
 
 ## Int parameters
-- Step with an int parameter 42
-- Step with an int parameter -1
++ Step with an int parameter 42
++ Step with an int parameter -1
 
 ## Multiple Parameters
-- 1 + 1 = 2
-- 2 + 3 = 5
-- 0 + 1 = 0
++ 1 + 1 = 2
++ 2 + 3 = 5
++ 0 + 1 = 0
 ```
 
-- Running `go test` will output:
++ Running `go test` will output:
 
 ```markdown
 simple step, param: hello, param: world, 42, -1, 
+
 Step Execution
 ==============
 
@@ -260,17 +264,17 @@ Multiple Parameters
 If there are steps that need to be run regardless of the success or failure of previous steps,
 add emphasis to the whole step text.
 
-- Create a `forced_steps.spec` file:
++ Create a `forced_steps.spec` file:
 
 ```markdown
 # Forcing Steps to Run
 
 ## Forced Step
-- This step is skipped
-- *Forced step*
++ This step is skipped
++ *Forced step*
 ```
 
-- Create a `steps_test.go` file:
++ Create a `steps_test.go` file:
 
 ```go
 package elicit_test
@@ -288,7 +292,7 @@ func init() {
 }
 ```
 
-- Running `go test` will output:
++ Running `go test` will output:
 
 ```markdown
 Forcing Steps to Run
@@ -314,7 +318,7 @@ This creates multiple steps in place of the original, but with values substitute
 Note that at present only a single table can be used for parameterisation of a single step.
 The mechanism for handling parameterisation across tables hasn't been decided.
 
-- Create a `tables.spec` file:
++ Create a `tables.spec` file:
 
 ```markdown
 # Tables
@@ -326,12 +330,12 @@ This table is available in all scenarios, and in before/after steps.
  1 | 2 | 3
  4 | 5 | 6
 
-- print "before: a = <a>, b = <b>, c = <c>"
++ print "before: a = <a>, b = <b>, c = <c>"
 
 
 ## Step Table
 
-- Step with table
++ Step with table
 
  A  | Table  | Here
 ----|--------|------
@@ -348,17 +352,17 @@ d  | e  | f
 
 Scenario steps can use <a>, <b> and <c>, but <d>, <e> and <f> are scoped to this scenario.
 
-- print "during: a = <a>"
-- print "during: d = <d>"
++ print "during: a = <a>"
++ print "during: d = <d>"
 
 ---
 Any tables in the footer are scoped to the specification.
 
-- print " after: a = <a>"
++ print " after: a = <a>"
 
 ```
 
-- Create a `steps_test.go` file:
++ Create a `steps_test.go` file:
 
 ```go
 package elicit_test
@@ -387,7 +391,7 @@ func init() {
 }
 ```
 
-- Running `go test` will output:
++ Running `go test` will output:
 
 ```markdown
 before: a = 1, b = 2, c = 3
@@ -402,6 +406,7 @@ during: d = 7
 during: d = 10
  after: a = 1
  after: a = 4
+
 
 Tables
 ======
@@ -432,12 +437,12 @@ If you need to pass a block of text to a step, you can used a fenced code block 
 
 The output appends a ☰ symbol for each text block.
 
-- Create a `text_block.spec` file:
++ Create a `text_block.spec` file:
 
 ````markdown
 # Text Blocks
 ## Text Block
-- This step takes a block of text:
++ This step takes a block of text:
 
 ```title
 Multiple lines
@@ -448,7 +453,7 @@ implementation
 ```
 ````
 
-- Create a `steps_test.go` file:
++ Create a `steps_test.go` file:
 
 ```go
 package elicit_test
@@ -468,7 +473,7 @@ func init() {
 }
 ```
 
-- Running `go test` will output:
++ Running `go test` will output:
 
 ```markdown
 > Multiple lines
@@ -476,6 +481,7 @@ func init() {
 > are passed into
 > the step
 > implementation
+
 
 Text Blocks
 ===========
@@ -487,4 +493,4 @@ Text Block
 
 ---
 
-- *Remove the temporary directory*
++ *Remove the temporary directory*
