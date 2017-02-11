@@ -77,6 +77,9 @@ func createTempDir(t *testing.T) {
 }
 
 func createFile(t *testing.T, filename, contents string) {
+	if tempdir == "" {
+		t.Fatal("creating file: tempdir not set")
+	}
 	outpath := filepath.Join(tempdir, filename)
 	ioutil.WriteFile(outpath, []byte(contents), 0777)
 }

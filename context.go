@@ -19,8 +19,7 @@ type Context struct {
 // WithSpecsFolder recursively adds the path to the discovery path of specs
 func (ctx *Context) WithSpecsFolder(path string) *Context {
 	p := specParser{context: ctx}
-	specs := p.parseSpecFolder(path)
-	ctx.specs = append(ctx.specs, specs...)
+	p.parseSpecFolder(path)
 	return ctx
 }
 

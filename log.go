@@ -22,7 +22,7 @@ func (l *log) scenario(s *scenario) {
 	fmt.Fprintf(&l.buffer, "\n%s\n%s\n", s.name, strings.Repeat("-", len(s.name)))
 }
 
-func (l *log) step(s *step, text string) {
+func (l *log) step(s *step) {
 	var prefix, suffix string
 
 	textBlocks := len(s.textBlocks)
@@ -52,17 +52,17 @@ func (l *log) step(s *step, text string) {
 		}
 	}
 
-	fmt.Fprintf(&l.buffer, "  %s %s%s\033[0m\n", prefix, text, suffix)
+	fmt.Fprintf(&l.buffer, "  %s %s%s\033[0m\n", prefix, s.text, suffix)
 }
 
 func (l *log) red(s string) string {
-	return fmt.Sprintf("\033[1;31m%s", s)
+	return fmt.Sprintf("\033[31m%s", s)
 }
 
 func (l *log) green(s string) string {
-	return fmt.Sprintf("\033[0;32m%s", s)
+	return fmt.Sprintf("\033[32m%s", s)
 }
 
 func (l *log) yellow(s string) string {
-	return fmt.Sprintf("\033[0;33m%s", s)
+	return fmt.Sprintf("\033[33m%s", s)
 }
