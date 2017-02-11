@@ -1,9 +1,6 @@
 package elicit
 
-import (
-	"fmt"
-	"testing"
-)
+import "testing"
 
 // Context stores test machinery and maintains state between specs/scenarios/steps
 type Context struct {
@@ -42,7 +39,7 @@ func (ctx *Context) WithTransforms(txs map[string]StepArgumentTransform) *Contex
 // WithReportPath sets the output path for the execution summary.
 // If path is the empty string, the report is written to stdout.
 func (ctx *Context) WithReportPath(path string) *Context {
-	// TODO(matt) implement reporting
+	ctx.log.outpath = path
 	return ctx
 }
 
@@ -60,7 +57,7 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 		})
 	}
 
-	fmt.Println(ctx.log.String())
+	ctx.log.writeToFile()
 
 	if allSkipped {
 		ctxT.SkipNow()

@@ -10,6 +10,8 @@ func New() *Context {
 		transforms: map[*regexp.Regexp]StepArgumentTransform{},
 	}
 
+	ctx.log.ctx = ctx
+
 	ctx.transforms.init()
 
 	return ctx

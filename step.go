@@ -70,8 +70,6 @@ func (s *step) run(scenarioT *testing.T) stepResult {
 		}
 	})
 
-	s.context.log.step(s)
-
 	return s.result
 }
 

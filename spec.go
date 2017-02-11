@@ -11,7 +11,6 @@ type spec struct {
 }
 
 func (s *spec) runTest(specT *testing.T) {
-	s.context.log.spec(s)
 	s.context.currentSpec = s
 
 	allSkipped := true

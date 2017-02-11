@@ -14,7 +14,6 @@ type scenario struct {
 }
 
 func (s *scenario) runTest(scenarioT *testing.T) {
-	s.context.log.scenario(s)
 	s.context.currentScenario = s
 	s.result = passed
 
