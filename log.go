@@ -64,6 +64,7 @@ func (l *log) writeStepResult(s *step) {
 		prefix = l.yellow("⤹")
 	case failed:
 		prefix = l.red("✘")
+		text = l.red(text)
 	case panicked:
 		prefix = l.red("⚡")
 	case passed:
@@ -75,7 +76,7 @@ func (l *log) writeStepResult(s *step) {
 		}
 	}
 
-	fmt.Fprintf(&l.buffer, "  %s %s%s\n", prefix, s.text, suffix)
+	fmt.Fprintf(&l.buffer, "  %s %s%s\n", prefix, text, suffix)
 }
 
 func (l *log) red(s string) string {
