@@ -64,15 +64,13 @@ func init() {
 + Running `go test` will output:
 
 ```markdown
-param
-
-
 Simple Type Transforms
 ======================
 
 Renamed string
 --------------
-  ✓ Step with a CustomString "param"
+    ✓ Step with a CustomString "param"
+        param
 ```
 
 ## Slices
@@ -117,7 +115,7 @@ List Summation
 
 First Four Numbers
 ------------------
-  ✓ Sum of 1,2,3,4 is 10
+    ✓ Sum of 1,2,3,4 is 10
 ```
 
 ## Structs
@@ -144,7 +142,7 @@ type Person struct {
 func init() {
     steps[`Print (.*)`] =
         func(t *testing.T, p Person) {
-            fmt.Printf("\nName: %s\nDOB: %d-%d-%d\n", p.name, p.dob[0], p.dob[1], p.dob[2]);
+            fmt.Printf("Name: %s\nDOB: %d-%d-%d\n", p.name, p.dob[0], p.dob[1], p.dob[2]);
         }
 
     transforms[`a person named (.*), born (\d{4})-(\d{2})-(\d{2})`] =
@@ -174,16 +172,14 @@ func init() {
 + Running `go test` will output:
 
 ```markdown
-Name: Bob
-DOB: 1986-1-1
-
-
 Struct Transforms
 =================
 
 A Person
 --------
-  ✓ Print a person named Bob, born 1986-01-01
+    ✓ Print a person named Bob, born 1986-01-01
+        Name: Bob
+        DOB: 1986-1-1
 ```
 
 ---

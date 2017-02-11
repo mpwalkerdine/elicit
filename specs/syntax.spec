@@ -91,7 +91,7 @@ Spec Name
 
 Scenario Name
 -------------
-  ? A Step
+    ? A Step
 ```
 
 If you wish to include bullets in the specification which aren't steps,
@@ -135,15 +135,15 @@ Spec
 
 First Scenario
 --------------
-  ? before
-  ? step 1
-  ? after
+    ? before
+    ? step 1
+    ? after
 
 Last Scenario
 -------------
-  ? before
-  ? step 2
-  ? after
+    ? before
+    ? step 2
+    ? after
 ```
 
 Note that, like other steps, the before and after steps will be skipped if an earlier step is undefined, skipped or failed, unless forced with emphasis.
@@ -175,17 +175,17 @@ import (
 func init() {
     steps[`Simple Step`] =
         func(t *testing.T) {
-            fmt.Print("simple step, ")
+            fmt.Print("simple step")
         }
 
     steps[`Step with "(.*)" parameter`] =
         func(t *testing.T, s string) {
-            fmt.Printf("param: %s, ", s)
+            fmt.Printf("param: %s", s)
         }
 
     steps[`Step with an int parameter (-?\d+)`] =
         func(t *testing.T, i int) {
-            fmt.Printf("%d, ", i)
+            fmt.Printf("%d", i)
         }
 
     steps[`(\d+) \+ (\d+) = (\d+)`] =
@@ -226,30 +226,34 @@ If you don't have many steps, you could put them all in the same file with the t
 + Running `go test` will output:
 
 ```markdown
-simple step, param: hello, param: world, 42, -1, 
 
 Step Execution
 ==============
 
 No Parameters
 -------------
-  ✓ Simple Step
+    ✓ Simple Step
+        simple step
 
 String parameters
 -----------------
-  ✓ Step with "hello" parameter
-  ✓ Step with "world" parameter
+    ✓ Step with "hello" parameter
+        param: hello
+    ✓ Step with "world" parameter
+        param: world
 
 Int parameters
 --------------
-  ✓ Step with an int parameter 42
-  ✓ Step with an int parameter -1
+    ✓ Step with an int parameter 42
+        42
+    ✓ Step with an int parameter -1
+        -1
 
 Multiple Parameters
 -------------------
-  ✓ 1 + 1 = 2
-  ✓ 2 + 3 = 5
-  ✘ 0 + 1 = 0
+    ✓ 1 + 1 = 2
+    ✓ 2 + 3 = 5
+    ✘ 0 + 1 = 0
 
 --- FAIL: Test (0.00s)
     --- FAIL: Test/step_execution.spec/Step_Execution (0.00s)
@@ -300,8 +304,8 @@ Forcing Steps to Run
 
 Forced Step
 -----------
-  ? This step is skipped
-  ✔ Forced step
+    ? This step is skipped
+    ✔ Forced step
 ```
 
 ## Tables
@@ -394,41 +398,39 @@ func init() {
 + Running `go test` will output:
 
 ```markdown
-before: a = 1, b = 2, c = 3
-before: a = 4, b = 5, c = 6
- after: a = 1
- after: a = 4
-before: a = 1, b = 2, c = 3
-before: a = 4, b = 5, c = 6
-during: a = 1
-during: a = 4
-during: d = 7
-during: d = 10
- after: a = 1
- after: a = 4
-
-
 Tables
 ======
 
 Step Table
 ----------
-  ✓ print "before: a = 1, b = 2, c = 3"
-  ✓ print "before: a = 4, b = 5, c = 6"
-  ✓ Step with table ☷
-  ✓ print " after: a = 1"
-  ✓ print " after: a = 4"
+    ✓ print "before: a = 1, b = 2, c = 3"
+        before: a = 1, b = 2, c = 3
+    ✓ print "before: a = 4, b = 5, c = 6"
+        before: a = 4, b = 5, c = 6
+    ✓ Step with table ☷
+    ✓ print " after: a = 1"
+         after: a = 1
+    ✓ print " after: a = 4"
+         after: a = 4
 
 Scenario Tables
 ---------------
-  ✓ print "before: a = 1, b = 2, c = 3"
-  ✓ print "before: a = 4, b = 5, c = 6"
-  ✓ print "during: a = 1"
-  ✓ print "during: a = 4"
-  ✓ print "during: d = 7"
-  ✓ print "during: d = 10"
-  ✓ print " after: a = 1"
-  ✓ print " after: a = 4"
+    ✓ print "before: a = 1, b = 2, c = 3"
+        before: a = 1, b = 2, c = 3
+    ✓ print "before: a = 4, b = 5, c = 6"
+        before: a = 4, b = 5, c = 6
+    ✓ print "during: a = 1"
+        during: a = 1
+    ✓ print "during: a = 4"
+        during: a = 4
+    ✓ print "during: d = 7"
+        during: d = 7
+    ✓ print "during: d = 10"
+        during: d = 10
+    ✓ print " after: a = 1"
+         after: a = 1
+    ✓ print " after: a = 4"
+         after: a = 4
 ```
 
 ## Text Blocks
@@ -476,19 +478,17 @@ func init() {
 + Running `go test` will output:
 
 ```markdown
-> Multiple lines
-> of text which
-> are passed into
-> the step
-> implementation
-
-
 Text Blocks
 ===========
 
 Text Block
 ----------
-  ✓ This step takes a block of text: ☰
+    ✓ This step takes a block of text: ☰
+        > Multiple lines
+        > of text which
+        > are passed into
+        > the step
+        > implementation
 ```
 
 ---

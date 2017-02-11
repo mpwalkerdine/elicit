@@ -40,7 +40,18 @@ func (l *log) writeSpecHeader(s *spec) {
 }
 
 func (l *log) writeScenarioHeader(s *scenario) {
-	fmt.Fprintf(&l.buffer, "\n%s\n%s\n", s.name, strings.Repeat("-", len(s.name)))
+	f := "\n%s\n%s\n"
+
+	switch s.result {
+	case undefined:
+		f = l.yellow(f)
+	case skipped:
+		f = l.blue(f)
+	case failed, panicked:
+		f = l.red(f)
+	}
+
+	fmt.Fprintf(&l.buffer, f, s.name, strings.Repeat("-", len(s.name)))
 }
 
 func (l *log) writeStepResult(s *step) {
@@ -60,13 +71,16 @@ func (l *log) writeStepResult(s *step) {
 	switch s.result {
 	case undefined:
 		prefix = l.yellow("?")
+		text = l.yellow(text)
 	case skipped:
-		prefix = l.yellow("⤹")
+		prefix = l.blue("⤹")
+		text = l.blue(text)
 	case failed:
 		prefix = l.red("✘")
 		text = l.red(text)
 	case panicked:
 		prefix = l.red("⚡")
+		text = l.red(text)
 	case passed:
 		if s.forced {
 			prefix = l.green("✔")
@@ -76,7 +90,16 @@ func (l *log) writeStepResult(s *step) {
 		}
 	}
 
-	fmt.Fprintf(&l.buffer, "  %s %s%s\n", prefix, text, suffix)
+	fmt.Fprintf(&l.buffer, "    %s %s%s\n", prefix, text, suffix)
+
+	if s.log.Len() > 0 {
+		leftPad := "        "
+		stepLog := s.log.String()
+		stepLog = strings.TrimSuffix(stepLog, "\n")
+		lines := strings.Split(stepLog, "\n")
+		stepLog = leftPad + strings.Join(lines, "\n"+leftPad)
+		fmt.Fprintln(&l.buffer, stepLog)
+	}
 }
 
 func (l *log) red(s string) string {
@@ -89,6 +112,10 @@ func (l *log) green(s string) string {
 
 func (l *log) yellow(s string) string {
 	return l.colour(s, 33)
+}
+
+func (l *log) blue(s string) string {
+	return l.colour(s, 34)
 }
 
 func (l *log) colour(s string, colour int) string {

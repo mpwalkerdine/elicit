@@ -88,7 +88,7 @@ func quoteOutput(s string) string {
 	s = strings.TrimSpace(s)
 	s = regexp.MustCompile(`\033\[\d+(;\d+)?m`).ReplaceAllString(s, "")
 	s = strings.Replace(s, " ", "·", -1)
-	s = strings.Replace(s, "\t", "➟", -1)
+	s = strings.Replace(s, "\t", "  ➟ ", -1)
 	s = "  | " + strings.Join(strings.Split(s, "\n"), "\n  | ")
 	return s
 }

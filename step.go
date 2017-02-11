@@ -1,7 +1,10 @@
 package elicit
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -27,9 +30,12 @@ type step struct {
 	force      bool
 	forced     bool
 	result     stepResult
+	log        bytes.Buffer
 }
 
 func (s *step) run(scenarioT *testing.T) stepResult {
+	defer s.restoreStdout(s.redirectStdout())
+
 	skip := (s.scenario.result == failed || s.scenario.result == skipped)
 
 	scenarioT.Run(s.testName(), func(stepT *testing.T) {
@@ -70,6 +76,38 @@ func (s *step) run(scenarioT *testing.T) stepResult {
 	})
 
 	return s.result
+}
+
+func (s *step) redirectStdout() (*os.File, chan bool) {
+	stdout := os.Stdout
+
+	r, w, err := os.Pipe()
+
+	if err != nil {
+		return stdout, nil
+	}
+
+	waitChan := make(chan bool)
+	go func() {
+		// This will continue until w is closed
+		io.Copy(&s.log, r)
+
+		// Signal that copying has been completed
+		waitChan <- true
+	}()
+
+	os.Stdout = w
+
+	return stdout, waitChan
+}
+
+func (s *step) restoreStdout(stdout *os.File, waitChan chan bool) {
+	w := os.Stdout
+	os.Stdout = stdout
+	if w != stdout {
+		w.Close()
+		<-waitChan
+	}
 }
 
 func (s *step) testName() string {
