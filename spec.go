@@ -11,8 +11,6 @@ type spec struct {
 }
 
 func (s *spec) runTest(specT *testing.T) {
-	s.context.currentSpec = s
-
 	allSkipped := true
 
 	for _, scenario := range s.scenarios {

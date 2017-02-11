@@ -30,7 +30,6 @@ type step struct {
 }
 
 func (s *step) run(scenarioT *testing.T) stepResult {
-	s.context.currentStep = s
 	skip := (s.scenario.result == failed || s.scenario.result == skipped)
 
 	scenarioT.Run(s.testName(), func(stepT *testing.T) {

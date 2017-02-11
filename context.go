@@ -4,13 +4,10 @@ import "testing"
 
 // Context stores test machinery and maintains state between specs/scenarios/steps
 type Context struct {
-	specs           []*spec
-	stepImpls       stepImplMap
-	transforms      transformMap
-	log             log
-	currentSpec     *spec
-	currentScenario *scenario
-	currentStep     *step
+	specs      []*spec
+	stepImpls  stepImplMap
+	transforms transformMap
+	log        log
 }
 
 // WithSpecsFolder recursively adds the path to the discovery path of specs
