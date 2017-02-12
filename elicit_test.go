@@ -45,13 +45,14 @@ func init() {
 			createFile(t, filename, text.Content)
 		}
 
-	steps["Running `go test` will output:"] =
-		func(t *testing.T, text elicit.TextBlock) {
+	steps["Running `(.+)` will output:"] =
+		func(t *testing.T, command string, text elicit.TextBlock) {
 			if err := os.Chdir(tempdir); err != nil {
 				t.Fatalf("switching to tempdir %s: %s", tempdir, err)
 			}
 
-			output, _ := exec.Command("go", "test").CombinedOutput()
+			parts := strings.Split(command, " ")
+			output, _ := exec.Command(parts[0], parts[1:]...).CombinedOutput()
 
 			expected, actual := quoteOutput(text.Content), quoteOutput(string(output))
 			if !strings.Contains(actual, expected) {
@@ -61,6 +62,7 @@ func init() {
 
 	steps["Remove the temporary directory"] =
 		func(t *testing.T) {
+			t.Log("removing", tempdir)
 			if err := os.RemoveAll(tempdir); err != nil {
 				t.Errorf("removing tempdir %q: %s", tempdir, err)
 			}
@@ -68,18 +70,24 @@ func init() {
 }
 
 func createTempDir(t *testing.T) {
+	t.Log("creating tempdir...")
 	var err error
 	tempdir, err = ioutil.TempDir("", "elicit_test")
 
 	if err != nil {
 		t.Fatalf("creating tempdir: %s", err)
 	}
+
+	t.Log("tempdir:", tempdir)
 }
 
 func createFile(t *testing.T, filename, contents string) {
 	if tempdir == "" {
 		t.Fatal("creating file: tempdir not set")
 	}
+
+	t.Log("writing file:", filename, "\n", quoteOutput(contents))
+
 	outpath := filepath.Join(tempdir, filename)
 	ioutil.WriteFile(outpath, []byte(contents), 0777)
 }

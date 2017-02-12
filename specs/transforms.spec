@@ -29,7 +29,6 @@ The following scenarios use the same temporary environment (see [Specification S
 package elicit_test
 
 import (
-    "fmt"
     "reflect"
     "testing"
 )
@@ -39,7 +38,7 @@ type CustomString string
 func init() {
     steps[`Step with a CustomString "(.*)"`] =
         func(t *testing.T, c CustomString) {
-            fmt.Println(c)
+            t.Log(c)
         }
 
     transforms[`.*`] =
@@ -61,7 +60,7 @@ func init() {
 + Step with a CustomString "param"
 ```
 
-+ Running `go test` will output:
++ Running `go test -v` will output:
 
 ```markdown
 Simple Type Transforms
@@ -70,7 +69,12 @@ Simple Type Transforms
 Renamed string
 --------------
     ✓ Step with a CustomString "param"
-        param
+
+--- PASS: Test (0.00s)
+    --- PASS: Test/simple_types.spec/Simple_Type_Transforms (0.00s)
+        --- PASS: Test/simple_types.spec/Simple_Type_Transforms/Renamed_string (0.00s)
+            --- PASS: Test/simple_types.spec/Simple_Type_Transforms/Renamed_string/#00 (0.00s)
+            	simple_test.go:13: param
 ```
 
 ## Slices
@@ -107,7 +111,7 @@ func init() {
 + Sum of 1,2,3,4 is 10
 ```
 
-+ Running `go test` will output:
++ Running `go test -v` will output:
 
 ```markdown
 List Summation
@@ -126,7 +130,6 @@ First Four Numbers
 package elicit_test
 
 import (
-    "fmt"
     "reflect"
     "strconv"
     "testing"
@@ -142,7 +145,7 @@ type Person struct {
 func init() {
     steps[`Print (.*)`] =
         func(t *testing.T, p Person) {
-            fmt.Printf("Name: %s\nDOB: %d-%d-%d\n", p.name, p.dob[0], p.dob[1], p.dob[2]);
+            t.Logf("\nName: %s\nDOB: %d-%d-%d", p.name, p.dob[0], p.dob[1], p.dob[2]);
         }
 
     transforms[`a person named (.*), born (\d{4})-(\d{2})-(\d{2})`] =
@@ -169,7 +172,7 @@ func init() {
 + Print a person named Bob, born 1986-01-01
 ```
 
-+ Running `go test` will output:
++ Running `go test -v` will output:
 
 ```markdown
 Struct Transforms
@@ -178,8 +181,14 @@ Struct Transforms
 A Person
 --------
     ✓ Print a person named Bob, born 1986-01-01
-        Name: Bob
-        DOB: 1986-1-1
+
+--- PASS: Test (0.00s)
+    --- PASS: Test/simple_types.spec/Struct_Transforms (0.00s)
+        --- PASS: Test/simple_types.spec/Struct_Transforms/A_Person (0.00s)
+            --- PASS: Test/simple_types.spec/Struct_Transforms/A_Person/#00 (0.00s)
+            	struct_test.go:19: 
+            		Name: Bob
+            		DOB: 1986-1-1
 ```
 
 ---

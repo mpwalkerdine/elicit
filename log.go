@@ -40,7 +40,7 @@ func (l *log) writeSpecHeader(s *spec) {
 }
 
 func (l *log) writeScenarioHeader(s *scenario) {
-	f := "\n%s\n%s\n"
+	f := "%s\n%s"
 
 	switch s.result {
 	case undefined:
@@ -50,6 +50,8 @@ func (l *log) writeScenarioHeader(s *scenario) {
 	case failed, panicked:
 		f = l.red(f)
 	}
+
+	f = "\n" + f + "\n"
 
 	fmt.Fprintf(&l.buffer, f, s.name, strings.Repeat("-", len(s.name)))
 }

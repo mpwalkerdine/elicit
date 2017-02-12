@@ -115,6 +115,10 @@ func (p *specParser) resolveStepParams(s *step) []string {
 		table, found = p.findTableWithStepParams(s, p.currentSpec.tables)
 	}
 
+	if !found {
+		return resolved
+	}
+
 	m := table.columnNameToIndexMap()
 	for _, row := range table[1:] {
 		text := s.text

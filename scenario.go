@@ -21,6 +21,13 @@ func (s *scenario) runTest(scenarioT *testing.T) {
 		r := step.run(scenarioT)
 		s.updateResult(r)
 	}
+
+	switch s.result {
+	case skipped:
+		scenarioT.SkipNow()
+	case failed:
+		scenarioT.Fail()
+	}
 }
 
 func (s *scenario) updateResult(result stepResult) {

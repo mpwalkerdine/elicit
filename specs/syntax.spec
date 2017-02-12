@@ -38,7 +38,7 @@ Level 1 headings name a Spec e.g.
 # Spec Name
 ```
 
-+ Running `go test` will output:
++ Running `go test -v` will output:
 
 ```markdown
 Spec Name
@@ -60,7 +60,7 @@ Level 2 heading name a Scenario, e.g.
 ## Scenario Name
 ```
 
-+ Running `go test` will output:
++ Running `go test -v` will output:
 
 ```markdown
 Spec Name
@@ -83,7 +83,7 @@ List items using the `+` character define executable steps, e.g.
 + A Step
 ```
 
-+ Running `go test` will output:
++ Running `go test -v` will output:
 
 ```markdown
 Spec Name
@@ -101,7 +101,7 @@ Steps are run in order, one after the other. If a step is missing an
 implementation, is skipped or failed, then subsequent steps will be
 skipped automatically.
 
-Step implementations are described below.
+Step implementations are described in [Steps](steps.spec).
 
 
 ## Before and After Steps
@@ -127,7 +127,7 @@ _every_ scenario, e.g.
 + after
 ```
 
-+ Running `go test` will output:
++ Running `go test -v` will output:
 
 ```markdown
 Spec
@@ -148,165 +148,6 @@ Last Scenario
 
 Note that, like other steps, the before and after steps will be skipped if an earlier step is undefined, skipped or failed, unless forced with emphasis.
 
-## Step implementations
-
-Step implementations are functions defined in go code with an associated regex
-which is used to match step text in the specifcation with the correct implementation.
-
-The regex is used to identify the correct implementation and to capture any parameters
-from the step text which need to be passed to it.
-
-Implementations must be registered with the elicit context during setup.
-This seems cumbersome, but the following syntax is a succinct way to write it,
-keeping the regex next to the function. Of course, you're free to construct the
-map in any way you see fit. They may be organised into whatever packages you like,
-but it is convenient to keep them in a single package.
-
-+ Create a `steps_test.go` file:
-
-```go
-package elicit_test
-
-import (
-    "fmt"
-    "testing"
-)
-
-func init() {
-    steps[`Simple Step`] =
-        func(t *testing.T) {
-            fmt.Print("simple step")
-        }
-
-    steps[`Step with "(.*)" parameter`] =
-        func(t *testing.T, s string) {
-            fmt.Printf("param: %s", s)
-        }
-
-    steps[`Step with an int parameter (-?\d+)`] =
-        func(t *testing.T, i int) {
-            fmt.Printf("%d", i)
-        }
-
-    steps[`(\d+) \+ (\d+) = (\d+)`] =
-        func(t *testing.T, a, b, c int) {
-            r := a + b
-            if r != c {
-                t.Errorf("expected %d + %d = %d, got %d", a, b, c, r)
-            }
-        }
-}
-```
-
-Note that `steps` has already been defined in the `specs_test.go` file in the spec context.
-If you don't have many steps, you could put them all in the same file with the test method.
-
-+ Create a `step_execution.spec` file:
-
-```markdown
-# Step Execution
-
-## No Parameters
-+ Simple Step
-
-## String parameters
-+ Step with "hello" parameter
-+ Step with "world" parameter
-
-## Int parameters
-+ Step with an int parameter 42
-+ Step with an int parameter -1
-
-## Multiple Parameters
-+ 1 + 1 = 2
-+ 2 + 3 = 5
-+ 0 + 1 = 0
-```
-
-+ Running `go test` will output:
-
-```markdown
-
-Step Execution
-==============
-
-No Parameters
--------------
-    ✓ Simple Step
-        simple step
-
-String parameters
------------------
-    ✓ Step with "hello" parameter
-        param: hello
-    ✓ Step with "world" parameter
-        param: world
-
-Int parameters
---------------
-    ✓ Step with an int parameter 42
-        42
-    ✓ Step with an int parameter -1
-        -1
-
-Multiple Parameters
--------------------
-    ✓ 1 + 1 = 2
-    ✓ 2 + 3 = 5
-    ✘ 0 + 1 = 0
-
---- FAIL: Test (0.00s)
-    --- FAIL: Test/step_execution.spec/Step_Execution (0.00s)
-        --- FAIL: Test/step_execution.spec/Step_Execution/Multiple_Parameters (0.00s)
-            --- FAIL: Test/step_execution.spec/Step_Execution/Multiple_Parameters/3_0_+_1_=_0 (0.00s)
-            	steps_test.go:28: expected 0 + 1 = 0, got 1
-```
-
-
-## Forcing Step Execution
-
-If there are steps that need to be run regardless of the success or failure of previous steps,
-add emphasis to the whole step text.
-
-+ Create a `forced_steps.spec` file:
-
-```markdown
-# Forcing Steps to Run
-
-## Forced Step
-+ This step is skipped
-+ *Forced step*
-```
-
-+ Create a `steps_test.go` file:
-
-```go
-package elicit_test
-
-import (
-    "fmt"
-    "testing"
-)
-
-func init() {
-    steps[`Forced step`] =
-        func(t *testing.T) {
-            fmt.Print("forced step")
-        }
-}
-```
-
-+ Running `go test` will output:
-
-```markdown
-Forcing Steps to Run
-====================
-
-Forced Step
------------
-    ? This step is skipped
-    ✔ Forced step
-```
 
 ## Tables
 
@@ -372,7 +213,6 @@ Any tables in the footer are scoped to the specification.
 package elicit_test
 
 import (
-    "fmt"
     "mmatt/elicit"
     "testing"
 )
@@ -390,12 +230,12 @@ func init() {
 
     steps[`print "(.*)"`] =
         func(t *testing.T, v string) {
-            fmt.Print(v, "\n")
+            t.Log(v)
         }
 }
 ```
 
-+ Running `go test` will output:
++ Running `go test -v` will output:
 
 ```markdown
 Tables
@@ -404,33 +244,21 @@ Tables
 Step Table
 ----------
     ✓ print "before: a = 1, b = 2, c = 3"
-        before: a = 1, b = 2, c = 3
     ✓ print "before: a = 4, b = 5, c = 6"
-        before: a = 4, b = 5, c = 6
     ✓ Step with table ☷
     ✓ print " after: a = 1"
-         after: a = 1
     ✓ print " after: a = 4"
-         after: a = 4
 
 Scenario Tables
 ---------------
     ✓ print "before: a = 1, b = 2, c = 3"
-        before: a = 1, b = 2, c = 3
     ✓ print "before: a = 4, b = 5, c = 6"
-        before: a = 4, b = 5, c = 6
     ✓ print "during: a = 1"
-        during: a = 1
     ✓ print "during: a = 4"
-        during: a = 4
     ✓ print "during: d = 7"
-        during: d = 7
     ✓ print "during: d = 10"
-        during: d = 10
     ✓ print " after: a = 1"
-         after: a = 1
     ✓ print " after: a = 4"
-         after: a = 4
 ```
 
 ## Text Blocks
@@ -461,7 +289,6 @@ implementation
 package elicit_test
 
 import (
-    "fmt"
     "mmatt/elicit"
     "strings"
     "testing"
@@ -470,12 +297,12 @@ import (
 func init() {
     steps[`This step takes a block of text:`] =
         func(t *testing.T, text elicit.TextBlock) {
-            fmt.Println("> " + strings.Join(strings.Split(strings.TrimSpace(text.Content), "\n"), "\n> "))
+            t.Log("\n> " + strings.Join(strings.Split(strings.TrimSpace(text.Content), "\n"), "\n> "))
         }
 }
 ```
 
-+ Running `go test` will output:
++ Running `go test -v` will output:
 
 ```markdown
 Text Blocks
@@ -484,11 +311,17 @@ Text Blocks
 Text Block
 ----------
     ✓ This step takes a block of text: ☰
-        > Multiple lines
-        > of text which
-        > are passed into
-        > the step
-        > implementation
+
+--- PASS: Test (0.00s)
+    --- PASS: Test/text_block.spec/Text_Blocks (0.00s)
+        --- PASS: Test/text_block.spec/Text_Blocks/Text_Block (0.00s)
+            --- PASS: Test/text_block.spec/Text_Blocks/Text_Block/#00 (0.00s)
+            	steps_test.go:12: 
+            		> Multiple lines
+            		> of text which
+            		> are passed into
+            		> the step
+            		> implementation
 ```
 
 ---

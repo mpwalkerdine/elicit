@@ -12,7 +12,8 @@ import (
 type stepResult int
 
 const (
-	undefined stepResult = iota
+	notrun stepResult = iota
+	undefined
 	skipped
 	failed
 	panicked
@@ -35,34 +36,24 @@ type step struct {
 
 func (s *step) run(scenarioT *testing.T) stepResult {
 	defer s.restoreStdout(s.redirectStdout())
-
 	skip := (s.scenario.result == failed || s.scenario.result == skipped)
 
-	scenarioT.Run(s.testName(), func(stepT *testing.T) {
+	scenarioT.Run("", func(stepT *testing.T) {
 
-		// unresolved parameters count as undefined
-		if len(s.params) > 0 {
-			s.result = undefined
-			stepT.SkipNow()
-		} else if impl, found := s.matchStepImpl(stepT); !found {
-			s.result = undefined
-			stepT.SkipNow()
-		} else if !s.force && skip {
-			s.result = skipped
-			stepT.SkipNow()
-		} else {
+		defer func() {
+			if s.log.Len() > 0 {
+				stepT.Log(s.log)
+			}
 
-			defer func() {
-				if r := recover(); r != nil {
-					s.result = panicked
-					stepT.Error(r)
-				}
-			}()
+			if r := recover(); r != nil {
+				s.result = panicked
+				fmt.Println(r)
+				return
+			}
 
-			impl()
-
-			if skip {
-				s.forced = true
+			if s.result != notrun {
+				// Don't overwrite existing result
+				return
 			}
 
 			if stepT.Failed() {
@@ -72,6 +63,22 @@ func (s *step) run(scenarioT *testing.T) stepResult {
 			} else {
 				s.result = passed
 			}
+		}()
+
+		// unresolved parameters count as undefined
+		if len(s.params) > 0 {
+			s.result = undefined
+			stepT.Skip("unresolved parameters:", s.params)
+		} else if impl, found := s.matchStepImpl(stepT); !found {
+			s.result = undefined
+			stepT.Skip("no matching step implementation")
+		} else if !s.force && skip {
+			stepT.SkipNow()
+		} else {
+			if skip {
+				s.forced = true
+			}
+			impl()
 		}
 	})
 
@@ -108,10 +115,6 @@ func (s *step) restoreStdout(stdout *os.File, waitChan chan bool) {
 		w.Close()
 		<-waitChan
 	}
-}
-
-func (s *step) testName() string {
-	return fmt.Sprintf("%d_%s", s.scenario.stepsRun, s.text)
 }
 
 func (s *step) matchStepImpl(t *testing.T) (func(), bool) {
