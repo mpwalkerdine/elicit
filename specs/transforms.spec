@@ -62,12 +62,14 @@ func init() {
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Simple Type Transforms
 ======================
+PASS: 1
 
 Renamed string
 --------------
+PASS:
     ✓ Step with a CustomString "param"
 
 --- PASS: Test (0.00s)
@@ -79,28 +81,20 @@ Renamed string
 
 ## Slices
 
-+ Create a `slice_test.go` file:
++ Create a step definition:
 
 ```go
-package elicit_test
-
-import (
-    "testing"
-)
-
-func init() {
-    steps[`Sum of (.+) is (.+)`] =
-        func(t *testing.T, ns []int, s int) {
-            actual := 0
-            for _, n := range ns {
-                actual += n
-            }
-
-            if actual != s {
-                t.Errorf("expected sum of %v to be %d, got %d", ns, s, actual)
-            }
+steps[`Sum of (.+) is (.+)`] =
+    func(t *testing.T, ns []int, s int) {
+        actual := 0
+        for _, n := range ns {
+            actual += n
         }
-}
+
+        if actual != s {
+            t.Errorf("expected sum of %v to be %d, got %d", ns, s, actual)
+        }
+    }
 ```
 
 + Create a `sum.spec` file:
@@ -113,12 +107,14 @@ func init() {
 
 + Running `go test -v` will output:
 
-```markdown
+```
 List Summation
 ==============
+PASS: 1
 
 First Four Numbers
 ------------------
+PASS:
     ✓ Sum of 1,2,3,4 is 10
 ```
 
@@ -174,12 +170,14 @@ func init() {
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Struct Transforms
 =================
+PASS: 1
 
 A Person
 --------
+PASS:
     ✓ Print a person named Bob, born 1986-01-01
 
 --- PASS: Test (0.00s)

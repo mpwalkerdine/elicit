@@ -78,26 +78,32 @@ If you don't have many steps, you could put them all in the same file with the t
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Step Execution
 ==============
+FAIL: 1
+PASS: 3
 
 No Parameters
 -------------
+PASS:
     ✓ Simple Step
 
 String parameters
 -----------------
+PASS:
     ✓ Step with "hello" parameter
     ✓ Step with "world" parameter
 
 Int parameters
 --------------
+PASS:
     ✓ Step with an int parameter 42
     ✓ Step with an int parameter -1
 
 Multiple Parameters
 -------------------
+FAIL:
     ✓ 1 + 1 = 2
     ✓ 2 + 3 = 5
     ✘ 0 + 1 = 0
@@ -144,49 +150,44 @@ then the remaining steps will be skipped (but still logged).
 + This step will be skipped
 ```
 
-+ Create a `failed_steps_test.go` file:
++ Create step definitions:
 
 ```go
-package elicit_test
+steps[`This step fails`] =
+    func(t *testing.T) {
+        t.Fail()
+    }
 
-import (
-    "testing"
-)
+steps[`This step panics`] =
+    func(t *testing.T) {
+        s := []int{}
+        s[0] = 0
+    }
 
-func init() {
-    steps[`This step fails`] =
-        func(t *testing.T) {
-            t.Fail()
-        }
-
-    steps[`This step panics`] =
-        func(t *testing.T) {
-            s := []int{}
-            s[0] = 0
-        }
-
-    steps[`This step will be skipped`] =
-        func(t *testing.T) {
-            t.Errorf("Step should not have been called")
-        }
-}
+steps[`This step will be skipped`] =
+    func(t *testing.T) {
+        t.Errorf("Step should not have been called")
+    }
 ```
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Failing Steps
 =============
+FAIL: 1
+PANIC: 1
 
 Fail
 ----
+FAIL:
     ✘ This step fails
     ⤹ This step will be skipped
 
 Panic
 -----
+PANIC:
     ⚡ This step panics
-        runtime error: index out of range
     ⤹ This step will be skipped
 ```
 
@@ -210,41 +211,36 @@ then the remaining steps will also be skipped (but still logged)
 + This step will be skipped
 ```
 
-+ Create a `skipped_steps_test.go` file:
++ Create step definitions:
 
 ```go
-package elicit_test
+steps[`This step will be skipped`] =
+    func(t *testing.T) {
+        t.Errorf("Step should not have been called")
+    }
 
-import (
-    "testing"
-)
-
-func init() {
-    steps[`This step will be skipped`] =
-        func(t *testing.T) {
-            t.Errorf("Step should not have been called")
-        }
-
-    steps[`This step skips`] =
-        func(t *testing.T) {
-            t.Skip("skipping...")
-        }
-}
+steps[`This step skips`] =
+    func(t *testing.T) {
+        t.Skip("skipping...")
+    }
 ```
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Skipping Steps
 ==============
+SKIP: 2
 
 Undefined
 ---------
+SKIP:
     ? This step has no implementation
     ⤹ This step will be skipped
 
 Skipped
 -------
+SKIP:
     ⤹ This step skips
     ⤹ This step will be skipped
 
@@ -252,11 +248,11 @@ Skipped
     --- SKIP: Test/skipped_steps.spec/Skipping_Steps (0.00s)
         --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Undefined (0.00s)
             --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Undefined/#00 (0.00s)
-            	step.go:74: no matching step implementation
+            	step.go:55: no matching step implementation
             --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Undefined/#01 (0.00s)
         --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Skipped (0.00s)
             --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Skipped/#00 (0.00s)
-            	skipped_steps_test.go:15: skipping...
+            	steps_test.go:17: skipping...
             --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Skipped/#01 (0.00s)
 ```
 
@@ -276,31 +272,25 @@ add emphasis to the whole step text.
 + *Forced step*
 ```
 
-+ Create a `steps_test.go` file:
++ Create step definitions:
 
 ```go
-package elicit_test
-
-import (
-    "testing"
-)
-
-func init() {
-    steps[`Forced step`] =
-        func(t *testing.T) {
-            t.Logf("forced step")
-        }
-}
+steps[`Forced step`] =
+    func(t *testing.T) {
+        t.Logf("forced step")
+    }
 ```
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Forcing Steps to Run
 ====================
+PENDING: 1
 
 Forced Step
 -----------
+PENDING:
     ? This step is skipped
     ✔ Forced step
 ```

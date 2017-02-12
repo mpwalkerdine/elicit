@@ -40,7 +40,7 @@ Level 1 headings name a Spec e.g.
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Spec Name
 =========
 ```
@@ -62,12 +62,14 @@ Level 2 heading name a Scenario, e.g.
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Spec Name
 =========
+PENDING: 1
 
 Scenario Name
 -------------
+PENDING:
 ```
 
 
@@ -85,12 +87,14 @@ List items using the `+` character define executable steps, e.g.
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Spec Name
 =========
+PENDING: 1
 
 Scenario Name
 -------------
+PENDING:
     ? A Step
 ```
 
@@ -129,18 +133,21 @@ _every_ scenario, e.g.
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Spec
 ====
+PENDING: 2
 
 First Scenario
 --------------
+PENDING:
     ? before
     ? step 1
     ? after
 
 Last Scenario
 -------------
+PENDING:
     ? before
     ? step 2
     ? after
@@ -207,42 +214,35 @@ Any tables in the footer are scoped to the specification.
 
 ```
 
-+ Create a `steps_test.go` file:
++ Create step definitions using "mmatt/elicit":
 
 ```go
-package elicit_test
-
-import (
-    "mmatt/elicit"
-    "testing"
-)
-
-func init() {
-    steps[`Step with table`] =
-        func(t *testing.T, table elicit.Table) {
-            if len(table.Columns) == 0 {
-                t.Error("No columns")
-            }
-            if len(table.Rows) == 0 {
-                t.Error("No rows")
-            }
-        } 
-
-    steps[`print "(.*)"`] =
-        func(t *testing.T, v string) {
-            t.Log(v)
+steps[`Step with table`] =
+    func(t *testing.T, table elicit.Table) {
+        if len(table.Columns) == 0 {
+            t.Error("No columns")
         }
-}
+        if len(table.Rows) == 0 {
+            t.Error("No rows")
+        }
+    } 
+
+steps[`print "(.*)"`] =
+    func(t *testing.T, v string) {
+        t.Log(v)
+    }
 ```
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Tables
 ======
+PASS: 2
 
 Step Table
 ----------
+PASS:
     ✓ print "before: a = 1, b = 2, c = 3"
     ✓ print "before: a = 4, b = 5, c = 6"
     ✓ Step with table ☷
@@ -251,6 +251,7 @@ Step Table
 
 Scenario Tables
 ---------------
+PASS:
     ✓ print "before: a = 1, b = 2, c = 3"
     ✓ print "before: a = 4, b = 5, c = 6"
     ✓ print "during: a = 1"
@@ -283,40 +284,32 @@ implementation
 ```
 ````
 
-+ Create a `steps_test.go` file:
++ Create a step definition using "mmatt/elicit", "strings":
 
 ```go
-package elicit_test
-
-import (
-    "mmatt/elicit"
-    "strings"
-    "testing"
-)
-
-func init() {
-    steps[`This step takes a block of text:`] =
-        func(t *testing.T, text elicit.TextBlock) {
-            t.Log("\n> " + strings.Join(strings.Split(strings.TrimSpace(text.Content), "\n"), "\n> "))
-        }
-}
+steps[`This step takes a block of text:`] =
+    func(t *testing.T, text elicit.TextBlock) {
+        t.Log("\n> " + strings.Join(strings.Split(strings.TrimSpace(text.Content), "\n"), "\n> "))
+    }
 ```
 
 + Running `go test -v` will output:
 
-```markdown
+```
 Text Blocks
 ===========
+PASS: 1
 
 Text Block
 ----------
+PASS:
     ✓ This step takes a block of text: ☰
 
 --- PASS: Test (0.00s)
     --- PASS: Test/text_block.spec/Text_Blocks (0.00s)
         --- PASS: Test/text_block.spec/Text_Blocks/Text_Block (0.00s)
             --- PASS: Test/text_block.spec/Text_Blocks/Text_Block/#00 (0.00s)
-            	steps_test.go:12: 
+            	steps_test.go:13: 
             		> Multiple lines
             		> of text which
             		> are passed into

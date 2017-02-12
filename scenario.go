@@ -4,41 +4,41 @@ import "testing"
 import "fmt"
 
 type scenario struct {
-	context  *Context
-	spec     *spec
-	name     string
-	steps    []*step
-	tables   []stringTable
-	stepsRun int
-	result   stepResult
+	context *Context
+	spec    *spec
+	name    string
+	steps   []*step
+	tables  []stringTable
+	result  result
 }
 
-func (s *scenario) runTest(scenarioT *testing.T) {
+func (s *scenario) runTest(scenarioT *testing.T) result {
 	s.result = passed
 
+	if len(s.steps) == 0 {
+		s.result = undefined
+	}
+
 	for _, step := range s.steps {
-		s.stepsRun++
 		r := step.run(scenarioT)
 		s.updateResult(r)
 	}
 
-	switch s.result {
-	case skipped:
-		scenarioT.SkipNow()
-	case failed:
-		scenarioT.Fail()
-	}
+	return s.result
 }
 
-func (s *scenario) updateResult(result stepResult) {
+func (s *scenario) updateResult(result result) {
 	switch result {
 	case passed:
+		if s.result == notrun {
+			s.result = passed
+		}
 	case undefined, skipped:
-		if s.result != failed {
-			s.result = skipped
+		if s.result != failed && s.result != panicked {
+			s.result = result
 		}
 	case failed, panicked:
-		s.result = failed
+		s.result = result
 	default:
 		panic(fmt.Errorf("unrecognized stepResult: %d", result))
 	}

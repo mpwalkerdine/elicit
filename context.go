@@ -33,13 +33,6 @@ func (ctx *Context) WithTransforms(txs map[string]StepArgumentTransform) *Contex
 	return ctx
 }
 
-// WithReportPath sets the output path for the execution summary.
-// If path is the empty string, the report is written to stdout.
-func (ctx *Context) WithReportPath(path string) *Context {
-	ctx.log.outpath = path
-	return ctx
-}
-
 // RunTests runs all the discovered specs as tests
 func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 	allSkipped := true
@@ -54,6 +47,7 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 		})
 	}
 
+	ctx.log.writeToConsole()
 	ctx.log.writeToFile()
 
 	if allSkipped {

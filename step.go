@@ -2,22 +2,10 @@ package elicit
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"reflect"
 	"testing"
-)
-
-type stepResult int
-
-const (
-	notrun stepResult = iota
-	undefined
-	skipped
-	failed
-	panicked
-	passed
 )
 
 type step struct {
@@ -30,38 +18,31 @@ type step struct {
 	textBlocks []TextBlock
 	force      bool
 	forced     bool
-	result     stepResult
+	result     result
 	log        bytes.Buffer
 }
 
-func (s *step) run(scenarioT *testing.T) stepResult {
+func (s *step) run(scenarioT *testing.T) result {
 	defer s.restoreStdout(s.redirectStdout())
-	skip := (s.scenario.result == failed || s.scenario.result == skipped)
+
+	skip := (s.scenario.result != passed)
 
 	scenarioT.Run("", func(stepT *testing.T) {
-
 		defer func() {
-			if s.log.Len() > 0 {
-				stepT.Log(s.log)
-			}
-
-			if r := recover(); r != nil {
+			if rcvr := recover(); rcvr != nil {
 				s.result = panicked
-				fmt.Println(r)
-				return
+				stepT.Error(rcvr)
 			}
 
-			if s.result != notrun {
-				// Don't overwrite existing result
-				return
-			}
-
-			if stepT.Failed() {
-				s.result = failed
-			} else if stepT.Skipped() {
-				s.result = skipped
-			} else {
-				s.result = passed
+			// Don't overwrite existing result
+			if s.result == notrun {
+				if stepT.Failed() {
+					s.result = failed
+				} else if stepT.Skipped() {
+					s.result = skipped
+				} else {
+					s.result = passed
+				}
 			}
 		}()
 

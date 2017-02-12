@@ -1,7 +1,7 @@
 package elicit_test
 
 import (
-	"flag"
+	"fmt"
 	"io/ioutil"
 	"mmatt/elicit"
 	"os"
@@ -12,15 +12,10 @@ import (
 	"testing"
 )
 
-var (
-	reportFile = flag.String("report", "", "Path to save the execution report, otherwise stdout")
-)
-
 var tempdir string
 
 func Test(t *testing.T) {
 	elicit.New().
-		WithReportPath(*reportFile).
 		WithSpecsFolder("./specs").
 		WithSteps(steps).
 		WithTransforms(transforms).
@@ -45,7 +40,17 @@ func init() {
 			createFile(t, filename, text.Content)
 		}
 
-	steps["Running `(.+)` will output:"] =
+	steps["Create (?:a step definition|step definitions):"] =
+		func(t *testing.T, text elicit.TextBlock) {
+			createFile(t, "steps_test.go", fmt.Sprintf(stepFileFmt, "", text.Content))
+		}
+
+	steps["Create (?:a step definition|step definitions) using (.+):"] =
+		func(t *testing.T, imports []string, text elicit.TextBlock) {
+			createFile(t, "steps_test.go", fmt.Sprintf(stepFileFmt, strings.Join(imports, "\n"), text.Content))
+		}
+
+	steps["Running `(go test.*)` will output:"] =
 		func(t *testing.T, command string, text elicit.TextBlock) {
 			if err := os.Chdir(tempdir); err != nil {
 				t.Fatalf("switching to tempdir %s: %s", tempdir, err)
@@ -57,6 +62,25 @@ func init() {
 			expected, actual := quoteOutput(text.Content), quoteOutput(string(output))
 			if !strings.Contains(actual, expected) {
 				t.Errorf("\n\nExpected:\n\n%s\n\nto contain:\n\n%s\n", actual, expected)
+			}
+		}
+
+	steps["`(.+)` will contain:"] =
+		func(t *testing.T, filename string, text elicit.TextBlock) {
+			path := filepath.Join(tempdir, filename)
+
+			if _, err := os.Stat(path); os.IsNotExist(err) {
+				t.Error(filename, err)
+			}
+
+			if contents, err := ioutil.ReadFile(path); err != nil {
+				t.Error("reading", filename, err)
+			} else {
+				actual := string(contents)
+				expected := strings.TrimSpace(text.Content)
+				if actual != expected {
+					t.Errorf("\n\nExpected:\n\n%s\n\nto equal:\n\n%s\n", quoteOutput(actual), quoteOutput(expected))
+				}
 			}
 		}
 
@@ -119,4 +143,17 @@ func Test(t *testing.T) {
 
 var steps = map[string]interface{}{}
 var transforms = map[string]elicit.StepArgumentTransform{}
+`
+
+const stepFileFmt = `
+package elicit_test
+
+import (
+	"testing"
+	%s
+)
+
+func init() {
+	%s
+}
 `
