@@ -22,7 +22,7 @@ type step struct {
 	log        bytes.Buffer
 }
 
-func (s *step) run(scenarioT *testing.T) result {
+func (s *step) run(scenarioT *testing.T) {
 	defer s.restoreStdout(s.redirectStdout())
 
 	skip := (s.scenario.result != passed)
@@ -62,8 +62,6 @@ func (s *step) run(scenarioT *testing.T) result {
 			impl()
 		}
 	})
-
-	return s.result
 }
 
 func (s *step) redirectStdout() (*os.File, chan bool) {

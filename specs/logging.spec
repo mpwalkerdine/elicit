@@ -47,6 +47,7 @@ PASS: 1
 Logging Scenario
 ----------------
 PASS:
+
     ✓ Logged step
 
 --- PASS: Test (0.00s)
@@ -86,6 +87,7 @@ PASS: 1
 Logging Scenario
 ----------------
 PASS:
+
     ✓ Logged step
         Logged output
 
@@ -149,26 +151,29 @@ steps[`Passing step`] = func(t *testing.T) {
 ```
 Logging Test
 ============
-PENDING: 1
+PASS: 1
 SKIP: 1
+PENDING: 1
 FAIL: 1
 PANIC: 1
-PASS: 1
 
 Undefined
 ---------
 PENDING:
+
     ? Undefined step
 
 Failed
 ------
 FAIL:
+
     ✘ Failed step
         Failed stdout output
 
 Panic
 -----
 PANIC:
+
     ⚡ Panicked step
         Panicked stdout output
 
@@ -187,38 +192,43 @@ PANIC:
 ```
 Logging Test
 ============
-PENDING: 1
+PASS: 1
 SKIP: 1
+PENDING: 1
 FAIL: 1
 PANIC: 1
-PASS: 1
 
 Undefined
 ---------
 PENDING:
+
     ? Undefined step
 
 Skipped
 -------
 SKIP:
+
     ⤹ Skipped step
         Skipped stdout output
 
 Failed
 ------
 FAIL:
+
     ✘ Failed step
         Failed stdout output
 
 Panic
 -----
 PANIC:
+
     ⚡ Panicked step
         Panicked stdout output
 
 Pass
 ----
 PASS:
+
     ✓ Passing step
         Passing stdout output
 
@@ -229,6 +239,7 @@ PASS: 2
 Passing Scenario
 ----------------
 PASS:
+
     ✓ Passing step
         Passing stdout output
     ✓ Passing step
@@ -237,6 +248,7 @@ PASS:
 Another Passing Scenario
 ------------------------
 PASS:
+
     ✓ Passing step
         Passing stdout output
     ✓ Passing step
@@ -244,7 +256,7 @@ PASS:
 
 --- FAIL: Test (0.00s)
     --- FAIL: Test/logging_test.spec/Logging_Test (0.00s)
-        --- PASS: Test/logging_test.spec/Logging_Test/Undefined (0.00s)
+        --- SKIP: Test/logging_test.spec/Logging_Test/Undefined (0.00s)
             --- SKIP: Test/logging_test.spec/Logging_Test/Undefined/#00 (0.00s)
             	step.go:55: no matching step implementation
         --- SKIP: Test/logging_test.spec/Logging_Test/Skipped (0.00s)
@@ -277,26 +289,29 @@ PASS:
 ```
 Logging Test
 ============
-PENDING: 1
+PASS: 1
 SKIP: 1
+PENDING: 1
 FAIL: 1
 PANIC: 1
-PASS: 1
 
 Undefined
 ---------
 PENDING:
+
     ? Undefined step
 
 Failed
 ------
 FAIL:
+
     ✘ Failed step
         Failed stdout output
 
 Panic
 -----
 PANIC:
+
     ⚡ Panicked step
         Panicked stdout output
 
@@ -315,38 +330,43 @@ PANIC:
 ```markdown
 Logging Test
 ============
-PENDING: 1
+PASS: 1
 SKIP: 1
+PENDING: 1
 FAIL: 1
 PANIC: 1
-PASS: 1
 
 Undefined
 ---------
 PENDING:
+
     ? Undefined step
 
 Skipped
 -------
 SKIP:
+
     ⤹ Skipped step
         Skipped stdout output
 
 Failed
 ------
 FAIL:
+
     ✘ Failed step
         Failed stdout output
 
 Panic
 -----
 PANIC:
+
     ⚡ Panicked step
         Panicked stdout output
 
 Pass
 ----
 PASS:
+
     ✓ Passing step
         Passing stdout output
 
@@ -357,6 +377,7 @@ PASS: 2
 Passing Scenario
 ----------------
 PASS:
+
     ✓ Passing step
         Passing stdout output
     ✓ Passing step
@@ -365,6 +386,7 @@ PASS:
 Another Passing Scenario
 ------------------------
 PASS:
+
     ✓ Passing step
         Passing stdout output
     ✓ Passing step

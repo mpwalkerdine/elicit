@@ -12,12 +12,14 @@ import (
 )
 
 type log struct {
-	ctx     *Context
-	buffer  bytes.Buffer
-	outpath string
+	ctx       *Context
+	buffer    bytes.Buffer
+	useColour bool
+	outpath   string
 }
 
 func (l *log) writeToConsole() {
+	l.useColour = true
 	l.fillBuffer(false)
 	fmt.Println(l.buffer.String())
 }
@@ -31,6 +33,7 @@ func (l *log) writeToFile() {
 		panic(err)
 	}
 
+	l.useColour = false
 	l.fillBuffer(true)
 
 	if err := ioutil.WriteFile(l.outpath, bytes.TrimSpace(l.buffer.Bytes()), 0755); err != nil {
@@ -122,7 +125,7 @@ func (l *log) writeScenarioHeader(s *scenario) {
 		underline = l.red(underline)
 	}
 
-	fmt.Fprintf(&l.buffer, "\n%s\n%s\n%s:\n", name, underline, s.result)
+	fmt.Fprintf(&l.buffer, "\n%s\n%s\n%s:\n\n", name, underline, s.result)
 }
 
 func (l *log) writeStepResult(s *step) {
@@ -190,8 +193,7 @@ func (l *log) blue(s string) string {
 }
 
 func (l *log) colour(s string, colour int) string {
-	// TODO(matt) colour console regardless of file
-	if l.outpath == "" {
+	if l.useColour {
 		s = fmt.Sprintf("\033[%dm%s\033[0m", colour, s)
 	}
 	return s

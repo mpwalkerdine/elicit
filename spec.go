@@ -17,12 +17,13 @@ type spec struct {
 type result int
 
 const (
+	// Note: These are ordered by precedence
 	notrun result = iota
-	undefined
+	passed
 	skipped
+	undefined
 	failed
 	panicked
-	passed
 )
 
 func (r result) shouldLog() bool {
@@ -63,41 +64,25 @@ func (s *spec) runTest(specT *testing.T) {
 	allSkipped := true
 
 	for _, scenario := range s.scenarios {
-		r := notrun
 		specT.Run(scenario.name, func(scenarioT *testing.T) {
-			r = scenario.runTest(scenarioT)
+			scenario.runTest(scenarioT)
 
-			if r != skipped {
+			switch scenario.result {
+			case skipped, undefined:
+				scenarioT.SkipNow()
+			case failed, panicked:
+				allSkipped = false
+				scenarioT.Fail()
+			default:
 				allSkipped = false
 			}
-
-			if r == skipped {
-				scenarioT.SkipNow()
-			} else if r == failed {
-				scenarioT.Fail()
-			}
 		})
-		s.updateResult(r)
+		if scenario.result > s.result {
+			s.result = scenario.result
+		}
 	}
 
 	if allSkipped {
 		specT.SkipNow()
-	}
-}
-
-func (s *spec) updateResult(result result) {
-	switch result {
-	case passed:
-		if s.result == notrun {
-			s.result = passed
-		}
-	case undefined, skipped:
-		if s.result != failed && s.result != panicked {
-			s.result = result
-		}
-	case failed, panicked:
-		s.result = result
-	default:
-		panic(fmt.Errorf("unrecognized stepResult: %d", result))
 	}
 }

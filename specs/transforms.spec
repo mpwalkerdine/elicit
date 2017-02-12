@@ -70,6 +70,7 @@ PASS: 1
 Renamed string
 --------------
 PASS:
+
     ✓ Step with a CustomString "param"
 
 --- PASS: Test (0.00s)
@@ -115,6 +116,7 @@ PASS: 1
 First Four Numbers
 ------------------
 PASS:
+
     ✓ Sum of 1,2,3,4 is 10
 ```
 
@@ -178,6 +180,7 @@ PASS: 1
 A Person
 --------
 PASS:
+
     ✓ Print a person named Bob, born 1986-01-01
 
 --- PASS: Test (0.00s)
