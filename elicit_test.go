@@ -26,7 +26,6 @@ var steps = map[string]interface{}{}
 var transforms = map[string]elicit.StepArgumentTransform{}
 
 func init() {
-
 	steps["Create a temporary directory"] = createTempDir
 
 	steps["Create a temporary environment"] =
@@ -52,16 +51,29 @@ func init() {
 
 	steps["Running `(go test.*)` will output:"] =
 		func(t *testing.T, command string, text elicit.TextBlock) {
-			if err := os.Chdir(tempdir); err != nil {
-				t.Fatalf("switching to tempdir %s: %s", tempdir, err)
-			}
+			output := runGoTest(t, command)
 
-			parts := strings.Split(command, " ")
-			output, _ := exec.Command(parts[0], parts[1:]...).CombinedOutput()
-
-			expected, actual := quoteOutput(text.Content), quoteOutput(string(output))
+			expected, actual := quoteOutput(text.Content), quoteOutput(output)
 			if !strings.Contains(actual, expected) {
 				t.Errorf("\n\nExpected:\n\n%s\n\nto contain:\n\n%s\n", actual, expected)
+			}
+		}
+
+	steps["Running `(go test.*)` will output the following lines:"] =
+		func(t *testing.T, command string, text elicit.TextBlock) {
+			output := runGoTest(t, command)
+
+			missingLines := []string{}
+			for _, line := range strings.Split(text.Content, "\n") {
+				if !strings.Contains(output, line) {
+					missingLines = append(missingLines, line)
+				}
+			}
+
+			if len(missingLines) > 0 {
+				t.Errorf("\n\nExpected:\n\n%s\n\nto contain the lines:\n\n%s\n",
+					quoteOutput(output),
+					quoteOutput(strings.Join(missingLines, "\n")))
 			}
 		}
 
@@ -86,7 +98,6 @@ func init() {
 
 	steps["Remove the temporary directory"] =
 		func(t *testing.T) {
-			t.Log("removing", tempdir)
 			if err := os.RemoveAll(tempdir); err != nil {
 				t.Errorf("removing tempdir %q: %s", tempdir, err)
 			}
@@ -94,15 +105,12 @@ func init() {
 }
 
 func createTempDir(t *testing.T) {
-	t.Log("creating tempdir...")
 	var err error
 	tempdir, err = ioutil.TempDir("", "elicit_test")
 
 	if err != nil {
 		t.Fatalf("creating tempdir: %s", err)
 	}
-
-	t.Log("tempdir:", tempdir)
 }
 
 func createFile(t *testing.T, filename, contents string) {
@@ -110,10 +118,24 @@ func createFile(t *testing.T, filename, contents string) {
 		t.Fatal("creating file: tempdir not set")
 	}
 
-	t.Log("writing file:", filename, "\n", quoteOutput(contents))
-
 	outpath := filepath.Join(tempdir, filename)
-	ioutil.WriteFile(outpath, []byte(contents), 0777)
+
+	if _, err := os.Stat(outpath); os.IsNotExist(err) {
+		ioutil.WriteFile(outpath, []byte(contents), 0777)
+	} else {
+		t.Fatal("creating file:", outpath, "already exists")
+	}
+}
+
+func runGoTest(t *testing.T, command string) string {
+	if err := os.Chdir(tempdir); err != nil {
+		t.Fatalf("switching to tempdir %s: %s", tempdir, err)
+	}
+
+	parts := strings.Split(command, " ")
+	output, _ := exec.Command(parts[0], parts[1:]...).CombinedOutput()
+
+	return string(output)
 }
 
 func quoteOutput(s string) string {

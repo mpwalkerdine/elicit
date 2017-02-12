@@ -1,6 +1,8 @@
 package elicit
 
 import "testing"
+import "fmt"
+import "os"
 
 // Context stores test machinery and maintains state between specs/scenarios/steps
 type Context struct {
@@ -37,6 +39,8 @@ func (ctx *Context) WithTransforms(txs map[string]StepArgumentTransform) *Contex
 func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 	allSkipped := true
 
+	ctx.validate()
+
 	for _, spec := range ctx.specs {
 		ctxT.Run(spec.path+"/"+spec.name, func(specT *testing.T) {
 			spec.runTest(specT)
@@ -55,4 +59,16 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 	}
 
 	return ctx
+}
+
+func (ctx *Context) validate() {
+	if len(ctx.specs) == 0 {
+		fmt.Fprintln(os.Stderr, "warning: No specifications found. Add a folder containing *.spec files with Context.WithSpecsFolder().")
+	}
+
+	if len(ctx.stepImpls) == 0 {
+		fmt.Fprintln(os.Stderr, "warning: No steps registered. Add some with Context.WithSteps().")
+	}
+
+	ctx.stepImpls.validate()
 }

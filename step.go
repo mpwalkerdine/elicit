@@ -117,24 +117,7 @@ func (s *step) convertParams(t *testing.T, f reflect.Value, stringParams []strin
 		return nil, false
 	}
 
-	paramCount := f.Type().NumIn()
-	tableParamCount := 0
-	textBlockParamCount := 0
-	tableType := reflect.TypeOf((*Table)(nil)).Elem()
-	textBlockType := reflect.TypeOf((*TextBlock)(nil)).Elem()
-
-	for p := paramCount - 1; p >= 0; p-- {
-		thisParam := f.Type().In(p)
-		if thisParam == tableType {
-			paramCount--
-			tableParamCount++
-		} else if thisParam == textBlockType {
-			paramCount--
-			textBlockParamCount++
-		} else {
-			break
-		}
-	}
+	paramCount, tableParamCount, textBlockParamCount := countStepImplParams(f)
 
 	if len(stringParams) != paramCount || tableParamCount != len(s.tables) || textBlockParamCount != len(s.textBlocks) {
 		return nil, false
