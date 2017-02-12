@@ -3,6 +3,8 @@ package elicit
 
 import (
 	"flag"
+	"fmt"
+	"path/filepath"
 	"regexp"
 )
 
@@ -18,7 +20,14 @@ func New() *Context {
 	}
 
 	ctx.log.ctx = ctx
-	ctx.log.outpath = *reportFile
+
+	if *reportFile != "" {
+		if reportFileAbs, err := filepath.Abs(*reportFile); err != nil {
+			panic(fmt.Errorf("determining absolute path for %s: %s", *reportFile, err))
+		} else {
+			ctx.log.outpath = reportFileAbs
+		}
+	}
 
 	ctx.transforms.init()
 
