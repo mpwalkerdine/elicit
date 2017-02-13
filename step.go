@@ -117,7 +117,7 @@ func (s *step) convertParams(t *testing.T, f reflect.Value, stringParams []strin
 		return nil, false
 	}
 
-	paramCount, tableParamCount, textBlockParamCount := countStepImplParams(f)
+	paramCount, tableParamCount, textBlockParamCount := s.context.stepImpls.countStepImplParams(f)
 
 	if len(stringParams) != paramCount || tableParamCount != len(s.tables) || textBlockParamCount != len(s.textBlocks) {
 		return nil, false

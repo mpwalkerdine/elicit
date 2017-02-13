@@ -17,13 +17,13 @@ var tempdir string
 func Test(t *testing.T) {
 	elicit.New().
 		WithSpecsFolder("./specs").
-		WithSteps(steps).
 		WithTransforms(transforms).
+		WithSteps(steps).
 		RunTests(t)
 }
 
-var steps = map[string]interface{}{}
-var transforms = map[string]elicit.StepArgumentTransform{}
+var steps = elicit.Steps{}
+var transforms = elicit.Transforms{}
 
 func init() {
 	steps["Create a temporary directory"] = createTempDir
@@ -141,7 +141,7 @@ func runGoTest(t *testing.T, command string) string {
 func quoteOutput(s string) string {
 	s = strings.TrimSpace(s)
 	s = regexp.MustCompile(`\033\[\d+(;\d+)?m`).ReplaceAllString(s, "")
-	s = strings.Replace(s, " ", "·", -1)
+	s = regexp.MustCompile(` $`).ReplaceAllString(s, "·")
 	s = strings.Replace(s, "\t", "  ➟ ", -1)
 	s = "  | " + strings.Join(strings.Split(s, "\n"), "\n  | ")
 	return s
@@ -163,8 +163,8 @@ func Test(t *testing.T) {
         RunTests(t)
 }
 
-var steps = map[string]interface{}{}
-var transforms = map[string]elicit.StepArgumentTransform{}
+var steps = elicit.Steps{}
+var transforms = elicit.Transforms{}
 `
 
 const stepFileFmt = `

@@ -20,7 +20,7 @@ func (ctx *Context) WithSpecsFolder(path string) *Context {
 }
 
 // WithSteps registers steps from the supplied map of patterns to functions
-func (ctx *Context) WithSteps(steps map[string]interface{}) *Context {
+func (ctx *Context) WithSteps(steps Steps) *Context {
 	for p, fn := range steps {
 		ctx.stepImpls.register(p, fn)
 	}
@@ -28,7 +28,7 @@ func (ctx *Context) WithSteps(steps map[string]interface{}) *Context {
 }
 
 // WithTransforms registers step argument transforms from the suppled map of patterns to functions
-func (ctx *Context) WithTransforms(txs map[string]StepArgumentTransform) *Context {
+func (ctx *Context) WithTransforms(txs Transforms) *Context {
 	for p, fn := range txs {
 		ctx.transforms.register(p, fn)
 	}
@@ -70,5 +70,5 @@ func (ctx *Context) validate() {
 		fmt.Fprintln(os.Stderr, "warning: No steps registered. Add some with Context.WithSteps().")
 	}
 
-	ctx.stepImpls.validate()
+	ctx.stepImpls.checkTransforms(ctx.transforms)
 }

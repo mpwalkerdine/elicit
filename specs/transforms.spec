@@ -29,7 +29,6 @@ The following scenarios use the same temporary environment (see [Specification S
 package elicit_test
 
 import (
-    "reflect"
     "testing"
 )
 
@@ -42,12 +41,8 @@ func init() {
         }
 
     transforms[`.*`] =
-        func(params []string, target reflect.Type) (interface{}, bool) {
-            if target != reflect.TypeOf((*CustomString)(nil)).Elem() {
-                return nil, false
-            }
-
-            return CustomString(params[0]), true
+        func(params []string) CustomString {
+            return CustomString(params[0])
         }
 }
 ```
@@ -77,7 +72,7 @@ PASS:
     --- PASS: Test/simple_types.spec/Simple_Type_Transforms (0.00s)
         --- PASS: Test/simple_types.spec/Simple_Type_Transforms/Renamed_string (0.00s)
             --- PASS: Test/simple_types.spec/Simple_Type_Transforms/Renamed_string/#00 (0.00s)
-            	simple_test.go:13: param
+            	simple_test.go:12: param
 ```
 
 ## Slices
@@ -128,7 +123,6 @@ PASS:
 package elicit_test
 
 import (
-    "reflect"
     "strconv"
     "testing"
 )
@@ -147,17 +141,13 @@ func init() {
         }
 
     transforms[`a person named (.*), born (\d{4})-(\d{2})-(\d{2})`] =
-        func(params []string, target reflect.Type) (interface{}, bool) {
-            if target != reflect.TypeOf((*Person)(nil)).Elem() {
-                return nil, false
-            }
-
+        func(params []string) Person {
             n := params[1]
             y, _ := strconv.Atoi(params[2])
             m, _ := strconv.Atoi(params[3])
             d, _ := strconv.Atoi(params[4])
 
-            return Person{name: n, dob: [3]int{y,m,d}}, true
+            return Person{name: n, dob: [3]int{y,m,d}}
         }
 }
 ```
@@ -167,7 +157,7 @@ func init() {
 ```markdown
 # Struct Transforms
 ## A Person
-+ Print a person named Bob, born 1986-01-01
++ Print a person named Bob, born 1987-01-01
 ```
 
 + Running `go test -v` will output:
@@ -181,15 +171,15 @@ A Person
 --------
 PASS:
 
-    ✓ Print a person named Bob, born 1986-01-01
+    ✓ Print a person named Bob, born 1987-01-01
 
 --- PASS: Test (0.00s)
     --- PASS: Test/simple_types.spec/Struct_Transforms (0.00s)
         --- PASS: Test/simple_types.spec/Struct_Transforms/A_Person (0.00s)
             --- PASS: Test/simple_types.spec/Struct_Transforms/A_Person/#00 (0.00s)
-            	struct_test.go:19: 
+            	struct_test.go:18: 
             		Name: Bob
-            		DOB: 1986-1-1
+            		DOB: 1987-1-1
 ```
 
 ---

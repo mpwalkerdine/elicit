@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"regexp/syntax"
 	"strings"
 	"testing"
 )
@@ -12,26 +13,18 @@ import (
 type stepImplMap map[*regexp.Regexp]interface{}
 
 const (
-	invalidFirstParam = "warning: The step pattern %q has an invalid implementation." +
-		" The first parameter must be of type *testing.T.\n"
-	countMismatch = "warning: The step pattern %q captures %d parameter%s but the supplied implementation takes %d.\n"
-	noTransform   = "warning: The step pattern %q has a parameter type %q for which no transforms exist.\n"
+	stepWarnPrefix     = "warning: registered step %q => [%v] "
+	stepWarnNotFunc    = stepWarnPrefix + "must be a function.\n"
+	stepWarnBadRegex   = stepWarnPrefix + "has an invalid regular expression: %s.\n"
+	stepWarnFirstParam = stepWarnPrefix + "has an invalid implementation. The first parameter must be of type *testing.T.\n"
+	stepWarnParamCount = stepWarnPrefix + "captures %d parameter%s but the supplied implementation takes %d.\n"
+	stepWarnParamType  = stepWarnPrefix + "has a parameter type %q for which no transforms exist.\n"
 )
 
 func (sim stepImplMap) register(pattern string, stepFunc interface{}) {
-
-	pattern = strings.TrimSpace(pattern)
-	pattern = ensureCompleteMatch(pattern)
-
-	p, err := regexp.Compile(pattern)
-
-	if err != nil {
-		panic(fmt.Sprintf("compiling step regexp %q, %s", pattern, err))
+	if r, ok := sim.validate(pattern, stepFunc); ok {
+		sim[r] = stepFunc
 	}
-
-	// TODO(matt) check the pattern captures the correct number of parameters
-
-	sim[p] = stepFunc
 }
 
 func ensureCompleteMatch(pattern string) string {
@@ -46,39 +39,50 @@ func ensureCompleteMatch(pattern string) string {
 	return pattern
 }
 
-func (sim stepImplMap) validate() {
+func (sim stepImplMap) validate(pattern string, impl interface{}) (*regexp.Regexp, bool) {
+	fn := reflect.ValueOf(impl)
+	fnSig := fn.Type()
 
-	tType := reflect.TypeOf((*testing.T)(nil))
-
-	for regex, impl := range sim {
-		fn := reflect.ValueOf(impl)
-		pattern := strings.TrimRight(strings.TrimLeft(regex.String(), "^"), "$")
-		patternCaptures := regex.NumSubexp()
-
-		if fn.Type().NumIn() == 0 || fn.Type().In(0) != tType {
-			fmt.Fprintf(os.Stderr, invalidFirstParam, pattern)
-			continue
-		}
-
-		// Note paramCount includes the first *testing.T parameter
-		if paramCount, _, _ := countStepImplParams(fn); paramCount-1 != patternCaptures {
-			plural := ""
-			if patternCaptures != 1 {
-				plural = "s"
-			}
-			fmt.Fprintf(os.Stderr, countMismatch, pattern, patternCaptures, plural, paramCount-1)
-			continue
-		}
+	if fnSig.Kind() != reflect.Func {
+		fmt.Fprintf(os.Stderr, stepWarnNotFunc, pattern, fnSig)
+		return nil, false
 	}
+
+	cleanPattern := strings.TrimSpace(pattern)
+	cleanPattern = ensureCompleteMatch(pattern)
+	regex, err := regexp.Compile(cleanPattern)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, stepWarnBadRegex, pattern, fnSig, err.(*syntax.Error).Code)
+		return nil, false
+	}
+
+	typeTestingT := reflect.TypeOf((*testing.T)(nil))
+	patternCaptures := regex.NumSubexp()
+	if fnSig.NumIn() == 0 || fnSig.In(0) != typeTestingT {
+		fmt.Fprintf(os.Stderr, stepWarnFirstParam, pattern, fnSig)
+		return nil, false
+	}
+
+	// Note paramCount includes the first *testing.T parameter
+	if paramCount, _, _ := sim.countStepImplParams(fn); paramCount-1 != patternCaptures {
+		plural := ""
+		if patternCaptures != 1 {
+			plural = "s"
+		}
+		fmt.Fprintf(os.Stderr, stepWarnParamCount, pattern, fnSig, patternCaptures, plural, paramCount-1)
+		return nil, false
+	}
+
+	return regex, true
 }
 
-func countStepImplParams(f reflect.Value) (params, tables, textBlocks int) {
+func (sim stepImplMap) countStepImplParams(fn reflect.Value) (params, tables, textBlocks int) {
 	tableType := reflect.TypeOf((*Table)(nil)).Elem()
 	textBlockType := reflect.TypeOf((*TextBlock)(nil)).Elem()
 
-	params = f.Type().NumIn()
+	params = fn.Type().NumIn()
 	for p := params - 1; p >= 0; p-- {
-		thisParam := f.Type().In(p)
+		thisParam := fn.Type().In(p)
 		if thisParam == tableType {
 			params--
 			tables++
@@ -91,4 +95,21 @@ func countStepImplParams(f reflect.Value) (params, tables, textBlocks int) {
 	}
 
 	return
+}
+
+func (sim stepImplMap) checkTransforms(tm transformMap) {
+	for stepPattern, stepImpl := range sim {
+		stepFn := reflect.ValueOf(stepImpl)
+		stepFnSig := stepFn.Type()
+
+		pCount, _, _ := sim.countStepImplParams(stepFn)
+
+		for p := 1; p < pCount; p++ {
+			pType := stepFnSig.In(p)
+
+			if tm[pType] == nil {
+				fmt.Fprintf(os.Stderr, stepWarnParamType, stepPattern, stepFnSig, pType)
+			}
+		}
+	}
 }

@@ -2,73 +2,110 @@ package elicit
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"regexp"
+	"regexp/syntax"
 	"strconv"
 	"strings"
 )
 
-// StepArgumentTransform transforms captured groups in the step pattern to a function parameter type
-// Note that if the actual string cannot be converted to the target type by the transform, it should return false
-type StepArgumentTransform func([]string, reflect.Type) (interface{}, bool)
+type transformMap map[reflect.Type]map[*regexp.Regexp]interface{}
 
-type transformMap map[*regexp.Regexp]StepArgumentTransform
+const (
+	txWarnPrefix    = "warning: registered transform %q => [%v] "
+	txWarnNotFunc   = txWarnPrefix + "must be a function.\n"
+	txWarnBadRegex  = txWarnPrefix + "has an invalid regular expression: %s.\n"
+	txWarnParamType = txWarnPrefix + "must take one argument of type []string.\n"
+	txWarnReturn    = txWarnPrefix + "must return precisely one value.\n"
+)
 
-func (tm *transformMap) init() {
-	tm.register(`.*`, func(params []string, t reflect.Type) (interface{}, bool) {
-		if t != reflect.TypeOf((*string)(nil)).Elem() {
-			return nil, false
-		}
-
-		return params[0], true
+func (tm transformMap) init() {
+	tm.register(`.*`, func(params []string) string {
+		return params[0]
 	})
 
-	tm.register(`-?\d+`, func(params []string, t reflect.Type) (interface{}, bool) {
-		if t != reflect.TypeOf((*int)(nil)).Elem() {
-			return nil, false
+	tm.register(`-?\d+`, func(params []string) int {
+		i, err := strconv.Atoi(params[0])
+
+		if err != nil {
+			panic(fmt.Errorf("converting %q to int: %s", params[0], err))
 		}
 
-		if t, err := strconv.Atoi(params[0]); err == nil {
-			return t, true
-		}
-
-		return nil, false
+		return i
 	})
 
-	tm.register(`(?:.+,\s*)*.+`, func(params []string, t reflect.Type) (interface{}, bool) {
-		if t.Kind() != reflect.Slice {
-			return nil, false
+	tm.register(`(?:.+,\s*)*.+`, func(params []string) []string {
+		ss := []string{}
+
+		for _, s := range strings.Split(params[0], ",") {
+			s = strings.TrimSpace(s)
+			ss = append(ss, s)
 		}
 
-		r := reflect.ValueOf(reflect.New(t).Elem().Interface())
+		return ss
+	})
 
-		for _, i := range strings.Split(params[0], ",") {
-			i = strings.TrimSpace(i)
-			if e, ok := tm.convertParam(i, t.Elem()); ok {
-				r = reflect.Append(r, e)
-			} else {
-				return nil, false
+	tm.register(`(?:-?\d+,\s*)*-?\d+`, func(params []string) []int {
+		si := []int{}
+
+		for _, s := range strings.Split(params[0], ",") {
+			s = strings.TrimSpace(s)
+			i, err := strconv.Atoi(s)
+			if err != nil {
+				panic(fmt.Errorf("converting %q to int: %s", s, err))
 			}
+			si = append(si, i)
 		}
 
-		return r.Interface(), true
+		return si
 	})
 }
 
-func (tm *transformMap) register(pattern string, transform StepArgumentTransform) {
-	pattern = ensureCompleteMatch(pattern)
+func (tm transformMap) register(pattern string, transform interface{}) {
+	if regex, typ, ok := tm.validate(pattern, transform); ok {
+		if tm[typ] == nil {
+			tm[typ] = map[*regexp.Regexp]interface{}{}
+		}
 
-	p, err := regexp.Compile(pattern)
+		tm[typ][regex] = transform
+	}
+}
 
-	if err != nil {
-		panic(fmt.Sprintf("compiling transform regexp %q, %s", pattern, err))
+func (tm transformMap) validate(pattern string, transform interface{}) (*regexp.Regexp, reflect.Type, bool) {
+	fn := reflect.ValueOf(transform)
+	fnSig := fn.Type()
+
+	if fnSig.Kind() != reflect.Func {
+		fmt.Fprintf(os.Stderr, txWarnNotFunc, pattern, fnSig)
+		return nil, nil, false
 	}
 
-	(*tm)[p] = transform
+	cleanPattern := ensureCompleteMatch(pattern)
+	regex, err := regexp.Compile(cleanPattern)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, txWarnBadRegex, pattern, fnSig, err.(*syntax.Error).Code)
+		return nil, nil, false
+	}
+
+	stringSliceType := reflect.TypeOf((*[]string)(nil)).Elem()
+	if fnSig.NumIn() != 1 || fnSig.In(0) != stringSliceType {
+		fmt.Fprintf(os.Stderr, txWarnParamType, pattern, fnSig)
+		return nil, nil, false
+	}
+
+	if fnSig.NumOut() != 1 {
+		fmt.Fprintf(os.Stderr, txWarnReturn, pattern, fnSig)
+		return nil, nil, false
+	}
+
+	typ := fnSig.Out(0)
+
+	return regex, typ, true
 }
 
-func (tm *transformMap) convertParam(param string, target reflect.Type) (reflect.Value, bool) {
-	for regex, tx := range *tm {
+func (tm transformMap) convertParam(param string, target reflect.Type) (reflect.Value, bool) {
+	for regex, tx := range tm[target] {
 		params := regex.FindStringSubmatch(param)
 		if params == nil {
 			continue
@@ -78,13 +115,10 @@ func (tm *transformMap) convertParam(param string, target reflect.Type) (reflect
 
 		in := []reflect.Value{
 			reflect.ValueOf(params),
-			reflect.ValueOf(target),
 		}
 
 		out := f.Call(in)
-		if out[1].Interface().(bool) {
-			return reflect.ValueOf(out[0].Interface()), true
-		}
+		return reflect.ValueOf(out[0].Interface()), true
 	}
 
 	return reflect.Value{}, false
