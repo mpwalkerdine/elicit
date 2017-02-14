@@ -60,11 +60,11 @@ func init() {
 ```
 Simple Type Transforms
 ======================
-PASS: 1
+Passed: 1
 
 Renamed string
 --------------
-PASS:
+Passed:
 
     ✓ Step with a CustomString "param"
 
@@ -106,11 +106,11 @@ steps[`Sum of (.+) is (.+)`] =
 ```
 List Summation
 ==============
-PASS: 1
+Passed: 1
 
 First Four Numbers
 ------------------
-PASS:
+Passed:
 
     ✓ Sum of 1,2,3,4 is 10
 ```
@@ -165,11 +165,11 @@ func init() {
 ```
 Struct Transforms
 =================
-PASS: 1
+Passed: 1
 
 A Person
 --------
-PASS:
+Passed:
 
     ✓ Print a person named Bob, born 1987-01-01
 

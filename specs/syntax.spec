@@ -65,11 +65,11 @@ Level 2 heading name a Scenario, e.g.
 ```
 Spec Name
 =========
-PENDING: 1
+Pending: 1
 
 Scenario Name
 -------------
-PENDING:
+Pending:
 
 ```
 
@@ -91,11 +91,11 @@ List items using the `+` character define executable steps, e.g.
 ```
 Spec Name
 =========
-PENDING: 1
+Pending: 1
 
 Scenario Name
 -------------
-PENDING:
+Pending:
 
     ? A Step
 ```
@@ -138,11 +138,11 @@ _every_ scenario, e.g.
 ```
 Spec
 ====
-PENDING: 2
+Pending: 2
 
 First Scenario
 --------------
-PENDING:
+Pending:
 
     ? before
     ? step 1
@@ -150,7 +150,7 @@ PENDING:
 
 Last Scenario
 -------------
-PENDING:
+Pending:
 
     ? before
     ? step 2
@@ -242,11 +242,11 @@ steps[`print "(.*)"`] =
 ```
 Tables
 ======
-PASS: 2
+Passed: 2
 
 Step Table
 ----------
-PASS:
+Passed:
 
     ✓ print "before: a = 1, b = 2, c = 3"
     ✓ print "before: a = 4, b = 5, c = 6"
@@ -256,7 +256,7 @@ PASS:
 
 Scenario Tables
 ---------------
-PASS:
+Passed:
 
     ✓ print "before: a = 1, b = 2, c = 3"
     ✓ print "before: a = 4, b = 5, c = 6"
@@ -304,11 +304,11 @@ steps[`This step takes a block of text:`] =
 ```
 Text Blocks
 ===========
-PASS: 1
+Passed: 1
 
 Text Block
 ----------
-PASS:
+Passed:
 
     ✓ This step takes a block of text: ☰
 

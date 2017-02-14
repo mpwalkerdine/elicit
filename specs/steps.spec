@@ -81,32 +81,32 @@ If you don't have many steps, you could put them all in the same file with the t
 ```
 Step Execution
 ==============
-PASS: 3
-FAIL: 1
+Passed: 3
+Failed: 1
 
 No Parameters
 -------------
-PASS:
+Passed:
 
     ✓ Simple Step
 
 String parameters
 -----------------
-PASS:
+Passed:
 
     ✓ Step with "hello" parameter
     ✓ Step with "world" parameter
 
 Int parameters
 --------------
-PASS:
+Passed:
 
     ✓ Step with an int parameter 42
     ✓ Step with an int parameter -1
 
 Multiple Parameters
 -------------------
-FAIL:
+Failed:
 
     ✓ 1 + 1 = 2
     ✓ 2 + 3 = 5
@@ -179,19 +179,19 @@ steps[`This step will be skipped`] =
 ```
 Failing Steps
 =============
-FAIL: 1
-PANIC: 1
+Failed: 1
+Panicked: 1
 
 Fail
 ----
-FAIL:
+Failed:
 
     ✘ This step fails
     ⤹ This step will be skipped
 
 Panic
 -----
-PANIC:
+Panicked:
 
     ⚡ This step panics
     ⤹ This step will be skipped
@@ -236,19 +236,19 @@ steps[`This step skips`] =
 ```
 Skipping Steps
 ==============
-SKIP: 1
-PENDING: 1
+Skipped: 1
+Pending: 1
 
 Undefined
 ---------
-PENDING:
+Pending:
 
     ? This step has no implementation
     ⤹ This step will be skipped
 
 Skipped
 -------
-SKIP:
+Skipped:
 
     ⤹ This step skips
     ⤹ This step will be skipped
@@ -295,11 +295,11 @@ steps[`Forced step`] =
 ```
 Forcing Steps to Run
 ====================
-PENDING: 1
+Pending: 1
 
 Forced Step
 -----------
-PENDING:
+Pending:
 
     ? This step is skipped
     ✔ Forced step

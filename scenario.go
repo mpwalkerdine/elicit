@@ -15,7 +15,7 @@ func (s *scenario) runTest(scenarioT *testing.T) {
 	s.result = passed
 
 	if len(s.steps) == 0 {
-		s.result = undefined
+		s.result = pending
 	}
 
 	for _, step := range s.steps {

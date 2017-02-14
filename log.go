@@ -79,7 +79,7 @@ func (l *log) writeSpecHeader(s *spec) {
 	resultCounts := map[result]int{}
 
 	switch s.result {
-	case undefined:
+	case pending:
 		name = l.yellow(name)
 		underline = l.yellow(underline)
 	case skipped:
@@ -114,7 +114,7 @@ func (l *log) writeScenarioHeader(s *scenario) {
 	underline := strings.Repeat("-", len(s.name))
 
 	switch s.result {
-	case undefined:
+	case pending:
 		name = l.yellow(name)
 		underline = l.yellow(underline)
 	case skipped:
@@ -143,7 +143,7 @@ func (l *log) writeStepResult(s *step) {
 	}
 
 	switch s.result {
-	case undefined:
+	case pending:
 		prefix = l.yellow("?")
 		text = l.yellow(text)
 	case skipped:

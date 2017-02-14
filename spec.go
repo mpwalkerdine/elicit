@@ -21,7 +21,7 @@ const (
 	notrun result = iota
 	passed
 	skipped
-	undefined
+	pending
 	failed
 	panicked
 )
@@ -30,7 +30,7 @@ func (r result) shouldLog() bool {
 	switch r {
 	case skipped, passed:
 		return false
-	case undefined, failed, panicked:
+	case pending, failed, panicked:
 		return true
 	default:
 		panic(fmt.Errorf("unknown result: %d", r))
@@ -39,16 +39,16 @@ func (r result) shouldLog() bool {
 
 func (r result) String() string {
 	switch r {
-	case undefined:
-		return "PENDING"
+	case pending:
+		return "Pending"
 	case skipped:
-		return "SKIP"
+		return "Skipped"
 	case failed:
-		return "FAIL"
+		return "Failed"
 	case panicked:
-		return "PANIC"
+		return "Panicked"
 	case passed:
-		return "PASS"
+		return "Passed"
 	default:
 		panic(fmt.Errorf("unknown result: %d", r))
 	}
@@ -68,7 +68,7 @@ func (s *spec) runTest(specT *testing.T) {
 			scenario.runTest(scenarioT)
 
 			switch scenario.result {
-			case skipped, undefined:
+			case skipped, pending:
 				scenarioT.SkipNow()
 			case failed, panicked:
 				allSkipped = false

@@ -48,10 +48,10 @@ func (s *step) run(scenarioT *testing.T) {
 
 		// unresolved parameters count as undefined
 		if len(s.params) > 0 {
-			s.result = undefined
+			s.result = pending
 			stepT.Skip("unresolved parameters:", s.params)
 		} else if impl, found := s.matchStepImpl(stepT); !found {
-			s.result = undefined
+			s.result = pending
 			stepT.Skip("no matching step implementation")
 		} else if !s.force && skip {
 			stepT.SkipNow()
