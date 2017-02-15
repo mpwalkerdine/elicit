@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 )
 
@@ -76,7 +75,7 @@ func (l *log) writeLn() {
 func (l *log) writeSpecHeader(s *spec) {
 	name := s.name
 	underline := strings.Repeat("=", len(s.name))
-	resultCounts := map[result]int{}
+	resultCounts := [numResultTypes]int{}
 
 	switch s.result {
 	case pending:
@@ -96,14 +95,10 @@ func (l *log) writeSpecHeader(s *spec) {
 
 	resultString := ""
 
-	keys := results{}
-	for k := range resultCounts {
-		keys = append(keys, k)
-	}
-	sort.Stable(keys)
-
-	for _, k := range keys {
-		resultString += fmt.Sprintf("\n%s: %d", k, resultCounts[k])
+	for i, count := range resultCounts {
+		if count > 0 {
+			resultString += fmt.Sprintf("\n%s: %d", result(i), count)
+		}
 	}
 
 	fmt.Fprintf(&l.buffer, "\n\n%s\n%s%s\n", name, underline, resultString)
