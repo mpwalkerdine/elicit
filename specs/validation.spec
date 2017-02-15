@@ -92,7 +92,7 @@ steps[`(something)`] = func(t *testing.T, s string) {}
 + something
 ```
 
-+ Running `go test` will output:
++ Running `go test` will output the following lines:
 
 ```
 warning: step "something" is ambiguous:
@@ -100,8 +100,11 @@ warning: step "something" is ambiguous:
             - "(something)" => [func(*testing.T, string)]
 warning: registered step "(.*)" => [func(*testing.T, string)] is not used.
 warning: registered step "(something)" => [func(*testing.T, string)] is not used.
+```
 
++ Running `go test` will output:
 
+```
 Ambiguous Steps
 ===============
 Pending: 1
