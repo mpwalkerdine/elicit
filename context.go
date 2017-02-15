@@ -9,11 +9,17 @@ import (
 
 // Context stores test machinery and maintains state between specs/scenarios/steps
 type Context struct {
-	specs       []*spec
-	stepImpls   stepImpls
-	unusedSteps stepImpls
-	transforms  transformMap
-	log         log
+	specs          []*spec
+	stepImpls      stepImpls
+	transforms     transformMap
+	beforeSpec     []Hook
+	afterSpec      []Hook
+	beforeScenario []Hook
+	afterScenario  []Hook
+	beforeStep     []Hook
+	afterStep      []Hook
+	unusedSteps    stepImpls
+	log            log
 }
 
 // WithSpecsFolder recursively adds the path to the discovery path of specs
@@ -42,6 +48,42 @@ func (ctx *Context) WithTransforms(txs Transforms) *Context {
 	return ctx
 }
 
+// BeforeSpecs registers a function to be called before each spec
+func (ctx *Context) BeforeSpecs(hook Hook) *Context {
+	ctx.beforeSpec = append(ctx.beforeSpec, hook)
+	return ctx
+}
+
+// AfterSpecs registers a function to be called after each spec
+func (ctx *Context) AfterSpecs(hook Hook) *Context {
+	ctx.afterSpec = append(ctx.afterSpec, hook)
+	return ctx
+}
+
+// BeforeScenarios registers a function to be called before each scenario
+func (ctx *Context) BeforeScenarios(hook Hook) *Context {
+	ctx.beforeScenario = append(ctx.beforeScenario, hook)
+	return ctx
+}
+
+// AfterScenarios registers a function to be called after each scenario
+func (ctx *Context) AfterScenarios(hook Hook) *Context {
+	ctx.afterScenario = append(ctx.afterScenario, hook)
+	return ctx
+}
+
+// BeforeSteps registers a function to be called before each step
+func (ctx *Context) BeforeSteps(hook Hook) *Context {
+	ctx.beforeStep = append(ctx.beforeStep, hook)
+	return ctx
+}
+
+// AfterSteps registers a function to be called after each step
+func (ctx *Context) AfterSteps(hook Hook) *Context {
+	ctx.afterStep = append(ctx.afterStep, hook)
+	return ctx
+}
+
 // RunTests runs all the discovered specs as tests
 func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 	allSkipped := true
@@ -49,6 +91,11 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 	ctx.validate()
 
 	for _, spec := range ctx.specs {
+
+		for _, h := range ctx.beforeSpec {
+			h()
+		}
+
 		ctxT.Run(spec.path+"/"+spec.name, func(specT *testing.T) {
 			spec.runTest(specT)
 
@@ -56,6 +103,10 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 				allSkipped = false
 			}
 		})
+
+		for _, h := range ctx.afterSpec {
+			h()
+		}
 	}
 
 	ctx.log.writeToConsole()
@@ -102,7 +153,7 @@ func (ctx *Context) resolveSteps() {
 	for _, spec := range ctx.specs {
 		for _, scenario := range spec.scenarios {
 			for _, step := range scenario.steps {
-				step.impl = ctx.matchStepImpl(step)
+				ctx.matchStepImpl(step)
 			}
 		}
 	}
@@ -112,10 +163,15 @@ func (ctx *Context) resolveSteps() {
 	}
 }
 
-func (ctx *Context) matchStepImpl(s *step) func(*testing.T) {
+func (ctx *Context) matchStepImpl(s *step) {
+	// unresolved parameters count as pending
+	if len(s.params) > 0 {
+		return
+	}
+
 	type candidate struct {
-		impl  *stepImpl
-		match func(t *testing.T)
+		impl *stepImpl
+		call func(t *testing.T)
 	}
 	candidates := []candidate{}
 
@@ -124,11 +180,8 @@ func (ctx *Context) matchStepImpl(s *step) func(*testing.T) {
 		params := impl.regex.FindStringSubmatch(s.text)
 
 		if convertedParams, ok := ctx.transforms.convertParams(s, fn, params); ok {
-			match := func(t *testing.T) {
-				convertedParams[0] = reflect.ValueOf(t)
-				fn.Call(convertedParams)
-			}
-			candidates = append(candidates, candidate{impl, match})
+			call := s.createCall(fn, convertedParams)
+			candidates = append(candidates, candidate{impl, call})
 		}
 	}
 
@@ -136,21 +189,20 @@ func (ctx *Context) matchStepImpl(s *step) func(*testing.T) {
 		for _, c := range candidates {
 			for i, us := range ctx.unusedSteps {
 				if us == c.impl {
+					// remove from log of unused steps
 					ctx.unusedSteps = append(ctx.unusedSteps[:i], ctx.unusedSteps[i+1:]...)
 					break
 				}
 			}
-			return c.match
+			s.impl = c.call
+			// We set this to skipped in case it never gets a chance to run
+			s.result = skipped
 		}
-	}
-
-	if len(candidates) > 1 {
+	} else if len(candidates) > 1 {
 		warning := fmt.Sprintf(stepWarnAmbiguous, s.text)
 		for _, c := range candidates {
 			warning += fmt.Sprintf("            - %s\n", c.impl)
 		}
 		fmt.Fprint(os.Stderr, warning)
 	}
-
-	return nil
 }

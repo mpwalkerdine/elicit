@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"reflect"
 	"testing"
 )
 
@@ -25,43 +26,46 @@ type step struct {
 func (s *step) run(scenarioT *testing.T) {
 	defer s.restoreStdout(s.redirectStdout())
 
+	defer func() {
+		if s.result > s.scenario.result {
+			s.scenario.result = s.result
+		}
+	}()
+
 	skip := (s.scenario.result != passed)
 
-	scenarioT.Run("", func(stepT *testing.T) {
+	if s.impl == nil {
+		s.result = pending
+		scenarioT.SkipNow()
+	} else if !s.force && skip {
+		s.result = skipped
+		scenarioT.SkipNow()
+	} else {
+		if skip {
+			s.forced = true
+		}
+		s.impl(scenarioT)
+	}
+}
+
+func (s *step) createCall(fn reflect.Value, params []reflect.Value) func(*testing.T) {
+	return func(t *testing.T) {
 		defer func() {
 			if rcvr := recover(); rcvr != nil {
 				s.result = panicked
-				stepT.Error(rcvr)
-			}
-
-			// Don't overwrite existing result
-			if s.result == notrun {
-				if stepT.Failed() {
-					s.result = failed
-				} else if stepT.Skipped() {
-					s.result = skipped
-				} else {
-					s.result = passed
-				}
+				t.Error(rcvr)
+			} else if t.Failed() {
+				s.result = failed
+			} else if t.Skipped() {
+				s.result = skipped
+			} else {
+				s.result = passed
 			}
 		}()
 
-		// unresolved parameters count as undefined
-		if len(s.params) > 0 {
-			s.result = pending
-			stepT.Skip("unresolved parameters:", s.params)
-		} else if s.impl == nil {
-			s.result = pending
-			stepT.Skip("no matching step implementation")
-		} else if !s.force && skip {
-			stepT.SkipNow()
-		} else {
-			if skip {
-				s.forced = true
-			}
-			s.impl(stepT)
-		}
-	})
+		params[0] = reflect.ValueOf(t)
+		fn.Call(params)
+	}
 }
 
 func (s *step) redirectStdout() (*os.File, chan bool) {

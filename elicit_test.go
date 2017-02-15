@@ -19,6 +19,8 @@ func Test(t *testing.T) {
 		WithSpecsFolder("./specs").
 		WithTransforms(transforms).
 		WithSteps(steps).
+		BeforeScenarios(createTempDir).
+		AfterScenarios(removeTempDir).
 		RunTests(t)
 }
 
@@ -26,11 +28,8 @@ var steps = elicit.Steps{}
 var transforms = elicit.Transforms{}
 
 func init() {
-	steps["Create a temporary directory"] = createTempDir
-
 	steps["Create a temporary environment"] =
 		func(t *testing.T) {
-			createTempDir(t)
 			createFile(t, "specs_test.go", testfile)
 		}
 
@@ -95,21 +94,20 @@ func init() {
 				}
 			}
 		}
-
-	steps["Remove the temporary directory"] =
-		func(t *testing.T) {
-			if err := os.RemoveAll(tempdir); err != nil {
-				t.Errorf("removing tempdir %q: %s", tempdir, err)
-			}
-		}
 }
 
-func createTempDir(t *testing.T) {
+func createTempDir() {
 	var err error
 	tempdir, err = ioutil.TempDir("", "elicit_test")
 
 	if err != nil {
-		t.Fatalf("creating tempdir: %s", err)
+		panic(fmt.Errorf("creating tempdir: %s", err))
+	}
+}
+
+func removeTempDir() {
+	if err := os.RemoveAll(tempdir); err != nil {
+		panic(fmt.Errorf("removing tempdir %q: %s", tempdir, err))
 	}
 }
 

@@ -5,7 +5,6 @@ They are then executed by a normal `go test` run.
 
 For example, the scenarios below make use of the file created below.
 
-+ Create a temporary directory
 + Create a `spec_test.go` file:
 
 ```go
@@ -315,15 +314,10 @@ Passed
 --- PASS: Test (0.00s)
     --- PASS: Test/text_block.spec/Text_Blocks (0.00s)
         --- PASS: Test/text_block.spec/Text_Blocks/Text_Block (0.00s)
-            --- PASS: Test/text_block.spec/Text_Blocks/Text_Block/#00 (0.00s)
-            	steps_test.go:13: 
-            		> Multiple lines
-            		> of text which
-            		> are passed into
-            		> the step
-            		> implementation
+        	steps_test.go:13: 
+        		> Multiple lines
+        		> of text which
+        		> are passed into
+        		> the step
+        		> implementation
 ```
-
----
-
-+ *Remove the temporary directory*

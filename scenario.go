@@ -11,17 +11,20 @@ type scenario struct {
 	result  result
 }
 
-func (s *scenario) runTest(scenarioT *testing.T) {
-	s.result = passed
-
+func (s *scenario) run(scenarioT *testing.T) {
 	if len(s.steps) == 0 {
 		s.result = pending
 	}
 
 	for _, step := range s.steps {
+		for _, h := range s.context.beforeStep {
+			h()
+		}
+
 		step.run(scenarioT)
-		if step.result > s.result {
-			s.result = step.result
+
+		for _, h := range s.context.afterStep {
+			h()
 		}
 	}
 }

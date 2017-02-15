@@ -115,23 +115,15 @@ Failed
 --- FAIL: Test (0.00s)
     --- FAIL: Test/step_execution.spec/Step_Execution (0.00s)
         --- PASS: Test/step_execution.spec/Step_Execution/No_Parameters (0.00s)
-            --- PASS: Test/step_execution.spec/Step_Execution/No_Parameters/#00 (0.00s)
-            	steps_test.go:10: simple step
+        	steps_test.go:10: simple step
         --- PASS: Test/step_execution.spec/Step_Execution/String_parameters (0.00s)
-            --- PASS: Test/step_execution.spec/Step_Execution/String_parameters/#00 (0.00s)
-            	steps_test.go:15: param: hello
-            --- PASS: Test/step_execution.spec/Step_Execution/String_parameters/#01 (0.00s)
-            	steps_test.go:15: param: world
+        	steps_test.go:15: param: hello
+        	steps_test.go:15: param: world
         --- PASS: Test/step_execution.spec/Step_Execution/Int_parameters (0.00s)
-            --- PASS: Test/step_execution.spec/Step_Execution/Int_parameters/#00 (0.00s)
-            	steps_test.go:20: 42
-            --- PASS: Test/step_execution.spec/Step_Execution/Int_parameters/#01 (0.00s)
-            	steps_test.go:20: -1
+        	steps_test.go:20: 42
+        	steps_test.go:20: -1
         --- FAIL: Test/step_execution.spec/Step_Execution/Multiple_Parameters (0.00s)
-            --- PASS: Test/step_execution.spec/Step_Execution/Multiple_Parameters/#00 (0.00s)
-            --- PASS: Test/step_execution.spec/Step_Execution/Multiple_Parameters/#01 (0.00s)
-            --- FAIL: Test/step_execution.spec/Step_Execution/Multiple_Parameters/#02 (0.00s)
-            	steps_test.go:27: expected 0 + 1 = 0, got 1
+        	steps_test.go:27: expected 0 + 1 = 0, got 1
 ```
 
 
@@ -256,55 +248,6 @@ Skipped
 --- SKIP: Test (0.00s)
     --- SKIP: Test/skipped_steps.spec/Skipping_Steps (0.00s)
         --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Undefined (0.00s)
-            --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Undefined/#00 (0.00s)
-            	step.go:55: no matching step implementation
-            --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Undefined/#01 (0.00s)
         --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Skipped (0.00s)
-            --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Skipped/#00 (0.00s)
-            	steps_test.go:17: skipping...
-            --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Skipped/#01 (0.00s)
+        	steps_test.go:17: skipping...
 ```
-
-
-## Forcing Step Execution
-
-If there are steps that need to be run regardless of the success or failure of previous steps,
-add emphasis to the whole step text.
-
-+ Create a `forced_steps.spec` file:
-
-```markdown
-# Forcing Steps to Run
-
-## Forced Step
-+ This step is skipped
-+ *Forced step*
-```
-
-+ Create step definitions:
-
-```go
-steps[`Forced step`] =
-    func(t *testing.T) {
-        t.Logf("forced step")
-    }
-```
-
-+ Running `go test -v` will output:
-
-```
-Forcing Steps to Run
-====================
-Pending: 1
-
-Forced Step
------------
-Pending
-
-    ? This step is skipped
-    ✔ Forced step
-```
-
----
-
-+ *Remove the temporary directory*

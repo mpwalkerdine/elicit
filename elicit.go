@@ -25,6 +25,9 @@ type Steps map[string]interface{}
 // The string is a pattern which captured subgroups must match for the transform to be considered.
 type Transforms map[string]interface{}
 
+// Hook is a function which can be registered to execute before/after each spec/scenario/step
+type Hook func()
+
 // New creates a new elicit context which stores specs, steps and transforms
 func New() *Context {
 	ctx := &Context{

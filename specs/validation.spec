@@ -130,7 +130,3 @@ steps[`.^`] = func(t *testing.T) {}
 ```
 warning: registered step ".^" => [func(*testing.T)] is not used.
 ```
-
----
-
-+ *Remove the temporary directory*

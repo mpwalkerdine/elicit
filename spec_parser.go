@@ -79,24 +79,21 @@ func (p *specParser) createScenario() {
 func (p *specParser) createStep() {
 	p.closeStep()
 
+	step := &step{
+		context: p.context,
+		spec:    p.currentSpec,
+		result:  pending,
+	}
+
 	if p.currentScenario != nil {
-		p.currentScenario.steps = append(p.currentScenario.steps, &step{
-			context:  p.context,
-			spec:     p.currentSpec,
-			scenario: p.currentScenario,
-		})
+		step.scenario = p.currentScenario
+		p.currentScenario.steps = append(p.currentScenario.steps, step)
 		p.currentStep = p.currentScenario.steps[len(p.currentScenario.steps)-1]
 	} else if len(p.currentSpec.scenarios) == 0 {
-		p.beforeSteps = append(p.beforeSteps, &step{
-			context: p.context,
-			spec:    p.currentSpec,
-		})
+		p.beforeSteps = append(p.beforeSteps, step)
 		p.currentStep = p.beforeSteps[len(p.beforeSteps)-1]
 	} else {
-		p.afterSteps = append(p.afterSteps, &step{
-			context: p.context,
-			spec:    p.currentSpec,
-		})
+		p.afterSteps = append(p.afterSteps, step)
 		p.currentStep = p.afterSteps[len(p.afterSteps)-1]
 	}
 	p.textTarget = &p.currentStep.text

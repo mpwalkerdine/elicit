@@ -18,12 +18,12 @@ type result int
 
 const (
 	// Note: These are ordered by precedence
-	notrun result = iota
-	passed
+	passed result = iota
 	skipped
 	pending
 	failed
 	panicked
+	numResultTypes
 )
 
 func (r result) shouldLog() bool {
@@ -54,35 +54,30 @@ func (r result) String() string {
 	}
 }
 
-type results []result
-
-func (r results) Len() int           { return len(r) }
-func (r results) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
-func (r results) Less(i, j int) bool { return r[i] < r[j] }
-
 func (s *spec) runTest(specT *testing.T) {
-	allSkipped := true
-
 	for _, scenario := range s.scenarios {
-		specT.Run(scenario.name, func(scenarioT *testing.T) {
-			scenario.runTest(scenarioT)
 
-			switch scenario.result {
-			case skipped, pending:
-				scenarioT.SkipNow()
-			case failed, panicked:
-				allSkipped = false
-				scenarioT.Fail()
-			default:
-				allSkipped = false
-			}
+		for _, h := range s.context.beforeScenario {
+			h()
+		}
+
+		specT.Run(scenario.name, func(scenarioT *testing.T) {
+			scenario.run(scenarioT)
 		})
+
+		for _, h := range s.context.afterScenario {
+			h()
+		}
+
 		if scenario.result > s.result {
 			s.result = scenario.result
 		}
 	}
 
-	if allSkipped {
+	switch s.result {
+	case panicked, failed:
+		specT.Fail()
+	case skipped, pending:
 		specT.SkipNow()
 	}
 }
