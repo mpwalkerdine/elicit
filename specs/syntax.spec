@@ -69,7 +69,7 @@ Pending: 1
 
 Scenario Name
 -------------
-Pending:
+Pending
 
 ```
 
@@ -95,7 +95,7 @@ Pending: 1
 
 Scenario Name
 -------------
-Pending:
+Pending
 
     ? A Step
 ```
@@ -142,7 +142,7 @@ Pending: 2
 
 First Scenario
 --------------
-Pending:
+Pending
 
     ? before
     ? step 1
@@ -150,7 +150,7 @@ Pending:
 
 Last Scenario
 -------------
-Pending:
+Pending
 
     ? before
     ? step 2
@@ -246,7 +246,7 @@ Passed: 2
 
 Step Table
 ----------
-Passed:
+Passed
 
     ✓ print "before: a = 1, b = 2, c = 3"
     ✓ print "before: a = 4, b = 5, c = 6"
@@ -256,7 +256,7 @@ Passed:
 
 Scenario Tables
 ---------------
-Passed:
+Passed
 
     ✓ print "before: a = 1, b = 2, c = 3"
     ✓ print "before: a = 4, b = 5, c = 6"
@@ -308,7 +308,7 @@ Passed: 1
 
 Text Block
 ----------
-Passed:
+Passed
 
     ✓ This step takes a block of text: ☰
 

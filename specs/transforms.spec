@@ -64,7 +64,7 @@ Passed: 1
 
 Renamed string
 --------------
-Passed:
+Passed
 
     ✓ Step with a CustomString "param"
 
@@ -110,7 +110,7 @@ Passed: 1
 
 First Four Numbers
 ------------------
-Passed:
+Passed
 
     ✓ Sum of 1,2,3,4 is 10
 ```
@@ -169,7 +169,7 @@ Passed: 1
 
 A Person
 --------
-Passed:
+Passed
 
     ✓ Print a person named Bob, born 1987-01-01
 

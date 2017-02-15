@@ -46,7 +46,7 @@ Passed: 1
 
 Logging Scenario
 ----------------
-Passed:
+Passed
 
     ✓ Logged step
 
@@ -86,7 +86,7 @@ Passed: 1
 
 Logging Scenario
 ----------------
-Passed:
+Passed
 
     ✓ Logged step
         Logged output
@@ -159,20 +159,20 @@ Panicked: 1
 
 Undefined
 ---------
-Pending:
+Pending
 
     ? Undefined step
 
 Failed
 ------
-Failed:
+Failed
 
     ✘ Failed step
         Failed stdout output
 
 Panic
 -----
-Panicked:
+Panicked
 
     ⚡ Panicked step
         Panicked stdout output
@@ -200,37 +200,38 @@ Panicked: 1
 
 Undefined
 ---------
-Pending:
+Pending
 
     ? Undefined step
 
 Skipped
 -------
-Skipped:
+Skipped
 
     ⤹ Skipped step
         Skipped stdout output
 
 Failed
 ------
-Failed:
+Failed
 
     ✘ Failed step
         Failed stdout output
 
 Panic
 -----
-Panicked:
+Panicked
 
     ⚡ Panicked step
         Panicked stdout output
 
 Pass
 ----
-Passed:
+Passed
 
     ✓ Passing step
         Passing stdout output
+
 
 Passing Spec
 ============
@@ -238,7 +239,7 @@ Passed: 2
 
 Passing Scenario
 ----------------
-Passed:
+Passed
 
     ✓ Passing step
         Passing stdout output
@@ -247,7 +248,7 @@ Passed:
 
 Another Passing Scenario
 ------------------------
-Passed:
+Passed
 
     ✓ Passing step
         Passing stdout output
@@ -297,20 +298,20 @@ Panicked: 1
 
 Undefined
 ---------
-Pending:
+Pending
 
     ? Undefined step
 
 Failed
 ------
-Failed:
+Failed
 
     ✘ Failed step
         Failed stdout output
 
 Panic
 -----
-Panicked:
+Panicked
 
     ⚡ Panicked step
         Panicked stdout output
@@ -338,37 +339,38 @@ Panicked: 1
 
 Undefined
 ---------
-Pending:
+Pending
 
     ? Undefined step
 
 Skipped
 -------
-Skipped:
+Skipped
 
     ⤹ Skipped step
         Skipped stdout output
 
 Failed
 ------
-Failed:
+Failed
 
     ✘ Failed step
         Failed stdout output
 
 Panic
 -----
-Panicked:
+Panicked
 
     ⚡ Panicked step
         Panicked stdout output
 
 Pass
 ----
-Passed:
+Passed
 
     ✓ Passing step
         Passing stdout output
+
 
 Passing Spec
 ============
@@ -376,7 +378,7 @@ Passed: 2
 
 Passing Scenario
 ----------------
-Passed:
+Passed
 
     ✓ Passing step
         Passing stdout output
@@ -385,7 +387,7 @@ Passed:
 
 Another Passing Scenario
 ------------------------
-Passed:
+Passed
 
     ✓ Passing step
         Passing stdout output

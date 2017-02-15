@@ -28,7 +28,6 @@ type Transforms map[string]interface{}
 // New creates a new elicit context which stores specs, steps and transforms
 func New() *Context {
 	ctx := &Context{
-		stepImpls:  stepImplMap{},
 		transforms: transformMap{},
 	}
 

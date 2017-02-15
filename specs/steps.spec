@@ -86,27 +86,27 @@ Failed: 1
 
 No Parameters
 -------------
-Passed:
+Passed
 
     ✓ Simple Step
 
 String parameters
 -----------------
-Passed:
+Passed
 
     ✓ Step with "hello" parameter
     ✓ Step with "world" parameter
 
 Int parameters
 --------------
-Passed:
+Passed
 
     ✓ Step with an int parameter 42
     ✓ Step with an int parameter -1
 
 Multiple Parameters
 -------------------
-Failed:
+Failed
 
     ✓ 1 + 1 = 2
     ✓ 2 + 3 = 5
@@ -184,14 +184,14 @@ Panicked: 1
 
 Fail
 ----
-Failed:
+Failed
 
     ✘ This step fails
     ⤹ This step will be skipped
 
 Panic
 -----
-Panicked:
+Panicked
 
     ⚡ This step panics
     ⤹ This step will be skipped
@@ -241,14 +241,14 @@ Pending: 1
 
 Undefined
 ---------
-Pending:
+Pending
 
     ? This step has no implementation
     ⤹ This step will be skipped
 
 Skipped
 -------
-Skipped:
+Skipped
 
     ⤹ This step skips
     ⤹ This step will be skipped
@@ -299,7 +299,7 @@ Pending: 1
 
 Forced Step
 -----------
-Pending:
+Pending
 
     ? This step is skipped
     ✔ Forced step

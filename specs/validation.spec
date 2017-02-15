@@ -48,7 +48,7 @@ warning: registered step "No params" => [func()] has an invalid implementation. 
 warning: registered step "Invalid first param" => [func(string)] has an invalid implementation. The first parameter must be of type *testing.T.
 warning: registered step "Extra (param)" => [func(*testing.T)] captures 1 parameter but the supplied implementation takes 0.
 warning: registered step "Fewer params" => [func(*testing.T, string)] captures 0 parameters but the supplied implementation takes 1.
-warning: registered step "^Unconvertible (param)$" => [func(*testing.T, elicit_test.custom)] has a parameter type "elicit_test.custom" for which no transforms exist.
+warning: registered step "Unconvertible (param)" => [func(*testing.T, elicit_test.custom)] has a parameter type "elicit_test.custom" for which no transforms exist.
 ```
 
 ## Invalid Transforms
@@ -75,12 +75,58 @@ warning: registered transform "Incorrect param" => [func(*testing.T) int] must t
 warning: registered transform "No return" => [func([]string)] must return precisely one value.
 ```
 
+## Ambiguous Steps
+
++ Create step definitions:
+
+```go
+steps[`(.*)`] = func(t *testing.T, s string) {}
+steps[`(something)`] = func(t *testing.T, s string) {}
+```
+
++ Create a `ambiguous_steps.spec` file:
+
+```markdown
+# Ambiguous Steps
+## Ambiguous Step
++ something
+```
+
++ Running `go test` will output:
+
+```
+warning: step "something" is ambiguous:
+            - "(.*)" => [func(*testing.T, string)]
+            - "(something)" => [func(*testing.T, string)]
+warning: registered step "(.*)" => [func(*testing.T, string)] is not used.
+warning: registered step "(something)" => [func(*testing.T, string)] is not used.
+
+
+Ambiguous Steps
+===============
+Pending: 1
+
+Ambiguous Step
+--------------
+Pending
+
+    ? something
+```
+
+
 ## Unused Steps
 
-If the `elicit.showOrphans` flag is set, any unused step implementations
-will be logged to the console.
++ Create step definitions:
 
-+ TODO
+```go
+steps[`.^`] = func(t *testing.T) {}
+```
+
++ Running `go test` will output the following lines:
+
+```
+warning: registered step ".^" => [func(*testing.T)] is not used.
+```
 
 ---
 

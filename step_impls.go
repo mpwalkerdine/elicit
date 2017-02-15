@@ -10,21 +10,41 @@ import (
 	"testing"
 )
 
-type stepImplMap map[*regexp.Regexp]interface{}
+type stepImpl struct {
+	regex *regexp.Regexp
+	fn    interface{}
+}
+
+type stepImpls []*stepImpl
 
 const (
-	stepWarnPrefix     = "warning: registered step %q => [%v] "
-	stepWarnNotFunc    = stepWarnPrefix + "must be a function.\n"
-	stepWarnBadRegex   = stepWarnPrefix + "has an invalid regular expression: %s.\n"
-	stepWarnFirstParam = stepWarnPrefix + "has an invalid implementation. The first parameter must be of type *testing.T.\n"
-	stepWarnParamCount = stepWarnPrefix + "captures %d parameter%s but the supplied implementation takes %d.\n"
-	stepWarnParamType  = stepWarnPrefix + "has a parameter type %q for which no transforms exist.\n"
+	stepWarnPrefix      = "warning: registered step %q => [%v] "
+	stepWarnNotFunc     = stepWarnPrefix + "must be a function.\n"
+	stepWarnBadRegex    = stepWarnPrefix + "has an invalid regular expression: %s.\n"
+	stepWarnFirstParam  = stepWarnPrefix + "has an invalid implementation. The first parameter must be of type *testing.T.\n"
+	stepWarnParamCount  = stepWarnPrefix + "captures %d parameter%s but the supplied implementation takes %d.\n"
+	stepWarnNoTransform = "warning: registered step %s has a parameter type %q for which no transforms exist.\n"
+	stepWarnNotUsed     = "warning: registered step %s is not used.\n"
+	stepWarnAmbiguous   = "warning: step %q is ambiguous:\n"
 )
 
-func (sim stepImplMap) register(pattern string, stepFunc interface{}) {
-	if r, ok := sim.validate(pattern, stepFunc); ok {
-		sim[r] = stepFunc
+var (
+	typeTestingT = reflect.TypeOf((*testing.T)(nil))
+)
+
+func (s *stepImpl) String() string {
+	p := s.regex.String()
+	p = strings.TrimLeft(p, "^")
+	p = strings.TrimRight(p, "$")
+	return fmt.Sprintf("%q => [%v]", p, reflect.TypeOf(s.fn))
+}
+
+func (si *stepImpls) register(pattern string, stepFunc interface{}) *stepImpl {
+	if r, ok := si.validate(pattern, stepFunc); ok {
+		*si = append(*si, &stepImpl{regex: r, fn: stepFunc})
+		return (*si)[len(*si)-1]
 	}
+	return nil
 }
 
 func ensureCompleteMatch(pattern string) string {
@@ -39,7 +59,7 @@ func ensureCompleteMatch(pattern string) string {
 	return pattern
 }
 
-func (sim stepImplMap) validate(pattern string, impl interface{}) (*regexp.Regexp, bool) {
+func (si *stepImpls) validate(pattern string, impl interface{}) (*regexp.Regexp, bool) {
 	fn := reflect.ValueOf(impl)
 	fnSig := fn.Type()
 
@@ -56,7 +76,6 @@ func (sim stepImplMap) validate(pattern string, impl interface{}) (*regexp.Regex
 		return nil, false
 	}
 
-	typeTestingT := reflect.TypeOf((*testing.T)(nil))
 	patternCaptures := regex.NumSubexp()
 	if fnSig.NumIn() == 0 || fnSig.In(0) != typeTestingT {
 		fmt.Fprintf(os.Stderr, stepWarnFirstParam, pattern, fnSig)
@@ -64,7 +83,7 @@ func (sim stepImplMap) validate(pattern string, impl interface{}) (*regexp.Regex
 	}
 
 	// Note paramCount includes the first *testing.T parameter
-	if paramCount, _, _ := sim.countStepImplParams(fn); paramCount-1 != patternCaptures {
+	if paramCount, _, _ := si.countStepImplParams(fn); paramCount-1 != patternCaptures {
 		plural := ""
 		if patternCaptures != 1 {
 			plural = "s"
@@ -76,7 +95,7 @@ func (sim stepImplMap) validate(pattern string, impl interface{}) (*regexp.Regex
 	return regex, true
 }
 
-func (sim stepImplMap) countStepImplParams(fn reflect.Value) (params, tables, textBlocks int) {
+func (si *stepImpls) countStepImplParams(fn reflect.Value) (params, tables, textBlocks int) {
 	tableType := reflect.TypeOf((*Table)(nil)).Elem()
 	textBlockType := reflect.TypeOf((*TextBlock)(nil)).Elem()
 
@@ -95,21 +114,4 @@ func (sim stepImplMap) countStepImplParams(fn reflect.Value) (params, tables, te
 	}
 
 	return
-}
-
-func (sim stepImplMap) checkTransforms(tm transformMap) {
-	for stepPattern, stepImpl := range sim {
-		stepFn := reflect.ValueOf(stepImpl)
-		stepFnSig := stepFn.Type()
-
-		pCount, _, _ := sim.countStepImplParams(stepFn)
-
-		for p := 1; p < pCount; p++ {
-			pType := stepFnSig.In(p)
-
-			if tm[pType] == nil {
-				fmt.Fprintf(os.Stderr, stepWarnParamType, stepPattern, stepFnSig, pType)
-			}
-		}
-	}
 }

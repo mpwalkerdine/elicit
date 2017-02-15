@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io"
 	"os"
-	"reflect"
 	"testing"
 )
 
@@ -16,6 +15,7 @@ type step struct {
 	params     []string
 	tables     []stringTable
 	textBlocks []TextBlock
+	impl       func(*testing.T)
 	force      bool
 	forced     bool
 	result     result
@@ -50,7 +50,7 @@ func (s *step) run(scenarioT *testing.T) {
 		if len(s.params) > 0 {
 			s.result = pending
 			stepT.Skip("unresolved parameters:", s.params)
-		} else if impl, found := s.matchStepImpl(stepT); !found {
+		} else if s.impl == nil {
 			s.result = pending
 			stepT.Skip("no matching step implementation")
 		} else if !s.force && skip {
@@ -59,7 +59,7 @@ func (s *step) run(scenarioT *testing.T) {
 			if skip {
 				s.forced = true
 			}
-			impl()
+			s.impl(stepT)
 		}
 	})
 }
@@ -94,60 +94,4 @@ func (s *step) restoreStdout(stdout *os.File, waitChan chan bool) {
 		w.Close()
 		<-waitChan
 	}
-}
-
-func (s *step) matchStepImpl(t *testing.T) (func(), bool) {
-	for regex, impl := range s.context.stepImpls {
-		fn := reflect.ValueOf(impl)
-		params := regex.FindStringSubmatch(s.text)
-
-		if convertedParams, ok := s.convertParams(t, fn, params); ok {
-			return func() {
-				fn.Call(convertedParams)
-			}, true
-		}
-	}
-
-	return nil, false
-}
-
-func (s *step) convertParams(t *testing.T, f reflect.Value, stringParams []string) ([]reflect.Value, bool) {
-
-	if stringParams == nil {
-		return nil, false
-	}
-
-	paramCount, tableParamCount, textBlockParamCount := s.context.stepImpls.countStepImplParams(f)
-
-	if len(stringParams) != paramCount || tableParamCount != len(s.tables) || textBlockParamCount != len(s.textBlocks) {
-		return nil, false
-	}
-
-	c := make([]reflect.Value, len(stringParams))
-	for i, param := range stringParams {
-		if i == 0 {
-			if f.Type().In(0) != reflect.TypeOf(t) {
-				return nil, false
-			}
-			c[i] = reflect.ValueOf(t)
-		} else {
-			pt := f.Type().In(i)
-
-			if t, ok := s.context.transforms.convertParam(param, pt); ok {
-				c[i] = t
-			} else {
-				return nil, false
-			}
-		}
-	}
-
-	for _, t := range s.tables {
-		c = append(c, reflect.ValueOf(makeTable(t)))
-	}
-
-	for _, tb := range s.textBlocks {
-		c = append(c, reflect.ValueOf(tb))
-	}
-
-	return c, true
 }

@@ -106,7 +106,7 @@ func (l *log) writeSpecHeader(s *spec) {
 		resultString += fmt.Sprintf("\n%s: %d", k, resultCounts[k])
 	}
 
-	fmt.Fprintf(&l.buffer, "\n%s\n%s%s\n", name, underline, resultString)
+	fmt.Fprintf(&l.buffer, "\n\n%s\n%s%s\n", name, underline, resultString)
 }
 
 func (l *log) writeScenarioHeader(s *scenario) {
@@ -125,7 +125,7 @@ func (l *log) writeScenarioHeader(s *scenario) {
 		underline = l.red(underline)
 	}
 
-	fmt.Fprintf(&l.buffer, "\n%s\n%s\n%s:\n\n", name, underline, s.result)
+	fmt.Fprintf(&l.buffer, "\n%s\n%s\n%s\n\n", name, underline, s.result)
 }
 
 func (l *log) writeStepResult(s *step) {

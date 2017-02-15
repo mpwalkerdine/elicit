@@ -10,7 +10,12 @@ import (
 	"strings"
 )
 
-type transformMap map[reflect.Type]map[*regexp.Regexp]interface{}
+type transform struct {
+	regex *regexp.Regexp
+	fn    interface{}
+}
+
+type transformMap map[reflect.Type][]*transform
 
 const (
 	txWarnPrefix    = "warning: registered transform %q => [%v] "
@@ -62,13 +67,9 @@ func (tm transformMap) init() {
 	})
 }
 
-func (tm transformMap) register(pattern string, transform interface{}) {
-	if regex, typ, ok := tm.validate(pattern, transform); ok {
-		if tm[typ] == nil {
-			tm[typ] = map[*regexp.Regexp]interface{}{}
-		}
-
-		tm[typ][regex] = transform
+func (tm transformMap) register(pattern string, fn interface{}) {
+	if regex, typ, ok := tm.validate(pattern, fn); ok {
+		tm[typ] = append(tm[typ], &transform{regex: regex, fn: fn})
 	}
 }
 
@@ -104,20 +105,59 @@ func (tm transformMap) validate(pattern string, transform interface{}) (*regexp.
 	return regex, typ, true
 }
 
+func (tm transformMap) convertParams(s *step, fn reflect.Value, stringParams []string) ([]reflect.Value, bool) {
+	if stringParams == nil {
+		return nil, false
+	}
+
+	paramCount, tableParamCount, textBlockParamCount := s.context.stepImpls.countStepImplParams(fn)
+
+	if len(stringParams) != paramCount || tableParamCount != len(s.tables) || textBlockParamCount != len(s.textBlocks) {
+		return nil, false
+	}
+
+	c := make([]reflect.Value, len(stringParams))
+	for i, param := range stringParams {
+		if i == 0 {
+			if fn.Type().In(0) != typeTestingT {
+				return nil, false
+			}
+		} else {
+			pt := fn.Type().In(i)
+
+			if t, ok := tm.convertParam(param, pt); ok {
+				c[i] = t
+			} else {
+				return nil, false
+			}
+		}
+	}
+
+	for _, tbl := range s.tables {
+		c = append(c, reflect.ValueOf(makeTable(tbl)))
+	}
+
+	for _, tb := range s.textBlocks {
+		c = append(c, reflect.ValueOf(tb))
+	}
+
+	return c, true
+}
+
 func (tm transformMap) convertParam(param string, target reflect.Type) (reflect.Value, bool) {
-	for regex, tx := range tm[target] {
-		params := regex.FindStringSubmatch(param)
+	for _, tx := range tm[target] {
+		params := tx.regex.FindStringSubmatch(param)
 		if params == nil {
 			continue
 		}
 
-		f := reflect.ValueOf(tx)
+		fn := reflect.ValueOf(tx.fn)
 
 		in := []reflect.Value{
 			reflect.ValueOf(params),
 		}
 
-		out := f.Call(in)
+		out := fn.Call(in)
 		return reflect.ValueOf(out[0].Interface()), true
 	}
 
