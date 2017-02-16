@@ -53,7 +53,7 @@ warning: registered step "Unconvertible (param)" => [func(*testing.T, elicit_tes
 
 ## Invalid Transforms
 
-+ Create step definitions:
++ Create transform definitions:
 
 ```go
 transforms[`Not a function`] = 0

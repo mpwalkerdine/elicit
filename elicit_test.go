@@ -38,7 +38,7 @@ func init() {
 			createFile(t, filename, text.Content)
 		}
 
-	steps["Create (?:a step definition|step definitions):"] =
+	steps["Create (?:a step definition|step definitions|transform definitions):"] =
 		func(t *testing.T, text elicit.TextBlock) {
 			createFile(t, "steps_test.go", fmt.Sprintf(stepFileFmt, "", text.Content))
 		}
