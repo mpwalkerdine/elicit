@@ -57,6 +57,7 @@ Features and aspirations:
 6. Run `go test -v` to see a complete report (see [Logging](./specs/logging.md)
    for more details on `-v` and related options).
 
+
 ## More Information
 
 The [specifications](./specs) for Elicit contain more details. They also serve
@@ -68,6 +69,8 @@ framework itself.
 - [Hooks](./specs/hooks.md):
   Register functions to run at particular points in the test cycle.
 
+
+## References
 
 [Specification by Example]:
 https://www.manning.com/books/specification-by-example
