@@ -50,7 +50,7 @@ of the `.md` file and the spec heading.
 
 ## Scenario Heading
 
-Level 2 heading name a Scenario, e.g.
+Level 2 headings name a Scenario, e.g.
 
 + Create a `scenario_heading.md` file:
 
