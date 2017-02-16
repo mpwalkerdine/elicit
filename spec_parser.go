@@ -359,9 +359,6 @@ func (p *specParser) DoubleEmphasis(out *bytes.Buffer, text []byte) {
 // Emphasis output plaintext
 func (p *specParser) Emphasis(out *bytes.Buffer, text []byte) {
 	p.NormalText(out, text)
-	if p.currentStep != nil && p.textTarget == &p.currentStep.text {
-		p.currentStep.force = true
-	}
 }
 
 // Image not used

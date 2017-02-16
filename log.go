@@ -151,12 +151,7 @@ func (l *log) writeStepResult(s *step) {
 		prefix = l.red("⚡")
 		text = l.red(text)
 	case passed:
-		if s.forced {
-			prefix = l.green("✔")
-			text = l.green(text)
-		} else {
-			prefix = l.green("✓")
-		}
+		prefix = l.green("✓")
 	}
 
 	fmt.Fprintf(&l.buffer, "    %s %s%s\n", prefix, text, suffix)
