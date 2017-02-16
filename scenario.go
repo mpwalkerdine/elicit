@@ -1,6 +1,10 @@
 package elicit
 
-import "testing"
+import (
+	"fmt"
+	"os"
+	"testing"
+)
 
 type scenario struct {
 	context *Context
@@ -17,14 +21,43 @@ func (s *scenario) run(scenarioT *testing.T) {
 	}
 
 	for _, step := range s.steps {
-		for _, h := range s.context.beforeStep {
-			h()
+
+		if s.result != passed {
+			scenarioT.SkipNow()
 		}
 
-		step.run(scenarioT)
+		var hookErr error
+		for _, h := range s.context.beforeStep {
+			if hookErr = h.run(); hookErr != nil {
+				step.result = panicked
+				s.result = panicked
+				fmt.Fprintf(os.Stderr, "panic during before step hook: %s\n", hookErr)
+				scenarioT.Fail()
+				break
+			}
+		}
 
-		for _, h := range s.context.afterStep {
-			h()
+		if hookErr == nil {
+			// Ensure after step hooks execute regardless of what happens in the step
+			func() {
+				defer func() {
+					if step.result > s.result {
+						s.result = step.result
+					}
+
+					for _, h := range s.context.afterStep {
+						if hookErr = h.run(); hookErr != nil {
+							step.result = panicked
+							s.result = panicked
+							fmt.Fprintf(os.Stderr, "panic during after step hook: %s\n", hookErr)
+							scenarioT.Fail()
+							break
+						}
+					}
+				}()
+
+				step.run(scenarioT)
+			}()
 		}
 	}
 }

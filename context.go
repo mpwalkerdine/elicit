@@ -92,19 +92,22 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 
 	for _, spec := range ctx.specs {
 
-		ctxT.Run(spec.path+"/"+spec.name, func(specT *testing.T) {
+		var hookErr error
+		for _, h := range ctx.beforeSpec {
+			if hookErr = h.run(); hookErr != nil {
+				spec.skipAllScenarios()
+				spec.result = panicked
+				fmt.Fprintf(os.Stderr, "panic during before spec hook: %s\n", hookErr)
+				break
+			}
+		}
 
-			var hookErr error
-			for _, h := range ctx.beforeSpec {
-				if hookErr = h.run(); hookErr != nil {
-					spec.skipAllScenarios()
-					spec.result = panicked
-					fmt.Fprintf(os.Stderr, "panic during before hook: %s\n", hookErr)
-					break
-				}
+		ctxT.Run(spec.path+"/"+spec.name, func(specT *testing.T) {
+			if hookErr != nil {
+				specT.FailNow()
 			}
 
-			spec.runTest(specT)
+			spec.run(specT)
 
 			if !specT.Skipped() {
 				allSkipped = false
@@ -113,6 +116,9 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 			if hookErr == nil {
 				for _, h := range ctx.afterSpec {
 					if hookErr = h.run(); hookErr != nil {
+						spec.result = panicked
+						fmt.Fprintf(os.Stderr, "panic during after spec hook: %s\n", hookErr)
+						specT.Fail()
 						break
 					}
 				}

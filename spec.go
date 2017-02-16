@@ -2,6 +2,7 @@ package elicit
 
 import (
 	"fmt"
+	"os"
 	"testing"
 )
 
@@ -54,20 +55,42 @@ func (r result) String() string {
 	}
 }
 
-func (s *spec) runTest(specT *testing.T) {
+func (s *spec) run(specT *testing.T) {
 	for _, scenario := range s.scenarios {
 
+		var hookErr error
 		for _, h := range s.context.beforeScenario {
-			h()
+			if hookErr = h.run(); hookErr != nil {
+				scenario.result = panicked
+				fmt.Fprintf(os.Stderr, "panic during before scenario hook: %s\n", hookErr)
+				break
+			}
 		}
 
 		specT.Run(scenario.name, func(scenarioT *testing.T) {
-			scenario.run(scenarioT)
-		})
+			if hookErr != nil {
+				scenarioT.FailNow()
+			}
 
-		for _, h := range s.context.afterScenario {
-			h()
-		}
+			// Ensure the after scenario hooks are run regardless of the result
+			func() {
+				defer func() {
+					if hookErr == nil {
+
+						for _, h := range s.context.afterScenario {
+							if hookErr = h.run(); hookErr != nil {
+								scenario.result = panicked
+								fmt.Fprintf(os.Stderr, "panic during after scenario hook: %s\n", hookErr)
+								scenarioT.FailNow()
+								break
+							}
+						}
+					}
+				}()
+
+				scenario.run(scenarioT)
+			}()
+		})
 
 		if scenario.result > s.result {
 			s.result = scenario.result

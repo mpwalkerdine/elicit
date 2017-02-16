@@ -24,17 +24,8 @@ type step struct {
 func (s *step) run(scenarioT *testing.T) {
 	defer s.restoreStdout(s.redirectStdout())
 
-	defer func() {
-		if s.result > s.scenario.result {
-			s.scenario.result = s.result
-		}
-	}()
-
 	if s.impl == nil {
 		s.result = pending
-		scenarioT.SkipNow()
-	} else if s.scenario.result != passed {
-		s.result = skipped
 		scenarioT.SkipNow()
 	} else {
 		s.impl(scenarioT)
