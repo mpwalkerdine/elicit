@@ -42,7 +42,7 @@ func init() {
 }
 ```
 
-+ Create a `simple_types.spec` file:
++ Create a `simple_types.md` file:
 
 ```markdown
 # Simple Type Transforms
@@ -64,8 +64,8 @@ Passed
     ✓ Step with a CustomString "param"
 
 --- PASS: Test (0.00s)
-    --- PASS: Test/simple_types.spec/Simple_Type_Transforms (0.00s)
-        --- PASS: Test/simple_types.spec/Simple_Type_Transforms/Renamed_string (0.00s)
+    --- PASS: Test/simple_types.md/Simple_Type_Transforms (0.00s)
+        --- PASS: Test/simple_types.md/Simple_Type_Transforms/Renamed_string (0.00s)
         	simple_test.go:12: param
 ```
 
@@ -87,7 +87,7 @@ steps[`Sum of (.+) is (.+)`] =
     }
 ```
 
-+ Create a `sum.spec` file:
++ Create a `sum.md` file:
 
 ```markdown
 # List Summation
@@ -155,7 +155,7 @@ func init() {
 }
 ```
 
-+ Create a `simple_types.spec` file:
++ Create a `simple_types.md` file:
 
 ```markdown
 # Struct Transforms
@@ -177,8 +177,8 @@ Passed
     ✓ Print a person named Bob, born 1987-01-01
 
 --- PASS: Test (0.00s)
-    --- PASS: Test/simple_types.spec/Struct_Transforms (0.00s)
-        --- PASS: Test/simple_types.spec/Struct_Transforms/A_Person (0.00s)
+    --- PASS: Test/simple_types.md/Struct_Transforms (0.00s)
+        --- PASS: Test/simple_types.md/Struct_Transforms/A_Person (0.00s)
         	struct_test.go:27: 
         		Name: Bob
         		DOB: 1987-1-1

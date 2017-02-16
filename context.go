@@ -132,7 +132,7 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 
 func (ctx *Context) validate() {
 	if len(ctx.specs) == 0 {
-		fmt.Fprintln(os.Stderr, "warning: No specifications found. Add a folder containing *.spec files with Context.WithSpecsFolder().")
+		fmt.Fprintln(os.Stderr, "warning: No specifications found. Add a folder containing *.md files with Context.WithSpecsFolder().")
 	}
 
 	if len(ctx.stepImpls) == 0 {

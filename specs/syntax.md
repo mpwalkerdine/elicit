@@ -31,7 +31,7 @@ This specification describes (and tests!) the elicit markdown syntax.
 
 Level 1 headings name a Spec e.g.
 
-+ Create a `spec_heading.spec` file:
++ Create a `spec_heading.md` file:
 
 ```markdown
 # Spec Name
@@ -45,14 +45,14 @@ Spec Name
 ```
 
 The name is derived from the root method defined above, the relative path
-of the `.spec` file and the spec heading.
+of the `.md` file and the spec heading.
 
 
 ## Scenario Heading
 
 Level 2 heading name a Scenario, e.g.
 
-+ Create a `scenario_heading.spec` file:
++ Create a `scenario_heading.md` file:
 
 ```markdown
 # Spec Name
@@ -77,7 +77,7 @@ Pending
 
 List items using the `+` character define executable steps, e.g.
 
-+ Create a `simple_step.spec` file:
++ Create a `simple_step.md` file:
 
 ```markdown
 # Spec Name
@@ -106,7 +106,7 @@ Steps are run in order, one after the other. If a step is missing an
 implementation, is skipped or failed, then subsequent steps will be
 skipped automatically.
 
-Step implementations are described in [Steps](steps.spec).
+Step implementations are described in [Steps](steps.md).
 
 
 ## Before and After Steps
@@ -116,7 +116,7 @@ Steps defined before the first scenario are run before _every_ scenario.
 A horizontal rule at the end of the file allows steps to be run after
 _every_ scenario, e.g.
 
-+ Create a `before_after_steps.spec` file:
++ Create a `before_after_steps.md` file:
 
 ```markdown
 # Spec
@@ -178,7 +178,7 @@ Note that at present only a single table can be used for parameterisation of a
 single step. The mechanism for handling parameterisation across tables hasn't
 been decided.
 
-+ Create a `tables.spec` file:
++ Create a `tables.md` file:
 
 ```markdown
 # Tables
@@ -280,7 +280,7 @@ like the majority of this file.
 
 The output appends a ☰ symbol for each text block.
 
-+ Create a `text_block.spec` file:
++ Create a `text_block.md` file:
 
 ````markdown
 # Text Blocks
@@ -321,8 +321,8 @@ Passed
     ✓ This step takes a block of text: ☰
 
 --- PASS: Test (0.00s)
-    --- PASS: Test/text_block.spec/Text_Blocks (0.00s)
-        --- PASS: Test/text_block.spec/Text_Blocks/Text_Block (0.00s)
+    --- PASS: Test/text_block.md/Text_Blocks (0.00s)
+        --- PASS: Test/text_block.md/Text_Blocks/Text_Block (0.00s)
         	steps_test.go:15: 
         		> Multiple lines
         		> of text which

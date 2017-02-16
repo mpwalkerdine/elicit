@@ -13,7 +13,7 @@ In these cases a warning will be printed on stderr.
 + Running `go test` will output the following lines:
 
 ```
-warning: No specifications found. Add a folder containing *.spec files with Context.WithSpecsFolder().
+warning: No specifications found. Add a folder containing *.md files with Context.WithSpecsFolder().
 ```
 
 ## No Steps
@@ -84,7 +84,7 @@ steps[`(.*)`] = func(t *testing.T, s string) {}
 steps[`(something)`] = func(t *testing.T, s string) {}
 ```
 
-+ Create a `ambiguous_steps.spec` file:
++ Create a `ambiguous_steps.md` file:
 
 ```markdown
 # Ambiguous Steps

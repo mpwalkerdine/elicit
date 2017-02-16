@@ -31,7 +31,7 @@ type specParser struct {
 
 func (p *specParser) parseSpecFolder(directory string) {
 	filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() && strings.HasSuffix(info.Name(), ".spec") {
+		if !info.IsDir() && strings.HasSuffix(info.Name(), ".md") {
 			p.currentPath = path
 			p.loadFromFile()
 		}

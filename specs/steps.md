@@ -56,7 +56,7 @@ Note that `steps` has already been defined in the `specs_test.go` file in the
 spec context. If you don't have many steps, you could put them all in the same
 file with the test method.
 
-+ Create a `step_execution.spec` file:
++ Create a `step_execution.md` file:
 
 ```markdown
 # Step Execution
@@ -115,16 +115,16 @@ Failed
     ✘ 0 + 1 = 0
 
 --- FAIL: Test (0.00s)
-    --- FAIL: Test/step_execution.spec/Step_Execution (0.00s)
-        --- PASS: Test/step_execution.spec/Step_Execution/No_Parameters (0.00s)
+    --- FAIL: Test/step_execution.md/Step_Execution (0.00s)
+        --- PASS: Test/step_execution.md/Step_Execution/No_Parameters (0.00s)
         	steps_test.go:10: simple step
-        --- PASS: Test/step_execution.spec/Step_Execution/String_parameters (0.00s)
+        --- PASS: Test/step_execution.md/Step_Execution/String_parameters (0.00s)
         	steps_test.go:15: param: hello
         	steps_test.go:15: param: world
-        --- PASS: Test/step_execution.spec/Step_Execution/Int_parameters (0.00s)
+        --- PASS: Test/step_execution.md/Step_Execution/Int_parameters (0.00s)
         	steps_test.go:20: 42
         	steps_test.go:20: -1
-        --- FAIL: Test/step_execution.spec/Step_Execution/Multiple_Parameters (0.00s)
+        --- FAIL: Test/step_execution.md/Step_Execution/Multiple_Parameters (0.00s)
         	steps_test.go:27: expected 0 + 1 = 0, got 1
 ```
 
@@ -134,7 +134,7 @@ Failed
 When steps error (either as a result of a panic or a call to `t.Fail()` or
 `t.Errorf()`) then the remaining steps will be skipped (but still logged).
 
-+ Create a `failed_steps.spec` file:
++ Create a `failed_steps.md` file:
 
 ```markdown
 # Failing Steps
@@ -197,7 +197,7 @@ Panicked
 When steps are skipped (either as a result of being undefined or a call to
 `t.Skip()`) then the remaining steps will also be skipped (but still logged).
 
-+ Create a `skipped_steps.spec` file:
++ Create a `skipped_steps.md` file:
 
 ```markdown
 # Skipping Steps
@@ -248,8 +248,8 @@ Skipped
     ⤹ This step will be skipped
 
 --- SKIP: Test (0.00s)
-    --- SKIP: Test/skipped_steps.spec/Skipping_Steps (0.00s)
-        --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Undefined (0.00s)
-        --- SKIP: Test/skipped_steps.spec/Skipping_Steps/Skipped (0.00s)
+    --- SKIP: Test/skipped_steps.md/Skipping_Steps (0.00s)
+        --- SKIP: Test/skipped_steps.md/Skipping_Steps/Undefined (0.00s)
+        --- SKIP: Test/skipped_steps.md/Skipping_Steps/Skipped (0.00s)
         	steps_test.go:17: skipping...
 ```

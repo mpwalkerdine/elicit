@@ -15,7 +15,7 @@ Hooks are isolated from the test context, but they can cause test
 failure by panicking. The precise behaviour depends on the type
 of hook as described below.
 
-+ Create a `hooks_example.spec` file:
++ Create a `hooks_example.md` file:
 
 ```markdown
 # Hooks Example
@@ -108,13 +108,13 @@ func Test(t *testing.T) {
 
 ```
 === RUN   Test
-=== RUN   Test/hooks_example.spec/Hooks_Example
+=== RUN   Test/hooks_example.md/Hooks_Example
 Before hook
-=== RUN   Test/hooks_example.spec/Hooks_Example/Passing_Scenario
-=== RUN   Test/hooks_example.spec/Hooks_Example/Pending_Scenario
-=== RUN   Test/hooks_example.spec/Hooks_Example/Skipping_Scenario
-=== RUN   Test/hooks_example.spec/Hooks_Example/Failing_Scenario
-=== RUN   Test/hooks_example.spec/Hooks_Example/Panicking_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Passing_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Pending_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Skipping_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Failing_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Panicking_Scenario
 After hook
 
 ```
@@ -173,7 +173,7 @@ Hooks Example
 Skipped: 5
 
 --- FAIL: TestBeforePanic (0.00s)
-    --- FAIL: TestBeforePanic/hooks_example.spec/Hooks_Example (0.00s)
+    --- FAIL: TestBeforePanic/hooks_example.md/Hooks_Example (0.00s)
 Before hook
 
 
@@ -213,11 +213,11 @@ Panicked
     ⤹ After step
 
 --- FAIL: TestAfterPanic (0.00s)
-    --- FAIL: TestAfterPanic/hooks_example.spec/Hooks_Example (0.00s)
-        --- FAIL: TestAfterPanic/hooks_example.spec/Hooks_Example/Failing_Scenario (0.00s)
+    --- FAIL: TestAfterPanic/hooks_example.md/Hooks_Example (0.00s)
+        --- FAIL: TestAfterPanic/hooks_example.md/Hooks_Example/Failing_Scenario (0.00s)
           ➟ steps_test.go:12: Before step
           ➟ steps_test.go:24: failing step
-        --- FAIL: TestAfterPanic/hooks_example.spec/Hooks_Example/Panicking_Scenario (0.00s)
+        --- FAIL: TestAfterPanic/hooks_example.md/Hooks_Example/Panicking_Scenario (0.00s)
           ➟ steps_test.go:12: Before step
           ➟ step.go:49: panicking step
 ```
@@ -255,21 +255,21 @@ func Test(t *testing.T) {
 
 ```
 === RUN   Test
-=== RUN   Test/hooks_example.spec/Hooks_Example
+=== RUN   Test/hooks_example.md/Hooks_Example
 Before hook
-=== RUN   Test/hooks_example.spec/Hooks_Example/Passing_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Passing_Scenario
 After hook
 Before hook
-=== RUN   Test/hooks_example.spec/Hooks_Example/Pending_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Pending_Scenario
 After hook
 Before hook
-=== RUN   Test/hooks_example.spec/Hooks_Example/Skipping_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Skipping_Scenario
 After hook
 Before hook
-=== RUN   Test/hooks_example.spec/Hooks_Example/Failing_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Failing_Scenario
 After hook
 Before hook
-=== RUN   Test/hooks_example.spec/Hooks_Example/Panicking_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Panicking_Scenario
 After hook
 
 ```
@@ -311,8 +311,8 @@ func Test(t *testing.T) {
 
 ```
 === RUN   Test
-=== RUN   Test/hooks_example.spec/Hooks_Example
-=== RUN   Test/hooks_example.spec/Hooks_Example/Passing_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example
+=== RUN   Test/hooks_example.md/Hooks_Example/Passing_Scenario
 Before hook
 After hook
 Before hook
@@ -321,21 +321,21 @@ Before hook
 After hook
 Before hook
 After hook
-=== RUN   Test/hooks_example.spec/Hooks_Example/Pending_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Pending_Scenario
 Before hook
 After hook
 Before hook
-=== RUN   Test/hooks_example.spec/Hooks_Example/Skipping_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Skipping_Scenario
 Before hook
 After hook
 Before hook
-=== RUN   Test/hooks_example.spec/Hooks_Example/Failing_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Failing_Scenario
 Before hook
 After hook
 Before hook
 After hook
 Before hook
-=== RUN   Test/hooks_example.spec/Hooks_Example/Panicking_Scenario
+=== RUN   Test/hooks_example.md/Hooks_Example/Panicking_Scenario
 Before hook
 After hook
 Before hook

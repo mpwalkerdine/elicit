@@ -22,7 +22,7 @@ flag. In this case, all results are written, regardless of `-v`.
 
 This example demonstrates the `testing.T` logging API output.
 
-+ Create a `logging_test.spec` file:
++ Create a `logging_test.md` file:
 
 ```markdown
 # Logging Test
@@ -52,8 +52,8 @@ Passed
     ✓ Logged step
 
 --- PASS: Test (0.00s)
-    --- PASS: Test/logging_test.spec/Logging_Test (0.00s)
-        --- PASS: Test/logging_test.spec/Logging_Test/Logging_Scenario (0.00s)
+    --- PASS: Test/logging_test.md/Logging_Test (0.00s)
+        --- PASS: Test/logging_test.md/Logging_Test/Logging_Scenario (0.00s)
         	steps_test.go:11: Logged output
 ```
 
@@ -61,7 +61,7 @@ Passed
 
 This example demonstrates output captured from `os.Stdout`.
 
-+ Create a `logging_test.spec` file:
++ Create a `logging_test.md` file:
 
 ```markdown
 # Logging Test
@@ -92,8 +92,8 @@ Passed
         Logged output
 
 --- PASS: Test (0.00s)
-    --- PASS: Test/logging_test.spec/Logging_Test (0.00s)
-        --- PASS: Test/logging_test.spec/Logging_Test/Logging_Scenario (0.00s)
+    --- PASS: Test/logging_test.md/Logging_Test (0.00s)
+        --- PASS: Test/logging_test.md/Logging_Test/Logging_Scenario (0.00s)
 ```
 
 ## Normal vs Chatty vs File Output
@@ -101,7 +101,7 @@ Passed
 This example demonstrates the effect of the `-v` and `-elicit.report` flags on
 the output.
 
-+ Create a `logging_test.spec` file:
++ Create a `logging_test.md` file:
 
 ```markdown
 # Logging Test
@@ -178,10 +178,10 @@ Panicked
         Panicked stdout output
 
 --- FAIL: Test (0.00s)
-    --- FAIL: Test/logging_test.spec/Logging_Test (0.00s)
-        --- FAIL: Test/logging_test.spec/Logging_Test/Failed (0.00s)
+    --- FAIL: Test/logging_test.md/Logging_Test (0.00s)
+        --- FAIL: Test/logging_test.md/Logging_Test/Failed (0.00s)
         	steps_test.go:16: Failed test output
-        --- FAIL: Test/logging_test.spec/Logging_Test/Panic (0.00s)
+        --- FAIL: Test/logging_test.md/Logging_Test/Panic (0.00s)
         	step.go:49: Panicked output
 ```
 
@@ -254,21 +254,21 @@ Passed
         Passing stdout output
 
 --- FAIL: Test (0.00s)
-    --- FAIL: Test/logging_test.spec/Logging_Test (0.00s)
-        --- SKIP: Test/logging_test.spec/Logging_Test/Undefined (0.00s)
-        --- SKIP: Test/logging_test.spec/Logging_Test/Skipped (0.00s)
+    --- FAIL: Test/logging_test.md/Logging_Test (0.00s)
+        --- SKIP: Test/logging_test.md/Logging_Test/Undefined (0.00s)
+        --- SKIP: Test/logging_test.md/Logging_Test/Skipped (0.00s)
         	steps_test.go:12: Skipped test output
-        --- FAIL: Test/logging_test.spec/Logging_Test/Failed (0.00s)
+        --- FAIL: Test/logging_test.md/Logging_Test/Failed (0.00s)
         	steps_test.go:16: Failed test output
-        --- FAIL: Test/logging_test.spec/Logging_Test/Panic (0.00s)
+        --- FAIL: Test/logging_test.md/Logging_Test/Panic (0.00s)
         	step.go:49: Panicked output
-        --- PASS: Test/logging_test.spec/Logging_Test/Pass (0.00s)
+        --- PASS: Test/logging_test.md/Logging_Test/Pass (0.00s)
         	steps_test.go:24: Passing test output
-    --- PASS: Test/logging_test.spec/Passing_Spec (0.00s)
-        --- PASS: Test/logging_test.spec/Passing_Spec/Passing_Scenario (0.00s)
+    --- PASS: Test/logging_test.md/Passing_Spec (0.00s)
+        --- PASS: Test/logging_test.md/Passing_Spec/Passing_Scenario (0.00s)
         	steps_test.go:24: Passing test output
         	steps_test.go:24: Passing test output
-        --- PASS: Test/logging_test.spec/Passing_Spec/Another_Passing_Scenario (0.00s)
+        --- PASS: Test/logging_test.md/Passing_Spec/Another_Passing_Scenario (0.00s)
         	steps_test.go:24: Passing test output
         	steps_test.go:24: Passing test output
 ```
@@ -305,10 +305,10 @@ Panicked
         Panicked stdout output
 
 --- FAIL: Test (0.00s)
-    --- FAIL: Test/logging_test.spec/Logging_Test (0.00s)
-        --- FAIL: Test/logging_test.spec/Logging_Test/Failed (0.00s)
+    --- FAIL: Test/logging_test.md/Logging_Test (0.00s)
+        --- FAIL: Test/logging_test.md/Logging_Test/Failed (0.00s)
         	steps_test.go:16: Failed test output
-        --- FAIL: Test/logging_test.spec/Logging_Test/Panic (0.00s)
+        --- FAIL: Test/logging_test.md/Logging_Test/Panic (0.00s)
         	step.go:49: Panicked output
 ```
 
