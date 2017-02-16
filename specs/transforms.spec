@@ -9,15 +9,10 @@ Captured parameters are automatically converted for the following types:
 
 The slice values should be comma-separated, see [Slices](#Slices)
 
-Arbitrary types can be converted by supplying additional `StepArgumentTransforms` during setup.
-
-```go
-// StepArgumentTransform transforms captured groups in the step pattern to a function parameter type
-// Note that if the actual string cannot be converted to the target type by the transform, it should return false
-type StepArgumentTransform func(string, reflect.Type) (interface{}, bool)
-```
-
-The following scenarios use the same temporary environment (see [Specification Syntax](syntax.spec))
+Arbitrary types can be converted by supplying additional transforms during
+setup. A transform is function of the form `func([]string) <type>`, where
+the `[]string` parameter is the result of the pattern matching and `<type>`
+in the target type.
 
 + Create a temporary environment
 
@@ -122,21 +117,30 @@ Passed
 package elicit_test
 
 import (
+    "fmt"
     "strconv"
     "testing"
 )
 
 type DOB [3]int
 
+func (d DOB) String() string {
+    return fmt.Sprintf("%d-%d-%d", d[0], d[1], d[2])
+}
+
 type Person struct {
     name string
     dob DOB
 }
 
+func (p Person) String() string {
+    return fmt.Sprintf("Name: %s\nDOB: %s", p.name, p.dob)
+}
+
 func init() {
     steps[`Print (.*)`] =
         func(t *testing.T, p Person) {
-            t.Logf("\nName: %s\nDOB: %d-%d-%d", p.name, p.dob[0], p.dob[1], p.dob[2]);
+            t.Logf("\n%s", p)
         }
 
     transforms[`a person named (.*), born (\d{4})-(\d{2})-(\d{2})`] =
@@ -175,7 +179,7 @@ Passed
 --- PASS: Test (0.00s)
     --- PASS: Test/simple_types.spec/Struct_Transforms (0.00s)
         --- PASS: Test/simple_types.spec/Struct_Transforms/A_Person (0.00s)
-        	struct_test.go:18: 
+        	struct_test.go:27: 
         		Name: Bob
         		DOB: 1987-1-1
 ```

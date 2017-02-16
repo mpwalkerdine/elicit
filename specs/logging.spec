@@ -4,16 +4,17 @@ There are two ways of logging output:
 1. Using the testing.T log API.
 2. Writing to `os.Stdout` e.g. with the `"fmt"` package.
 
-The first behaves as expected, with output written beneath the subtest result in `go test`.
-Only failed tests are shown by default, but `go test -v` will show all tests and output.
+The first behaves as expected, with output written beneath the subtest result in
+`go test`. Only failed tests are shown by default, but `go test -v` will show
+all tests and output.
 
-The second mechanism captures output for use in the specification execution report,
-which is displayed above the `go test` detailed results. Output written to `os.Stdout`
-will be displayed beneath the step text in the report. Again, only failed tests appear
-in the report by default, unless `-v` is specified.
+The second mechanism captures output for use in the specification execution
+report, which is displayed above the `go test` detailed results. Output written
+to `os.Stdout` will be displayed beneath the step text in the report. Again,
+only failed tests appear in the report by default, unless `-v` is specified.
 
-The report may optionally be written to file specified by the `-elicit.report` flag.
-In this case, all results are written, regardless of `-v`.
+The report may optionally be written to file specified by the `-elicit.report`
+flag. In this case, all results are written, regardless of `-v`.
 
 + Create a temporary environment
 
@@ -97,7 +98,8 @@ Passed
 
 ## Normal vs Chatty vs File Output
 
-This example demonstrates the effect of the `-v` and `-elicit.report` flags on the output.
+This example demonstrates the effect of the `-v` and `-elicit.report` flags on
+the output.
 
 + Create a `logging_test.spec` file:
 
@@ -180,7 +182,7 @@ Panicked
         --- FAIL: Test/logging_test.spec/Logging_Test/Failed (0.00s)
         	steps_test.go:16: Failed test output
         --- FAIL: Test/logging_test.spec/Logging_Test/Panic (0.00s)
-        	step.go:56: Panicked output
+        	step.go:49: Panicked output
 ```
 
 + Running `go test -v` will output:
@@ -259,7 +261,7 @@ Passed
         --- FAIL: Test/logging_test.spec/Logging_Test/Failed (0.00s)
         	steps_test.go:16: Failed test output
         --- FAIL: Test/logging_test.spec/Logging_Test/Panic (0.00s)
-        	step.go:56: Panicked output
+        	step.go:49: Panicked output
         --- PASS: Test/logging_test.spec/Logging_Test/Pass (0.00s)
         	steps_test.go:24: Passing test output
     --- PASS: Test/logging_test.spec/Passing_Spec (0.00s)
@@ -307,7 +309,7 @@ Panicked
         --- FAIL: Test/logging_test.spec/Logging_Test/Failed (0.00s)
         	steps_test.go:16: Failed test output
         --- FAIL: Test/logging_test.spec/Logging_Test/Panic (0.00s)
-        	step.go:56: Panicked output
+        	step.go:49: Panicked output
 ```
 
 + `./report.md` will contain:

@@ -81,3 +81,9 @@ func (s *spec) runTest(specT *testing.T) {
 		specT.SkipNow()
 	}
 }
+
+func (s *spec) skipAllScenarios() {
+	for _, scenario := range s.scenarios {
+		scenario.result = skipped
+	}
+}

@@ -17,8 +17,6 @@ type step struct {
 	tables     []stringTable
 	textBlocks []TextBlock
 	impl       func(*testing.T)
-	force      bool
-	forced     bool
 	result     result
 	log        bytes.Buffer
 }
@@ -32,18 +30,13 @@ func (s *step) run(scenarioT *testing.T) {
 		}
 	}()
 
-	skip := (s.scenario.result != passed)
-
 	if s.impl == nil {
 		s.result = pending
 		scenarioT.SkipNow()
-	} else if !s.force && skip {
+	} else if s.scenario.result != passed {
 		s.result = skipped
 		scenarioT.SkipNow()
 	} else {
-		if skip {
-			s.forced = true
-		}
 		s.impl(scenarioT)
 	}
 }

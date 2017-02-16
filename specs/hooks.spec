@@ -6,8 +6,14 @@ Hooks are used to run functions before or after:
 - Scenarios
 - Steps
 
-They are isolated from the test context, but they can cause test
-failure by panicking. The precise behaviour depends on the type of hook.
+These are similar to the scenario-level before/after steps,
+but they are _not_ skipped in the event a step fails.
+However, if a before hook panics, the after hooks for 
+that level will not be run.
+
+Hooks are isolated from the test context, but they can cause test
+failure by panicking. The precise behaviour depends on the type
+of hook as described below.
 
 + Create a `hooks_example.spec` file:
 
@@ -43,12 +49,30 @@ failure by panicking. The precise behaviour depends on the type of hook.
 + Create step definitions:
 
 ```go
-steps[`(Before|After) step`] = func(t *testing.T, s string) { t.Log(s, "step"); }
-steps[`(.+) passing step`] = func(t *testing.T, s string) { t.Log(s, "step"); }
-steps[`Skipping step`] = func(t *testing.T) { t.Skip("skipping step"); }
-steps[`Failing step`] = func(t *testing.T) { t.Errorf("failing step"); }
-steps[`Panicking step`] = func(t *testing.T) { panic("panicking step"); }
-steps[`This step will be skipped`] = func(t *testing.T) { t.Errorf("This step shouldn't be called"); }
+steps[`(Before|After) step`] = 
+    func(t *testing.T, s string) {
+        t.Log(s, "step"); 
+    }
+steps[`(.+) passing step`] = 
+    func(t *testing.T, s string) {
+        t.Log(s, "step");
+    }
+steps[`Skipping step`] = 
+    func(t *testing.T) {
+        t.Skip("skipping step");
+    }
+steps[`Failing step`] = 
+    func(t *testing.T) {
+        t.Errorf("failing step");
+    }
+steps[`Panicking step`] = 
+    func(t *testing.T) {
+        panic("panicking step");
+    }
+steps[`This step will be skipped`] =
+    func(t *testing.T) {
+        t.Errorf("This step shouldn't be called");
+    }
 ```
 
 ## Spec Hooks
@@ -84,8 +108,8 @@ func Test(t *testing.T) {
 
 ```
 === RUN   Test
-Before hook
 === RUN   Test/hooks_example.spec/Hooks_Example
+Before hook
 === RUN   Test/hooks_example.spec/Hooks_Example/Passing_Scenario
 === RUN   Test/hooks_example.spec/Hooks_Example/Pending_Scenario
 === RUN   Test/hooks_example.spec/Hooks_Example/Skipping_Scenario
@@ -97,7 +121,106 @@ After hook
 
 ## Spec Hook Panics
 
-+ TODO
++ Create a `spec_hooks_panic_test.go` file:
+
+```go
+package elicit_test
+
+import (
+    "fmt"
+    "mmatt/elicit"
+    "testing"
+)
+
+var steps = elicit.Steps{}
+
+func TestBeforePanic(t *testing.T) {
+    elicit.New().
+        WithSpecsFolder(".").
+        WithSteps(steps).
+        BeforeSpecs(func() {
+            panic(fmt.Errorf("Before hook panic"))
+        }).
+        AfterSpecs(func() {
+            panic(fmt.Errorf("After hook panic"))
+        }).
+        RunTests(t)
+}
+
+func TestAfterPanic(t *testing.T) {
+    elicit.New().
+        WithSpecsFolder(".").
+        WithSteps(steps).
+        BeforeSpecs(func() {
+            fmt.Println("Before hook")
+        }).
+        AfterSpecs(func() {
+            panic(fmt.Errorf("After hook panic"))
+        }).
+        RunTests(t)
+}
+
+```
+
++ Running `go test` will output:
+
+```
+panic during before hook: Before hook panic
+
+
+Hooks Example
+=============
+Skipped: 5
+
+--- FAIL: TestBeforePanic (0.00s)
+    --- FAIL: TestBeforePanic/hooks_example.spec/Hooks_Example (0.00s)
+Before hook
+
+
+Hooks Example
+=============
+Passed: 1
+Skipped: 1
+Pending: 1
+Failed: 1
+Panicked: 1
+
+Pending Scenario
+----------------
+Pending
+
+    ✓ Before step
+    ? Undefined step
+    ⤹ This step will be skipped
+    ⤹ After step
+
+Failing Scenario
+----------------
+Failed
+
+    ✓ Before step
+    ✘ Failing step
+    ⤹ This step will be skipped
+    ⤹ After step
+
+Panicking Scenario
+------------------
+Panicked
+
+    ✓ Before step
+    ⚡ Panicking step
+    ⤹ This step will be skipped
+    ⤹ After step
+
+--- FAIL: TestAfterPanic (0.00s)
+    --- FAIL: TestAfterPanic/hooks_example.spec/Hooks_Example (0.00s)
+        --- FAIL: TestAfterPanic/hooks_example.spec/Hooks_Example/Failing_Scenario (0.00s)
+          ➟ steps_test.go:12: Before step
+          ➟ steps_test.go:24: failing step
+        --- FAIL: TestAfterPanic/hooks_example.spec/Hooks_Example/Panicking_Scenario (0.00s)
+          ➟ steps_test.go:12: Before step
+          ➟ step.go:49: panicking step
+```
 
 ## Scenario Hooks
 

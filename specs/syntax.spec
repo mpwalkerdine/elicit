@@ -1,7 +1,7 @@
 # Specification Syntax
 
-Specs are markdown documents which are made executable through the use of "steps".
-They are then executed by a normal `go test` run.
+Specs are markdown documents which are made executable through the use of
+"steps". They are then executed by a normal `go test` run.
 
 For example, the scenarios below make use of the file created below.
 
@@ -156,22 +156,27 @@ Pending
     ? after
 ```
 
-Note that, like other steps, the before and after steps will be skipped if an earlier step is undefined, skipped or failed, unless forced with emphasis.
+Note that, like other steps, the before and after steps will be skipped if an
+earlier step is undefined, skipped or failed.
 
 
 ## Tables
 
-Tables defined immediately after a step are passed into the step implementation as a parameter.
-The step text for these will include the ☷ symbol for each table in the output log to indicate
-that the step implementation must accept an `elicit.Table` parameter.
+Tables defined immediately after a step are passed into the step implementation
+as a parameter. The step text for these will include the ☷ symbol for each
+table in the output log to indicate that the step implementation must accept an
+`elicit.Table` parameter.
 
-All other tables are added into their parent context to be used for step parameterisation.
+All other tables are added into their parent context to be used for step
+parameterisation.
 
-Parameterised steps use the `<param name>` syntax which corresponds to a table header.
-This creates multiple steps in place of the original, but with values substituted in from the table.
+Parameterised steps use the `<param name>` syntax which corresponds to a table
+header. This creates multiple steps in place of the original, but with values
+substituted in from the table.
 
-Note that at present only a single table can be used for parameterisation of a single step.
-The mechanism for handling parameterisation across tables hasn't been decided.
+Note that at present only a single table can be used for parameterisation of a
+single step. The mechanism for handling parameterisation across tables hasn't
+been decided.
 
 + Create a `tables.spec` file:
 
@@ -205,7 +210,8 @@ d  | e  | f
 7  | 8  | 9
 10 | 11 | 12
 
-Scenario steps can use <a>, <b> and <c>, but <d>, <e> and <f> are scoped to this scenario.
+Scenario steps can use <a>, <b> and <c>, but <d>, <e> and <f> are scoped to this
+scenario.
 
 + print "during: a = <a>"
 + print "during: d = <d>"
@@ -269,7 +275,8 @@ Passed
 
 ## Text Blocks
 
-If you need to pass a block of text to a step, you can used a fenced code block like the majority of this file.
+If you need to pass a block of text to a step, you can used a fenced code block
+like the majority of this file.
 
 The output appends a ☰ symbol for each text block.
 
@@ -294,7 +301,9 @@ implementation
 ```go
 steps[`This step takes a block of text:`] =
     func(t *testing.T, text elicit.TextBlock) {
-        t.Log("\n> " + strings.Join(strings.Split(strings.TrimSpace(text.Content), "\n"), "\n> "))
+        trimmed := strings.TrimSpace(text.Content)
+        lines := strings.Split(trimmed, "\n")
+        t.Log("\n> " + strings.Join(lines, "\n> "))
     }
 ```
 
@@ -314,7 +323,7 @@ Passed
 --- PASS: Test (0.00s)
     --- PASS: Test/text_block.spec/Text_Blocks (0.00s)
         --- PASS: Test/text_block.spec/Text_Blocks/Text_Block (0.00s)
-        	steps_test.go:13: 
+        	steps_test.go:15: 
         		> Multiple lines
         		> of text which
         		> are passed into

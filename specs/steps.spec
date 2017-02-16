@@ -5,16 +5,17 @@
 ## Step implementations
 
 Step implementations are functions defined in go code with an associated regex
-which is used to match step text in the specifcation with the correct implementation.
+which is used to match step text in the specifcation with the correct
+implementation.
 
-The regex is used to identify the correct implementation and to capture any parameters
-from the step text which need to be passed to it.
+The regex is used to identify the correct implementation and to capture any
+parameters from the step text which need to be passed to it.
 
 Implementations must be registered with the elicit context during setup.
 This seems cumbersome, but the following syntax is a succinct way to write it,
 keeping the regex next to the function. Of course, you're free to construct the
-map in any way you see fit. They may be organised into whatever packages you like,
-but it is convenient to keep them in a single package.
+map in any way you see fit. They may be organised into whatever packages you
+like, but it is convenient to keep them in a single package.
 
 + Create a `steps_test.go` file:
 
@@ -51,8 +52,9 @@ func init() {
 }
 ```
 
-Note that `steps` has already been defined in the `specs_test.go` file in the spec context.
-If you don't have many steps, you could put them all in the same file with the test method.
+Note that `steps` has already been defined in the `specs_test.go` file in the
+spec context. If you don't have many steps, you could put them all in the same
+file with the test method.
 
 + Create a `step_execution.spec` file:
 
@@ -129,8 +131,8 @@ Failed
 
 ## Errors
 
-When steps error (either as a result of a panic or a call to `t.Fail()` or `t.Errorf()`)
-then the remaining steps will be skipped (but still logged).
+When steps error (either as a result of a panic or a call to `t.Fail()` or
+`t.Errorf()`) then the remaining steps will be skipped (but still logged).
 
 + Create a `failed_steps.spec` file:
 
@@ -192,8 +194,8 @@ Panicked
 
 ## Skipping
 
-When steps are skipped (either as a result of being undefined or a call to `t.Skip()`)
-then the remaining steps will also be skipped (but still logged)
+When steps are skipped (either as a result of being undefined or a call to
+`t.Skip()`) then the remaining steps will also be skipped (but still logged).
 
 + Create a `skipped_steps.spec` file:
 

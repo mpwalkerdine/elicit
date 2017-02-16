@@ -92,21 +92,32 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 
 	for _, spec := range ctx.specs {
 
-		for _, h := range ctx.beforeSpec {
-			h()
-		}
-
 		ctxT.Run(spec.path+"/"+spec.name, func(specT *testing.T) {
+
+			var hookErr error
+			for _, h := range ctx.beforeSpec {
+				if hookErr = h.run(); hookErr != nil {
+					spec.skipAllScenarios()
+					spec.result = panicked
+					fmt.Fprintf(os.Stderr, "panic during before hook: %s\n", hookErr)
+					break
+				}
+			}
+
 			spec.runTest(specT)
 
 			if !specT.Skipped() {
 				allSkipped = false
 			}
-		})
 
-		for _, h := range ctx.afterSpec {
-			h()
-		}
+			if hookErr == nil {
+				for _, h := range ctx.afterSpec {
+					if hookErr = h.run(); hookErr != nil {
+						break
+					}
+				}
+			}
+		})
 	}
 
 	ctx.log.writeToConsole()
@@ -205,4 +216,21 @@ func (ctx *Context) matchStepImpl(s *step) {
 		}
 		fmt.Fprint(os.Stderr, warning)
 	}
+}
+
+func (h Hook) run() error {
+	return func() (rcvrErr error) {
+		defer func() {
+			if rcvr := recover(); rcvr != nil {
+				if rerr, ok := rcvr.(error); ok {
+					rcvrErr = rerr
+				} else {
+					rcvrErr = fmt.Errorf("%s", rcvr)
+				}
+			}
+		}()
+
+		h()
+		return
+	}()
 }
