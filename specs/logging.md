@@ -1,7 +1,8 @@
 # Logging
 
 There are two ways of logging output:
-1. Using the testing.T log API.
+
+1. Using the `testing.T` log API.
 2. Writing to `os.Stdout` e.g. with the `"fmt"` package.
 
 The first behaves as expected, with output written beneath the subtest result in

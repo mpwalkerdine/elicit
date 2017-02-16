@@ -47,7 +47,7 @@ func (p *specParser) loadFromFile() {
 	}
 
 	// Strip out non-step items so they're not parsed
-	specText = regexp.MustCompile(`(?m)^[-*] `).ReplaceAllLiteral(specText, []byte{})
+	specText = regexp.MustCompile(`(?m)^([-*]|\d\.) `).ReplaceAllLiteral(specText, []byte{})
 
 	// Parse
 	bf.Markdown(specText, p, bf.EXTENSION_TABLES|bf.EXTENSION_FENCED_CODE)
