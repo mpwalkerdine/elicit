@@ -84,7 +84,7 @@ steps[`(.*)`] = func(t *testing.T, s string) {}
 steps[`(something)`] = func(t *testing.T, s string) {}
 ```
 
-+ Create a `ambiguous_steps.md` file:
++ Create an `ambiguous_steps.md` file:
 
 ```markdown
 # Ambiguous Steps

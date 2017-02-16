@@ -33,7 +33,7 @@ func init() {
 			createFile(t, "specs_test.go", testfile)
 		}
 
-	steps["Create a `(.*)` file:"] =
+	steps["Create an? `(.*)` file:"] =
 		func(t *testing.T, filename string, text elicit.TextBlock) {
 			createFile(t, filename, text.Content)
 		}
