@@ -20,7 +20,9 @@ type log struct {
 func (l *log) writeToConsole() {
 	l.useColour = true
 	l.fillBuffer(false)
-	fmt.Println(l.buffer.String())
+	if l.buffer.Len() > 0 {
+		fmt.Println(l.buffer.String())
+	}
 }
 
 func (l *log) writeToFile() {
