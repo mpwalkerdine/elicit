@@ -12,7 +12,15 @@ import (
 	"testing"
 )
 
-var tempdir string
+var startdir, tempdir string
+
+func init() {
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(fmt.Errorf("os.Getwd(): %s", err))
+	}
+	startdir = wd
+}
 
 func Test(t *testing.T) {
 	elicit.New().
@@ -108,6 +116,9 @@ func createTempDir() {
 func removeTempDir() {
 	if err := os.RemoveAll(tempdir); err != nil {
 		panic(fmt.Errorf("removing tempdir %q: %s", tempdir, err))
+	}
+	if err := os.Chdir(startdir); err != nil {
+		panic(fmt.Errorf("reverting wd to %q: %s", startdir, err))
 	}
 }
 
