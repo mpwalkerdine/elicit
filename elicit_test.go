@@ -39,22 +39,23 @@ var transforms = elicit.Transforms{}
 func init() {
 	steps["Create a temporary environment"] =
 		func(t *testing.T) {
-			createFile(t, "specs_test.go", testfile)
+			createFile(t, false, "specs_test.go", testfile)
 		}
 
-	steps["Create an? `(.*)` file:"] =
-		func(t *testing.T, filename string, text elicit.TextBlock) {
-			createFile(t, filename, text.Content)
+	steps["(Create an?|Replace the) `(.*)` file:"] =
+		func(t *testing.T, createorReplace, filename string, text elicit.TextBlock) {
+			replace := strings.HasPrefix(createorReplace, "Replace")
+			createFile(t, replace, filename, text.Content)
 		}
 
 	steps["Create (?:a step definition|step definitions|transform definitions):"] =
 		func(t *testing.T, text elicit.TextBlock) {
-			createFile(t, "steps_test.go", fmt.Sprintf(stepFileFmt, "", text.Content))
+			createFile(t, false, "steps_test.go", fmt.Sprintf(stepFileFmt, "", text.Content))
 		}
 
 	steps["Create (?:a step definition|step definitions) using (.+):"] =
 		func(t *testing.T, imports []string, text elicit.TextBlock) {
-			createFile(t, "steps_test.go", fmt.Sprintf(stepFileFmt, strings.Join(imports, "\n"), text.Content))
+			createFile(t, false, "steps_test.go", fmt.Sprintf(stepFileFmt, strings.Join(imports, "\n"), text.Content))
 		}
 
 	steps["Running `(go test.*)` will output:"] =
@@ -123,14 +124,14 @@ func removeTempDir() {
 	}
 }
 
-func createFile(t *testing.T, filename, contents string) {
-	if tempdir == "" {
+func createFile(t *testing.T, replace bool, filename, contents string) {
+	if tempdir == "" || tempdir == startdir {
 		t.Fatal("creating file: tempdir not set")
 	}
 
 	outpath := filepath.Join(tempdir, filename)
 
-	if _, err := os.Stat(outpath); os.IsNotExist(err) {
+	if _, err := os.Stat(outpath); os.IsNotExist(err) || replace {
 		ioutil.WriteFile(outpath, []byte(contents), 0777)
 	} else {
 		t.Fatal("creating file:", outpath, "already exists")

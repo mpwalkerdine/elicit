@@ -24,6 +24,33 @@ warning: No specifications found. Add a folder containing *.md files with Contex
 warning: No steps registered. Add some with Context.WithSteps().
 ```
 
+## Bad Spec Directory
+
++ Replace the `specs_test.go` file:
+
+```go
+package elicit_test
+
+import (
+    "testing"
+
+    "bitbucket.org/mmatt/elicit"
+)
+
+func Test(t *testing.T) {
+	elicit.New().
+		WithSpecsFolder("./specs").
+        WithSpecsFolder("specs_test.go")
+}
+```
+
++ Running `go test` will output the following lines:
+
+```
+warning: parsing spec folder "./specs": stat ./specs: no such file or directory
+warning: parsing spec folder "specs_test.go": path is not a directory
+```
+
 ## Invalid Step Implementations
 
 + Create step definitions:

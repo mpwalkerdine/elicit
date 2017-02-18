@@ -24,8 +24,16 @@ type Context struct {
 
 // WithSpecsFolder recursively adds the path to the discovery path of specs
 func (ctx *Context) WithSpecsFolder(path string) *Context {
-	p := specParser{context: ctx}
-	p.parseSpecFolder(path)
+
+	if i, err := os.Stat(path); os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "warning: parsing spec folder %q: %s\n", path, err)
+	} else if !i.IsDir() {
+		fmt.Fprintf(os.Stderr, "warning: parsing spec folder %q: path is not a directory\n", path)
+	} else {
+		p := specParser{context: ctx}
+		p.parseSpecFolder(path)
+	}
+
 	return ctx
 }
 
