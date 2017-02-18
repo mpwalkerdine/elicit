@@ -3,7 +3,7 @@ package elicit_test
 import (
 	"fmt"
 	"io/ioutil"
-	"mmatt/elicit"
+	"bitbucket.org/mmatt/elicit"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -160,7 +160,7 @@ const testfile = `
 package elicit_test
 
 import (
-    "mmatt/elicit"
+    "bitbucket.org/mmatt/elicit"
     "testing"
 )
 

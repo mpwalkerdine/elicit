@@ -84,7 +84,7 @@ package elicit_test
 
 import (
     "fmt"
-    "mmatt/elicit"
+    "bitbucket.org/mmatt/elicit"
     "testing"
 )
 
@@ -264,7 +264,7 @@ package elicit_test
 
 import (
     "fmt"
-    "mmatt/elicit"
+    "bitbucket.org/mmatt/elicit"
     "testing"
 )
 
@@ -389,7 +389,7 @@ package elicit_test
 
 import (
     "fmt"
-    "mmatt/elicit"
+    "bitbucket.org/mmatt/elicit"
     "testing"
 )
 
@@ -572,7 +572,7 @@ package elicit_test
 
 import (
     "fmt"
-    "mmatt/elicit"
+    "bitbucket.org/mmatt/elicit"
     "testing"
 )
 
@@ -730,7 +730,7 @@ package elicit_test
 
 import (
     "fmt"
-    "mmatt/elicit"
+    "bitbucket.org/mmatt/elicit"
     "testing"
 )
 
@@ -913,7 +913,7 @@ package elicit_test
 
 import (
     "fmt"
-    "mmatt/elicit"
+    "bitbucket.org/mmatt/elicit"
     "testing"
 )
 
@@ -1089,7 +1089,7 @@ package elicit_test
 
 import (
     "fmt"
-    "mmatt/elicit"
+    "bitbucket.org/mmatt/elicit"
     "testing"
 )
 
