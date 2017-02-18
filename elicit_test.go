@@ -3,13 +3,14 @@ package elicit_test
 import (
 	"fmt"
 	"io/ioutil"
-	"bitbucket.org/mmatt/elicit"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
+
+	"bitbucket.org/mmatt/elicit"
 )
 
 var startdir, tempdir string

@@ -70,7 +70,7 @@ This example demonstrates output captured from `os.Stdout`.
 + Logged step
 ```
 
-+ Create a step definition using "fmt":
++ Create a step definition using `fmt`:
 
 ```go
 steps[`Logged step`] = func(t *testing.T) {

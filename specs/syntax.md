@@ -296,7 +296,7 @@ implementation
 ```
 ````
 
-+ Create a step definition using "bitbucket.org/mmatt/elicit", "strings":
++ Create a step definition using `bitbucket.org/mmatt/elicit`, `strings`:
 
 ```go
 steps[`This step takes a block of text:`] =
