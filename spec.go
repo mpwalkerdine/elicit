@@ -28,14 +28,7 @@ const (
 )
 
 func (r result) shouldLog() bool {
-	switch r {
-	case skipped, passed:
-		return false
-	case pending, failed, panicked:
-		return true
-	default:
-		panic(fmt.Errorf("unknown result: %d", r))
-	}
+	return r > skipped
 }
 
 func (r result) String() string {
