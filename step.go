@@ -2,6 +2,7 @@ package elicit
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"reflect"
@@ -37,7 +38,8 @@ func (s *step) createCall(fn reflect.Value, params []reflect.Value) func(*testin
 		defer func() {
 			if rcvr := recover(); rcvr != nil {
 				s.result = panicked
-				t.Error(rcvr)
+				fmt.Fprintf(os.Stderr, "panic during step %s/%s/%s/%s: %s\n", s.spec.path, s.spec.name, s.scenario.name, s.text, rcvr)
+				t.Fail()
 			} else if t.Failed() {
 				s.result = failed
 			} else if t.Skipped() {

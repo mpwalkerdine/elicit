@@ -150,6 +150,9 @@ steps[`Passing step`] = func(t *testing.T) {
 + Running `go test` will output:
 
 ```
+panic during step logging_test.md/Logging Test/Panic/Panicked step: Panicked output
+
+
 Logging Test
 ============
 Passed: 1
@@ -183,7 +186,6 @@ Panicked
         --- FAIL: Test/logging_test.md/Logging_Test/Failed (0.00s)
         	steps_test.go:16: Failed test output
         --- FAIL: Test/logging_test.md/Logging_Test/Panic (0.00s)
-        	step.go:40: Panicked output
 ```
 
 + Running `go test -v` will output:
@@ -262,7 +264,6 @@ Passed
         --- FAIL: Test/logging_test.md/Logging_Test/Failed (0.00s)
         	steps_test.go:16: Failed test output
         --- FAIL: Test/logging_test.md/Logging_Test/Panic (0.00s)
-        	step.go:40: Panicked output
         --- PASS: Test/logging_test.md/Logging_Test/Pass (0.00s)
         	steps_test.go:24: Passing test output
     --- PASS: Test/logging_test.md/Passing_Spec (0.00s)
@@ -277,6 +278,9 @@ Passed
 + Running `go test -elicit.report ./report.md` will output:
 
 ```
+panic during step logging_test.md/Logging Test/Panic/Panicked step: Panicked output
+
+
 Logging Test
 ============
 Passed: 1
@@ -310,7 +314,6 @@ Panicked
         --- FAIL: Test/logging_test.md/Logging_Test/Failed (0.00s)
         	steps_test.go:16: Failed test output
         --- FAIL: Test/logging_test.md/Logging_Test/Panic (0.00s)
-        	step.go:40: Panicked output
 ```
 
 + `./report.md` will contain:

@@ -163,7 +163,8 @@ Hook:     after scenario 4
 Hook:     before scenario 5
 === RUN   Test/hooks_example.md/Hooks_Example/Panicking_Scenario
 
-Hook:         before step 1 - after 1
+Hook:         before step 1 - panic during step hooks_example.md/Hooks Example/Panicking Scenario/Panicking step: panicking step
+after 1
 Hook:     after scenario 5
 
 Hook: after spec 1
@@ -245,7 +246,6 @@ Passed
         --- FAIL: Test/hooks_example.md/Hooks_Example/Failing_Scenario (0.00s)
         	steps_test.go:20: failing step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Panicking_Scenario (0.00s)
-        	step.go:40: panicking step
     --- PASS: Test/passing_spec.md/A_Passing_Spec (0.00s)
         --- PASS: Test/passing_spec.md/A_Passing_Spec/Another_Passing_Scenario (0.00s)
         	steps_test.go:12: Another step
@@ -469,7 +469,8 @@ Hook:     after scenario 4
 Hook:     before scenario 5
 === RUN   Test/hooks_example.md/Hooks_Example/Panicking_Scenario
 
-Hook:         before step 1 - after 1
+Hook:         before step 1 - panic during step hooks_example.md/Hooks Example/Panicking Scenario/Panicking step: panicking step
+after 1
 Hook:     after scenario 5
 
 Hook: after spec 1
@@ -553,7 +554,6 @@ Passed
         --- FAIL: Test/hooks_example.md/Hooks_Example/Failing_Scenario (0.00s)
         	steps_test.go:20: failing step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Panicking_Scenario (0.00s)
-        	step.go:40: panicking step
     --- FAIL: Test/passing_spec.md/A_Passing_Spec (0.00s)
         --- PASS: Test/passing_spec.md/A_Passing_Spec/Another_Passing_Scenario (0.00s)
         	steps_test.go:12: Another step
@@ -814,7 +814,8 @@ panic during after scenario hook: panic after scenario 4
 Hook:     before scenario 5
 === RUN   Test/hooks_example.md/Hooks_Example/Panicking_Scenario
 
-Hook:         before step 1 - after 1
+Hook:         before step 1 - panic during step hooks_example.md/Hooks Example/Panicking Scenario/Panicking step: panicking step
+after 1
 Hook:     after scenario 5
 panic during after scenario hook: panic after scenario 5
 
@@ -894,7 +895,6 @@ Panicked
         --- FAIL: Test/hooks_example.md/Hooks_Example/Failing_Scenario (0.00s)
         	steps_test.go:20: failing step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Panicking_Scenario (0.00s)
-        	step.go:40: panicking step
     --- FAIL: Test/passing_spec.md/A_Passing_Spec (0.00s)
         --- FAIL: Test/passing_spec.md/A_Passing_Spec/Another_Passing_Scenario (0.00s)
         	steps_test.go:12: Another step
@@ -1172,7 +1172,8 @@ Hook:     after scenario 4
 Hook:     before scenario 5
 === RUN   Test/hooks_example.md/Hooks_Example/Panicking_Scenario
 
-Hook:         before step 1 - after 1 - panic during after step hook: panic after step 1
+Hook:         before step 1 - panic during step hooks_example.md/Hooks Example/Panicking Scenario/Panicking step: panicking step
+after 1 - panic during after step hook: panic after step 1
 
 Hook:     after scenario 5
 
@@ -1251,7 +1252,6 @@ Panicked
         --- FAIL: Test/hooks_example.md/Hooks_Example/Failing_Scenario (0.00s)
         	steps_test.go:20: failing step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Panicking_Scenario (0.00s)
-        	step.go:40: panicking step
     --- FAIL: Test/passing_spec.md/A_Passing_Spec (0.00s)
         --- FAIL: Test/passing_spec.md/A_Passing_Spec/Another_Passing_Scenario (0.00s)
         	steps_test.go:12: Another step
