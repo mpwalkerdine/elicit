@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"bitbucket.org/mmatt/elicit"
+	"github.com/mpwalkerdine/elicit"
 )
 
 var startdir, tempdir string
@@ -162,7 +162,7 @@ const testfile = `
 package elicit_test
 
 import (
-    "bitbucket.org/mmatt/elicit"
+    "github.com/mpwalkerdine/elicit"
     "testing"
 )
 

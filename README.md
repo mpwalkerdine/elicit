@@ -38,7 +38,7 @@ Features and aspirations:
     package mypackage
 
     import (
-        "bitbucket.org/mmatt/elicit"
+        "github.com/mpwalkerdine/elicit"
         "testing"
     )
 

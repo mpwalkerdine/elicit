@@ -34,7 +34,7 @@ package elicit_test
 import (
     "testing"
 
-    "bitbucket.org/mmatt/elicit"
+    "github.com/mpwalkerdine/elicit"
 )
 
 func Test(t *testing.T) {

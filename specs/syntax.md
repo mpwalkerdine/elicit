@@ -11,7 +11,7 @@ For example, the scenarios below make use of the file created below.
 package elicit_test
 
 import (
-    "bitbucket.org/mmatt/elicit"
+    "github.com/mpwalkerdine/elicit"
     "testing"
 )
 
@@ -223,7 +223,7 @@ Any tables in the footer are scoped to the specification.
 
 ```
 
-+ Create step definitions using "bitbucket.org/mmatt/elicit":
++ Create step definitions using "github.com/mpwalkerdine/elicit":
 
 ```go
 steps[`Step with table`] =
@@ -296,7 +296,7 @@ implementation
 ```
 ````
 
-+ Create a step definition using `bitbucket.org/mmatt/elicit`, `strings`:
++ Create a step definition using `github.com/mpwalkerdine/elicit`, `strings`:
 
 ```go
 steps[`This step takes a block of text:`] =
