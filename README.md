@@ -70,7 +70,6 @@ framework itself.
   Register functions to run at particular points in the test cycle.
 
 
-## References
 
 [Specification by Example]:
 https://www.manning.com/books/specification-by-example
