@@ -1,3 +1,5 @@
+[![CircleCI](https://img.shields.io/circleci/project/github/mpwalkerdine/elicit.svg)]()
+
 # Elicit
 
 Elicit is a [Specification by Example] framework for [Go] inspired by similar
