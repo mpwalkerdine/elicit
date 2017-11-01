@@ -1,4 +1,4 @@
-[![CircleCI](https://img.shields.io/circleci/project/github/mpwalkerdine/elicit.svg)]()
+[![CircleCI](https://img.shields.io/circleci/project/github/mpwalkerdine/elicit.svg)](https://circleci.com/gh/mpwalkerdine/elicit)
 
 # Elicit
 
