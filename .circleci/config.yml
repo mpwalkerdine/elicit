@@ -1,0 +1,21 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.9
+    
+    working_directory: /go/src/github.com/mpwalkerdine/elicit
+    
+    steps:
+      - checkout
+      - run: mkdir -p test-results/go
+      - run: go get github.com/jstemmer/go-junit-report
+      - run: go get -t -d -v ./...
+      - run: go build -v
+      - run: go test -v -elicit.report test-results/go/elicit-report.md | tee test-results/go/go-test.txt 
+      - run: go-junit-report <test-results/go/go-test.txt > test-results/go/go-test-report.xml
+      - store_artifacts:
+          path: test-results
+          destination: test-results
+      - store_test_results:
+          path: test-results
