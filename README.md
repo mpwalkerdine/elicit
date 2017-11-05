@@ -1,6 +1,6 @@
-[![CircleCI](https://img.shields.io/circleci/project/github/mpwalkerdine/elicit.svg)](https://circleci.com/gh/mpwalkerdine/elicit)
 
-# Elicit
+
+# Elicit [![CircleCI](https://img.shields.io/circleci/project/github/mpwalkerdine/elicit.svg)](https://circleci.com/gh/mpwalkerdine/elicit)
 
 Elicit is a [Specification by Example] framework for [Go] inspired by similar
 frameworks such as [Cucumber] and [Gauge].
