@@ -64,7 +64,7 @@ func init() {
 
 			expected, actual := quoteOutput(text.Content), quoteOutput(output)
 			if !strings.Contains(actual, expected) {
-				t.Errorf("\n\nExpected:\n\n%s\n\nto contain:\n\n%s\n", actual, expected)
+				t.Errorf("\n\nExpected:\n\n%s\n\n to contain:\n\n%s\n", actual, expected)
 			}
 		}
 
@@ -80,7 +80,7 @@ func init() {
 			}
 
 			if len(missingLines) > 0 {
-				t.Errorf("\n\nExpected:\n\n%s\n\nto contain the lines:\n\n%s\n",
+				t.Errorf("\n\nExpected:\n\n%s\n\n to contain the lines:\n\n%s\n",
 					quoteOutput(output),
 					quoteOutput(strings.Join(missingLines, "\n")))
 			}
@@ -100,7 +100,7 @@ func init() {
 				actual := string(contents)
 				expected := strings.TrimSpace(text.Content)
 				if actual != expected {
-					t.Errorf("\n\nExpected:\n\n%s\n\nto equal:\n\n%s\n", quoteOutput(actual), quoteOutput(expected))
+					t.Errorf("\n\nExpected:\n\n%s\n\n to equal:\n\n%s\n", quoteOutput(actual), quoteOutput(expected))
 				}
 			}
 		}
