@@ -3,7 +3,7 @@
 Specs are markdown documents which are made executable through the use of
 "steps". They are then executed by a normal `go test` run.
 
-For example, the scenarios below make use of the file created below.
+For example, the scenarios below make use of the file created in the next step:
 
 + Create a `spec_test.go` file:
 
