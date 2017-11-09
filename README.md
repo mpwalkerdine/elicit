@@ -71,7 +71,9 @@ framework itself.
 - [Hooks](./specs/hooks.md):
   Register functions to run at particular points in the test cycle.
 
+## Dependencies
 
+[Blackfriday] is used for markdown parsing.
 
 [Specification by Example]:
 https://www.manning.com/books/specification-by-example
@@ -96,3 +98,6 @@ https://golang.org/pkg/testing/#hdr-Subtests_and_Sub_benchmarks
 
 [documentation]:
 https://blog.golang.org/godoc-documenting-go-code
+
+[Blackfriday]:
+github.com/russross/blackfriday
