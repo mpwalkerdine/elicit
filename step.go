@@ -22,6 +22,12 @@ type step struct {
 	log        bytes.Buffer
 }
 
+func (s *step) setImpl(impl func(*testing.T)) {
+	s.impl = impl
+	// We set this to skipped in case it never gets a chance to run
+	s.result = skipped
+}
+
 func (s *step) run(scenarioT *testing.T) {
 	defer s.restoreStdout(s.redirectStdout())
 

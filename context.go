@@ -12,12 +12,12 @@ type Context struct {
 	specs          []*spec
 	stepImpls      stepImpls
 	transforms     transformMap
-	beforeSpec     []Hook
-	afterSpec      []Hook
-	beforeScenario []Hook
-	afterScenario  []Hook
-	beforeStep     []Hook
-	afterStep      []Hook
+	beforeSpec     Hooks
+	afterSpec      Hooks
+	beforeScenario Hooks
+	afterScenario  Hooks
+	beforeStep     Hooks
+	afterStep      Hooks
 	unusedSteps    stepImpls
 	log            log
 }
@@ -101,13 +101,9 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 	for _, spec := range ctx.specs {
 
 		var hookErr error
-		for _, h := range ctx.beforeSpec {
-			if hookErr = h.run(); hookErr != nil {
-				spec.skipAllScenarios()
-				spec.result = panicked
-				fmt.Fprintf(os.Stderr, "panic during before spec hook: %s\n", hookErr)
-				break
-			}
+		if hookErr = ctx.beforeSpec.run("before spec"); hookErr != nil {
+			spec.skipAllScenarios()
+			spec.result = panicked
 		}
 
 		ctxT.Run(spec.path+"/"+spec.name, func(specT *testing.T) {
@@ -121,15 +117,10 @@ func (ctx *Context) RunTests(ctxT *testing.T) *Context {
 				allSkipped = false
 			}
 
-			if hookErr == nil {
-				for _, h := range ctx.afterSpec {
-					if hookErr = h.run(); hookErr != nil {
-						spec.result = panicked
-						fmt.Fprintf(os.Stderr, "panic during after spec hook: %s\n", hookErr)
-						specT.Fail()
-						break
-					}
-				}
+			if hookErr = ctx.afterSpec.run("after spec"); hookErr != nil {
+				spec.result = panicked
+				specT.Fail()
+
 			}
 		})
 	}
@@ -188,41 +179,23 @@ func (ctx *Context) resolveSteps() {
 	}
 }
 
+type stepImplCandidate struct {
+	impl *stepImpl
+	call func(t *testing.T)
+}
+
 func (ctx *Context) matchStepImpl(s *step) {
 	// unresolved parameters count as pending
 	if len(s.params) > 0 {
 		return
 	}
 
-	type candidate struct {
-		impl *stepImpl
-		call func(t *testing.T)
-	}
-	candidates := []candidate{}
-
-	for _, impl := range ctx.stepImpls {
-		fn := reflect.ValueOf(impl.fn)
-		params := impl.regex.FindStringSubmatch(s.text)
-
-		if convertedParams, ok := ctx.transforms.convertParams(s, fn, params); ok {
-			call := s.createCall(fn, convertedParams)
-			candidates = append(candidates, candidate{impl, call})
-		}
-	}
+	candidates := ctx.getStepImplCandidates(s)
 
 	if len(candidates) == 1 {
-		for _, c := range candidates {
-			for i, us := range ctx.unusedSteps {
-				if us == c.impl {
-					// remove from log of unused steps
-					ctx.unusedSteps = append(ctx.unusedSteps[:i], ctx.unusedSteps[i+1:]...)
-					break
-				}
-			}
-			s.impl = c.call
-			// We set this to skipped in case it never gets a chance to run
-			s.result = skipped
-		}
+		c := candidates[0]
+		ctx.recordStepImplAsUsed(c)
+		s.setImpl(c.call)
 	} else if len(candidates) > 1 {
 		warning := fmt.Sprintf(stepWarnAmbiguous, s.text)
 		for _, c := range candidates {
@@ -230,6 +203,42 @@ func (ctx *Context) matchStepImpl(s *step) {
 		}
 		fmt.Fprint(os.Stderr, warning)
 	}
+}
+
+func (ctx *Context) getStepImplCandidates(s *step) []stepImplCandidate {
+	candidates := []stepImplCandidate{}
+
+	for _, impl := range ctx.stepImpls {
+		fn := reflect.ValueOf(impl.fn)
+		params := impl.regex.FindStringSubmatch(s.text)
+
+		if convertedParams, ok := ctx.transforms.convertParams(s, fn, params); ok {
+			call := s.createCall(fn, convertedParams)
+			candidates = append(candidates, stepImplCandidate{impl, call})
+		}
+	}
+	return candidates
+}
+
+func (ctx *Context) recordStepImplAsUsed(c stepImplCandidate) {
+	for i, us := range ctx.unusedSteps {
+		if us == c.impl {
+			// remove from log of unused steps
+			ctx.unusedSteps = append(ctx.unusedSteps[:i], ctx.unusedSteps[i+1:]...)
+			break
+		}
+	}
+}
+
+func (hs Hooks) run(stage string) error {
+	var hookErr error
+	for _, h := range hs {
+		if hookErr = h.run(); hookErr != nil {
+			fmt.Fprintf(os.Stderr, "panic during %s hook: %s\n", stage, hookErr)
+			break
+		}
+	}
+	return hookErr
 }
 
 func (h Hook) run() error {

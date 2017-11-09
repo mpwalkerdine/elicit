@@ -42,31 +42,45 @@ func (l *log) writeToFile() {
 	}
 }
 
-func (l *log) fillBuffer(forceVerbose bool) {
-	l.buffer.Truncate(0)
-
+func (l *log) isVerbose(forceVerbose bool) bool {
 	verbose := forceVerbose
 	if v := flag.Lookup("test.v"); !forceVerbose && v != nil {
 		verbose = v.Value.String() == "true"
 	}
+	return verbose
+}
+
+func (l *log) fillBuffer(forceVerbose bool) {
+	l.buffer.Truncate(0)
+
+	verbose := l.isVerbose(forceVerbose)
 
 	for _, spec := range l.ctx.specs {
-		if !verbose && !spec.result.shouldLog() {
-			continue
-		}
-		l.writeSpecHeader(spec)
+		l.logSpec(spec, verbose)
+	}
+}
 
-		for _, scenario := range spec.scenarios {
-			if !verbose && !scenario.result.shouldLog() {
-				continue
-			}
-			l.writeScenarioHeader(scenario)
+func (l *log) logSpec(spec *spec, verbose bool) {
+	if !verbose && !spec.result.shouldLog() {
+		return
+	}
 
-			for _, step := range scenario.steps {
-				l.writeStepResult(step)
-			}
+	l.writeSpecHeader(spec)
 
-		}
+	for _, scenario := range spec.scenarios {
+		l.logScenario(scenario, verbose)
+	}
+}
+
+func (l *log) logScenario(scenario *scenario, verbose bool) {
+	if !verbose && !scenario.result.shouldLog() {
+		return
+	}
+
+	l.writeScenarioHeader(scenario)
+
+	for _, step := range scenario.steps {
+		l.writeStepResult(step)
 	}
 }
 
@@ -126,18 +140,23 @@ func (l *log) writeScenarioHeader(s *scenario) {
 }
 
 func (l *log) writeStepResult(s *step) {
-	var prefix, suffix string
+	text := l.getStepText(s)
+
+	fmt.Fprintf(&l.buffer, "    %s\n", text)
+
+	if s.log.Len() > 0 {
+		leftPad := "        "
+		stepLog := s.log.String()
+		stepLog = strings.TrimSuffix(stepLog, "\n")
+		lines := strings.Split(stepLog, "\n")
+		stepLog = leftPad + strings.Join(lines, "\n"+leftPad)
+		fmt.Fprintln(&l.buffer, stepLog)
+	}
+}
+
+func (l *log) getStepText(s *step) string {
+	var prefix string
 	text := s.text
-
-	textBlocks := len(s.textBlocks)
-	if textBlocks > 0 {
-		suffix += strings.Repeat(" ☰", textBlocks)
-	}
-
-	tables := len(s.tables)
-	if tables > 0 {
-		suffix += strings.Repeat(" ☷", tables)
-	}
 
 	switch s.result {
 	case pending:
@@ -156,16 +175,23 @@ func (l *log) writeStepResult(s *step) {
 		prefix = l.green("✓")
 	}
 
-	fmt.Fprintf(&l.buffer, "    %s %s%s\n", prefix, text, suffix)
+	suffix := l.getStepSuffix(s)
 
-	if s.log.Len() > 0 {
-		leftPad := "        "
-		stepLog := s.log.String()
-		stepLog = strings.TrimSuffix(stepLog, "\n")
-		lines := strings.Split(stepLog, "\n")
-		stepLog = leftPad + strings.Join(lines, "\n"+leftPad)
-		fmt.Fprintln(&l.buffer, stepLog)
+	return fmt.Sprintf("%s %s%s", prefix, text, suffix)
+}
+
+func (l *log) getStepSuffix(s *step) string {
+	var suffix string
+	textBlocks := len(s.textBlocks)
+	if textBlocks > 0 {
+		suffix += strings.Repeat(" ☰", textBlocks)
 	}
+
+	tables := len(s.tables)
+	if tables > 0 {
+		suffix += strings.Repeat(" ☷", tables)
+	}
+	return suffix
 }
 
 func (l *log) red(s string) string {

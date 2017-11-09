@@ -2,7 +2,6 @@ package elicit
 
 import (
 	"fmt"
-	"os"
 	"testing"
 )
 
@@ -52,12 +51,8 @@ func (s *spec) run(specT *testing.T) {
 	for _, scenario := range s.scenarios {
 
 		var hookErr error
-		for _, h := range s.context.beforeScenario {
-			if hookErr = h.run(); hookErr != nil {
-				scenario.result = panicked
-				fmt.Fprintf(os.Stderr, "panic during before scenario hook: %s\n", hookErr)
-				break
-			}
+		if hookErr = s.context.beforeScenario.run("before scenario"); hookErr != nil {
+			scenario.result = panicked
 		}
 
 		specT.Run(scenario.name, func(scenarioT *testing.T) {
@@ -65,24 +60,7 @@ func (s *spec) run(specT *testing.T) {
 				scenarioT.FailNow()
 			}
 
-			// Ensure the after scenario hooks are run regardless of the result
-			func() {
-				defer func() {
-					if hookErr == nil {
-
-						for _, h := range s.context.afterScenario {
-							if hookErr = h.run(); hookErr != nil {
-								scenario.result = panicked
-								fmt.Fprintf(os.Stderr, "panic during after scenario hook: %s\n", hookErr)
-								scenarioT.FailNow()
-								break
-							}
-						}
-					}
-				}()
-
-				scenario.run(scenarioT)
-			}()
+			s.runScenario(scenarioT, scenario)
 		})
 
 		if scenario.result > s.result {
@@ -96,6 +74,18 @@ func (s *spec) run(specT *testing.T) {
 	case skipped, pending:
 		specT.SkipNow()
 	}
+}
+
+func (s *spec) runScenario(scenarioT *testing.T, scenario *scenario) {
+	// Ensure the after scenario hooks are run regardless of the result
+	defer func() {
+		if hookErr := s.context.afterScenario.run("after scenario"); hookErr != nil {
+			scenario.result = panicked
+			scenarioT.FailNow()
+		}
+	}()
+
+	scenario.run(scenarioT)
 }
 
 func (s *spec) skipAllScenarios() {

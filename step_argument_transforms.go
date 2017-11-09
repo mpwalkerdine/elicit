@@ -110,12 +110,34 @@ func (tm transformMap) convertParams(s *step, fn reflect.Value, stringParams []s
 		return nil, false
 	}
 
-	paramCount, tableParamCount, textBlockParamCount := s.context.stepImpls.countStepImplParams(fn)
-
-	if len(stringParams) != paramCount || tableParamCount != len(s.tables) || textBlockParamCount != len(s.textBlocks) {
+	if !tm.paramCountMatch(s, fn, stringParams) {
 		return nil, false
 	}
 
+	var c []reflect.Value
+	ok := true
+	if c, ok = tm.convertStringParams(fn, stringParams); !ok {
+		return nil, false
+	}
+
+	for _, tbl := range s.tables {
+		c = append(c, reflect.ValueOf(makeTable(tbl)))
+	}
+
+	for _, tb := range s.textBlocks {
+		c = append(c, reflect.ValueOf(tb))
+	}
+
+	return c, true
+
+}
+
+func (tm transformMap) paramCountMatch(s *step, fn reflect.Value, stringParams []string) bool {
+	paramCount, tableParamCount, textBlockParamCount := s.context.stepImpls.countStepImplParams(fn)
+	return len(stringParams) == paramCount && tableParamCount == len(s.tables) && textBlockParamCount == len(s.textBlocks)
+}
+
+func (tm transformMap) convertStringParams(fn reflect.Value, stringParams []string) ([]reflect.Value, bool) {
 	c := make([]reflect.Value, len(stringParams))
 	for i, param := range stringParams {
 		if i == 0 {
@@ -132,15 +154,6 @@ func (tm transformMap) convertParams(s *step, fn reflect.Value, stringParams []s
 			}
 		}
 	}
-
-	for _, tbl := range s.tables {
-		c = append(c, reflect.ValueOf(makeTable(tbl)))
-	}
-
-	for _, tb := range s.textBlocks {
-		c = append(c, reflect.ValueOf(tb))
-	}
-
 	return c, true
 }
 

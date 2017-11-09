@@ -28,6 +28,9 @@ type Transforms map[string]interface{}
 // Hook is a function which can be registered to execute before/after each spec/scenario/step
 type Hook func()
 
+// Hooks is a slice of Hooks
+type Hooks []Hook
+
 // New creates a new elicit context which stores specs, steps and transforms
 func New() *Context {
 	ctx := &Context{
