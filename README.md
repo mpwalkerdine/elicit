@@ -100,4 +100,4 @@ https://golang.org/pkg/testing/#hdr-Subtests_and_Sub_benchmarks
 https://blog.golang.org/godoc-documenting-go-code
 
 [Blackfriday]:
-github.com/russross/blackfriday
+https://github.com/russross/blackfriday
