@@ -25,6 +25,8 @@ func Test(t *testing.T) {
 var steps = map[string]interface{}{}
 ```
 
++ Create a module file
+
 This specification describes (and tests!) the elicit markdown syntax.
 
 ## Spec Heading
@@ -323,10 +325,10 @@ Passed
 --- PASS: Test (0.00s)
     --- PASS: Test/text_block.md/Text_Blocks (0.00s)
         --- PASS: Test/text_block.md/Text_Blocks/Text_Block (0.00s)
-        	steps_test.go:15: 
-        		> Multiple lines
-        		> of text which
-        		> are passed into
-        		> the step
-        		> implementation
+            steps_test.go:15: 
+                > Multiple lines
+                > of text which
+                > are passed into
+                > the step
+                > implementation
 ```

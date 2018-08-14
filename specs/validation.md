@@ -38,8 +38,8 @@ import (
 )
 
 func Test(t *testing.T) {
-	elicit.New().
-		WithSpecsFolder("./specs").
+    elicit.New().
+        WithSpecsFolder("./specs").
         WithSpecsFolder("specs_test.go")
 }
 ```

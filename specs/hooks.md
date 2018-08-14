@@ -15,6 +15,8 @@ Hooks are isolated from the test context, but they can cause test
 failure by panicking. The precise behaviour depends on the type
 of hook as described below.
 
++ Create a module file
+
 + Create a `hooks_example.md` file:
 
 ```markdown
@@ -238,17 +240,17 @@ Passed
 --- FAIL: Test (0.00s)
     --- FAIL: Test/hooks_example.md/Hooks_Example (0.00s)
         --- PASS: Test/hooks_example.md/Hooks_Example/Passing_Scenario (0.00s)
-        	steps_test.go:12: First step
-        	steps_test.go:12: Second step
+            steps_test.go:12: First step
+            steps_test.go:12: Second step
         --- SKIP: Test/hooks_example.md/Hooks_Example/Pending_Scenario (0.00s)
         --- SKIP: Test/hooks_example.md/Hooks_Example/Skipping_Scenario (0.00s)
-        	steps_test.go:16: skipping step
+            steps_test.go:16: skipping step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Failing_Scenario (0.00s)
-        	steps_test.go:20: failing step
+            steps_test.go:20: failing step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Panicking_Scenario (0.00s)
     --- PASS: Test/passing_spec.md/A_Passing_Spec (0.00s)
         --- PASS: Test/passing_spec.md/A_Passing_Spec/Another_Passing_Scenario (0.00s)
-        	steps_test.go:12: Another step
+            steps_test.go:12: Another step
 ```
 
 ## Before Spec Hook Panic
@@ -546,17 +548,17 @@ Passed
 --- FAIL: Test (0.00s)
     --- FAIL: Test/hooks_example.md/Hooks_Example (0.00s)
         --- PASS: Test/hooks_example.md/Hooks_Example/Passing_Scenario (0.00s)
-        	steps_test.go:12: First step
-        	steps_test.go:12: Second step
+            steps_test.go:12: First step
+            steps_test.go:12: Second step
         --- SKIP: Test/hooks_example.md/Hooks_Example/Pending_Scenario (0.00s)
         --- SKIP: Test/hooks_example.md/Hooks_Example/Skipping_Scenario (0.00s)
-        	steps_test.go:16: skipping step
+            steps_test.go:16: skipping step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Failing_Scenario (0.00s)
-        	steps_test.go:20: failing step
+            steps_test.go:20: failing step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Panicking_Scenario (0.00s)
     --- FAIL: Test/passing_spec.md/A_Passing_Spec (0.00s)
         --- PASS: Test/passing_spec.md/A_Passing_Spec/Another_Passing_Scenario (0.00s)
-        	steps_test.go:12: Another step
+            steps_test.go:12: Another step
 ```
 
 
@@ -887,17 +889,17 @@ Panicked
 --- FAIL: Test (0.00s)
     --- FAIL: Test/hooks_example.md/Hooks_Example (0.00s)
         --- FAIL: Test/hooks_example.md/Hooks_Example/Passing_Scenario (0.00s)
-        	steps_test.go:12: First step
-        	steps_test.go:12: Second step
+            steps_test.go:12: First step
+            steps_test.go:12: Second step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Pending_Scenario (0.00s)
         --- FAIL: Test/hooks_example.md/Hooks_Example/Skipping_Scenario (0.00s)
-        	steps_test.go:16: skipping step
+            steps_test.go:16: skipping step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Failing_Scenario (0.00s)
-        	steps_test.go:20: failing step
+            steps_test.go:20: failing step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Panicking_Scenario (0.00s)
     --- FAIL: Test/passing_spec.md/A_Passing_Spec (0.00s)
         --- FAIL: Test/passing_spec.md/A_Passing_Spec/Another_Passing_Scenario (0.00s)
-        	steps_test.go:12: Another step
+            steps_test.go:12: Another step
 ```
 
 
@@ -1245,14 +1247,14 @@ Panicked
 --- FAIL: Test (0.00s)
     --- FAIL: Test/hooks_example.md/Hooks_Example (0.00s)
         --- FAIL: Test/hooks_example.md/Hooks_Example/Passing_Scenario (0.00s)
-        	steps_test.go:12: First step
+            steps_test.go:12: First step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Pending_Scenario (0.00s)
         --- FAIL: Test/hooks_example.md/Hooks_Example/Skipping_Scenario (0.00s)
-        	steps_test.go:16: skipping step
+            steps_test.go:16: skipping step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Failing_Scenario (0.00s)
-        	steps_test.go:20: failing step
+            steps_test.go:20: failing step
         --- FAIL: Test/hooks_example.md/Hooks_Example/Panicking_Scenario (0.00s)
     --- FAIL: Test/passing_spec.md/A_Passing_Spec (0.00s)
         --- FAIL: Test/passing_spec.md/A_Passing_Spec/Another_Passing_Scenario (0.00s)
-        	steps_test.go:12: Another step
+            steps_test.go:12: Another step
 ```

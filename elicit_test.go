@@ -40,6 +40,12 @@ func init() {
 	steps["Create a temporary environment"] =
 		func(t *testing.T) {
 			createFile(t, false, "specs_test.go", testfile)
+			createFile(t, false, "go.mod", fmt.Sprintf(modfile, startdir))
+		}
+
+	steps["Create a module file"] =
+		func(t *testing.T) {
+			createFile(t, false, "go.mod", fmt.Sprintf(modfile, startdir))
 		}
 
 	steps["(Create an?|Replace the) `(.*)` file:"] =
@@ -157,6 +163,14 @@ func quoteOutput(s string) string {
 	s = "  | " + strings.Join(strings.Split(s, "\n"), "\n  | ")
 	return s
 }
+
+const modfile = `
+module github.com/mpwalkerdine/elicit/testmod
+
+require github.com/mpwalkerdine/elicit latest
+
+replace github.com/mpwalkerdine/elicit latest => %s
+`
 
 const testfile = `
 package elicit_test
