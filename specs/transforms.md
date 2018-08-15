@@ -66,7 +66,7 @@ Passed
 --- PASS: Test (0.00s)
     --- PASS: Test/simple_types.md/Simple_Type_Transforms (0.00s)
         --- PASS: Test/simple_types.md/Simple_Type_Transforms/Renamed_string (0.00s)
-            simple_test.go:12: param
+        	simple_test.go:12: param
 ```
 
 ## Slices
@@ -179,7 +179,7 @@ Passed
 --- PASS: Test (0.00s)
     --- PASS: Test/simple_types.md/Struct_Transforms (0.00s)
         --- PASS: Test/simple_types.md/Struct_Transforms/A_Person (0.00s)
-            struct_test.go:27: 
-                Name: Bob
-                DOB: 1987-1-1
+        	struct_test.go:27: 
+        		Name: Bob
+        		DOB: 1987-1-1
 ```

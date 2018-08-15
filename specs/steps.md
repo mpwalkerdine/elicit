@@ -117,15 +117,15 @@ Failed
 --- FAIL: Test (0.00s)
     --- FAIL: Test/step_execution.md/Step_Execution (0.00s)
         --- PASS: Test/step_execution.md/Step_Execution/No_Parameters (0.00s)
-            steps_test.go:10: simple step
+        	steps_test.go:10: simple step
         --- PASS: Test/step_execution.md/Step_Execution/String_parameters (0.00s)
-            steps_test.go:15: param: hello
-            steps_test.go:15: param: world
+        	steps_test.go:15: param: hello
+        	steps_test.go:15: param: world
         --- PASS: Test/step_execution.md/Step_Execution/Int_parameters (0.00s)
-            steps_test.go:20: 42
-            steps_test.go:20: -1
+        	steps_test.go:20: 42
+        	steps_test.go:20: -1
         --- FAIL: Test/step_execution.md/Step_Execution/Multiple_Parameters (0.00s)
-            steps_test.go:27: expected 0 + 1 = 0, got 1
+        	steps_test.go:27: expected 0 + 1 = 0, got 1
 ```
 
 
@@ -251,5 +251,5 @@ Skipped
     --- SKIP: Test/skipped_steps.md/Skipping_Steps (0.00s)
         --- SKIP: Test/skipped_steps.md/Skipping_Steps/Undefined (0.00s)
         --- SKIP: Test/skipped_steps.md/Skipping_Steps/Skipped (0.00s)
-            steps_test.go:17: skipping...
+        	steps_test.go:17: skipping...
 ```

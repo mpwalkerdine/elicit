@@ -55,7 +55,7 @@ Passed
 --- PASS: Test (0.00s)
     --- PASS: Test/logging_test.md/Logging_Test (0.00s)
         --- PASS: Test/logging_test.md/Logging_Test/Logging_Scenario (0.00s)
-            steps_test.go:11: Logged output
+        	steps_test.go:11: Logged output
 ```
 
 ## Captured Output
@@ -184,7 +184,7 @@ Panicked
 --- FAIL: Test (0.00s)
     --- FAIL: Test/logging_test.md/Logging_Test (0.00s)
         --- FAIL: Test/logging_test.md/Logging_Test/Failed (0.00s)
-            steps_test.go:16: Failed test output
+        	steps_test.go:16: Failed test output
         --- FAIL: Test/logging_test.md/Logging_Test/Panic (0.00s)
 ```
 
@@ -260,19 +260,19 @@ Passed
     --- FAIL: Test/logging_test.md/Logging_Test (0.00s)
         --- SKIP: Test/logging_test.md/Logging_Test/Undefined (0.00s)
         --- SKIP: Test/logging_test.md/Logging_Test/Skipped (0.00s)
-            steps_test.go:12: Skipped test output
+        	steps_test.go:12: Skipped test output
         --- FAIL: Test/logging_test.md/Logging_Test/Failed (0.00s)
-            steps_test.go:16: Failed test output
+        	steps_test.go:16: Failed test output
         --- FAIL: Test/logging_test.md/Logging_Test/Panic (0.00s)
         --- PASS: Test/logging_test.md/Logging_Test/Pass (0.00s)
-            steps_test.go:24: Passing test output
+        	steps_test.go:24: Passing test output
     --- PASS: Test/logging_test.md/Passing_Spec (0.00s)
         --- PASS: Test/logging_test.md/Passing_Spec/Passing_Scenario (0.00s)
-            steps_test.go:24: Passing test output
-            steps_test.go:24: Passing test output
+        	steps_test.go:24: Passing test output
+        	steps_test.go:24: Passing test output
         --- PASS: Test/logging_test.md/Passing_Spec/Another_Passing_Scenario (0.00s)
-            steps_test.go:24: Passing test output
-            steps_test.go:24: Passing test output
+        	steps_test.go:24: Passing test output
+        	steps_test.go:24: Passing test output
 ```
 
 + Running `go test -elicit.report ./report.md` will output:
@@ -312,7 +312,7 @@ Panicked
 --- FAIL: Test (0.00s)
     --- FAIL: Test/logging_test.md/Logging_Test (0.00s)
         --- FAIL: Test/logging_test.md/Logging_Test/Failed (0.00s)
-            steps_test.go:16: Failed test output
+        	steps_test.go:16: Failed test output
         --- FAIL: Test/logging_test.md/Logging_Test/Panic (0.00s)
 ```
 
