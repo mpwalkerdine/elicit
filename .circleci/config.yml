@@ -2,9 +2,9 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.11-rc
+      - image: circleci/golang:1.10
     
-    working_directory: ~/source/github.com/mpwalkerdine/elicit
+    working_directory: /go/src/github.com/mpwalkerdine/elicit
     
     steps:
       - checkout
